@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 namespace packet_utils {

@@ -13,7 +13,7 @@
  *******************************************************************************/
 
 #pragma once
-#include <array>
+#include <cstdint>
 
 
 enum node_id : uint8_t {

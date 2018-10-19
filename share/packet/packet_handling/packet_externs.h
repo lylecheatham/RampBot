@@ -14,6 +14,9 @@
 
 #pragma once
 #include "packet_defs.h"
+#include <vector>
+#include <cstddef>
+#include <memory>
 
 class Packet_Data;
 

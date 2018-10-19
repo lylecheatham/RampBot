@@ -14,10 +14,11 @@
 
 #pragma once
 
-#include "packet_defs.h"
-#include "packet_errors.h"
 #include <vector>
 #include <tuple>
+#include <memory>
+#include "packet_defs.h"
+#include "packet_errors.h"
 
 class Packet_Header {
 public:

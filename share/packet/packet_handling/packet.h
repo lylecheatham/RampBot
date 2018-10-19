@@ -15,6 +15,9 @@
 #pragma once
 
 #include <vector>
+#include <memory>
+#include <vector>
+#include <tuple>
 #include "packet_defs.h"
 #include "packet_header.h"
 #include "packet_data.h"
