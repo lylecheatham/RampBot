@@ -63,14 +63,14 @@ bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data) {
 
     if(!response.first) return false;
 
-    sent_list.push_back(
-        {
-            .serial_number = response.second->get_serial_number(),
-            .callback_void = nullptr,
-            .callback_data = nullptr,
-            .packet = std::move(response.second)
-        }
-    );
+    // TODO: Fix this
+
+//    send_entry to_back = {.serial_number = response.second->get_serial_number(),
+//                          .callback_void = nullptr,
+//                          .callback_data = nullptr,
+//                          .packet = std::move(response.second)};
+//
+//    sent_list.push_back(to_back);
 
     return true;
 }
