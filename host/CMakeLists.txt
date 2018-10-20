@@ -5,7 +5,7 @@ project(RampBotHost C CXX)
 
 # Find Boost
 find_package(Boost
-    1.67.0
+    1.62.0
     REQUIRED
 )
 
