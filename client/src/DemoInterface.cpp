@@ -3,8 +3,8 @@
  * Original Author: Eric Murphy-Zaremba
  * Creation Date: Oct 30 /2018
  *
- * This class is used for the purpose of demonstrating the robot 
- * functionality. 
+ * This class is used for the purpose of demonstrating the robot
+ * functionality.
  *
  * Functional points:
  * 		- (member) Run a command mapped to a received character
@@ -13,23 +13,35 @@
 
 #include "DemoInterface.hpp"
 
+int DemoInterface::servo_pos = 90;
 
-DemoInterface::DemoInterface() 
+DemoInterface::DemoInterface()
 {
+    pinMode(M_PWMA, OUTPUT);
+    pinMode(M_AIN1, OUTPUT);
+    pinMode(M_AIN2, OUTPUT);
+
+    pinMode(M_PWMB, OUTPUT);
+    pinMode(M_BIN1, OUTPUT);
+    pinMode(M_BIN2, OUTPUT);
+
+    pinMode(M_STDBY, OUTPUT);
+
+    digitalWrite(M_STDBY, 1);
 	stop();
-		
+
 	// Set PWM to the desired frequency
 	digitalWrite(M_PWMA, SPEED);
-	digitalWrite(M_PWMB, SPEED);	
+	digitalWrite(M_PWMB, SPEED);
 }
 
 bool DemoInterface::run_command(int8 key)
 {
 	if(key > 'z' || key < 'a')
 		return false;
-	
-	(*commands[control_keys[key-'a']])();	
-	
+
+	(*commands[control_keys[key-'a']])();
+
 	//Timer
 	stop_timer.begin(stop, delay);
 
@@ -85,7 +97,6 @@ void DemoInterface::stop()
 	digitalWrite(M_AIN2, 0);
 	digitalWrite(M_BIN1, 0);
 	digitalWrite(M_BIN2, 0);
-
 }
 
 void DemoInterface::turn_left()
@@ -98,7 +109,7 @@ void DemoInterface::turn_left()
 	digitalWrite(M_AIN1, 1);
 	digitalWrite(M_AIN2, 0);
 	digitalWrite(M_BIN1, 1);
-	digitalWrite(M_BIN2, 0);	
+	digitalWrite(M_BIN2, 0);
 }
 
 void DemoInterface::turn_right()
@@ -115,10 +126,18 @@ void DemoInterface::turn_right()
 }
 
 void DemoInterface::servo_left()
-{}
+{
+    servo_pos -= 2;
+
+    if(servo_pos < 0) servo_pos = 0;
+}
 
 void DemoInterface::servo_right()
-{}
+{
+    servo_pos += 2;
+
+    if(servo_pos > 180) servo_pos = 180;
+}
 
 int8 DemoInterface::get_char()
 {

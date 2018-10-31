@@ -3,8 +3,8 @@
  * Original Author: Eric Murphy-Zaremba
  * Creation Date: Oct 30 /2018
  *
- * This class is used for the purpose of demonstrating the robot 
- * functionality. 
+ * This class is used for the purpose of demonstrating the robot
+ * functionality.
  *
  * Functional points:
  * 		- (member) Run a command mapped to a received character
@@ -19,7 +19,7 @@
 #include "IntervalTimer.h"
 
 #define DEBUG_PRINT
-#define SPEED 100
+#define SPEED 1
 #define NUM_CMD 8
 
 enum Command {
@@ -41,7 +41,7 @@ class DemoInterface
 		const uint32 delay = 500000;
 
 		// Key mapping
-		Command control_keys[26] = 
+		Command control_keys[26] =
 		{
 			LEFT, 		//a
 			INV, 		//b
@@ -69,16 +69,16 @@ class DemoInterface
 			INV, 		//x
 			INV, 		//y
 			INV  		//z
-	
+
 		};
-	
+
 		// Commands
 		FunctionPointer commands[NUM_CMD] =
 		{
 			&error,
 			&move_forward,
 			&move_backward,
-			&turn_left, 
+			&turn_left,
 			&turn_right,
 			&servo_left,
 			&servo_right
@@ -91,8 +91,9 @@ class DemoInterface
 		bool run_command(int8 key);
 
 		static int8 get_char();
-	
+
 	private:
+        static int servo_pos;
 		static void error();
 		static void move_forward();
 		static void move_backward();

@@ -29,7 +29,7 @@ void setup(){
     if(result.first == p_err_none){
         Serial.write(result.second.data(), result.second.size());
     }*/
-		
+
 	demo = new DemoInterface();
 	Serial.println("Starting...");
 }
