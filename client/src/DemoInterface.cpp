@@ -13,6 +13,7 @@
 
 #include "DemoInterface.hpp"
 
+
 DemoInterface::DemoInterface() 
 {
 	stop();
@@ -28,6 +29,10 @@ bool DemoInterface::run_command(int8 key)
 		return false;
 	
 	(*commands[control_keys[key-'a']])();	
+	
+	//Timer
+	stop_timer.begin(stop, delay);
+
 	return true;
 }
 
@@ -52,7 +57,6 @@ void DemoInterface::move_forward()
 	// CW
 	digitalWrite(M_BIN1, 1);
 	digitalWrite(M_BIN2, 0);
-
 }
 
 void DemoInterface::move_backward()
@@ -80,7 +84,8 @@ void DemoInterface::stop()
 	digitalWrite(M_AIN1, 0);
 	digitalWrite(M_AIN2, 0);
 	digitalWrite(M_BIN1, 0);
-	digitalWrite(M_BIN2, 0);	
+	digitalWrite(M_BIN2, 0);
+
 }
 
 void DemoInterface::turn_left()

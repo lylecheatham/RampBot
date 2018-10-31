@@ -16,6 +16,7 @@
 
 #include "Arduino.h"
 #include "constants.h"
+#include "IntervalTimer.h"
 
 #define DEBUG_PRINT
 #define SPEED 100
@@ -27,7 +28,6 @@ enum Command {
 	BWD,		// Backward
 	LEFT,		// Left
 	RIGHT,		// Right
-	STOP,		// Stop
 	SRV_LFT,	// Servo left (ccw)
 	SRV_RGT		// Servo right (cw)
 };
@@ -37,6 +37,9 @@ enum Command {
 class DemoInterface
 {
 	private:
+		IntervalTimer stop_timer;
+		const uint32 delay = 500000;
+
 		// Key mapping
 		Command control_keys[26] = 
 		{
@@ -63,7 +66,7 @@ class DemoInterface
 			INV, 		//u
 			INV, 		//v
 			FWD, 		//w
-			STOP, 		//x
+			INV, 		//x
 			INV, 		//y
 			INV  		//z
 	
@@ -77,7 +80,6 @@ class DemoInterface
 			&move_backward,
 			&turn_left, 
 			&turn_right,
-			&stop,
 			&servo_left,
 			&servo_right
 		};
@@ -96,9 +98,10 @@ class DemoInterface
 		static void move_backward();
 		static void turn_left();
 		static void turn_right();
-		static void stop();
 		static void servo_left();
 		static void servo_right();
+		static void stop();
+		
 };
 
 
