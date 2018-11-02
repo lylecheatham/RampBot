@@ -34,8 +34,16 @@ Motor::Motor(MotorNum m, bool PID_enable)
 	previous_speed = 0;
 
 
-    InterruptDisable d();
-    interrupt_list.insert(this);
+    {
+        InterruptDisable d();
+        interrupt_list.insert(this);
+    }
+
+    for(auto motor : interrupt_list){
+        char buf[100];
+        snprintf(buf, 100, "Motor: %p", motor);
+        Serial.println(buf);
+    }
 }
 
 /* Function: ~Motor()
