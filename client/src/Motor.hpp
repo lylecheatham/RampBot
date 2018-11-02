@@ -53,9 +53,8 @@ class Motor
 	float   previous_error;
 
   private:
-    void PID_control();		
+    void PID_control();
 	void update_pwm();
-
 };
 
 #endif

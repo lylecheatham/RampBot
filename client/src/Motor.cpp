@@ -40,8 +40,6 @@ Motor::Motor(MotorNum m, bool PID_enable)
     }
 
     for(auto motor : interrupt_list){
-        char buf[100];
-        snprintf(buf, 100, "Motor: %p", motor);
         Serial.println(buf);
     }
 }
@@ -134,7 +132,6 @@ void Motor::update_pwm()
  */
 void Motor::PID_control()
 {
-	Serial.println("In pid control ---------------------------------------");
 	float current_speed = (get_count() - previous_encoder_value)*freq;
 
 	// Add error
@@ -167,6 +164,10 @@ void Motor::PID_control()
  *	 None
  */
 void Motor::control_interrupt(){
+    static bool LED_state = false;
+    digitalWrite(13, LED_state);
+    LED_state = !LED_state;
+
     for (Motor* motor : interrupt_list){
         motor->PID_control();
     }

@@ -36,7 +36,7 @@ void setup(){
         Serial.write(result.second.data(), result.second.size());
     }*/
 
-	// Startup the demo	
+	// Startup the demo
 	demo = new DemoInterface();
 	Serial.println("Starting...");
 
@@ -59,7 +59,7 @@ void setup(){
     snprintf(print_buf, 120, "Gyro Range Success: %d", status);
     Serial.println(print_buf);
 
-    IMU.enableFifo(true, true, true, true);	
+    IMU.enableFifo(true, true, true, true);
 
     // Loop goes here
     while(1){

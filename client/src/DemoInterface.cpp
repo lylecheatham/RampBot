@@ -15,12 +15,14 @@
 
 int DemoInterface::servo_pos = 90;
 
-Motor* DemoInterface::mA = new Motor(MotorA, true);
-Motor* DemoInterface::mB = new Motor(MotorB, true);
+Motor* DemoInterface::mA = nullptr;
+Motor* DemoInterface::mB = nullptr;
 
 
 DemoInterface::DemoInterface()
 {
+    mA = new Motor(MotorA, true);
+    mB = new Motor(MotorB, true);
 
     digitalWrite(M_STDBY, 1);
 	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
