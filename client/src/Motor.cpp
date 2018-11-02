@@ -4,9 +4,8 @@
 
 std::list<Motor*> Motor::interrupt_list;
 
-
 /* Function: Motor()
- * 		constructor - setup the pins and encoder 
+ * 		constructor - setup the pins and encoder
  * 	Inputs:
  * 		MotorNum   - enum to indicate motor A or B
  * 		PID_enable - whether or not to us PID
@@ -41,7 +40,7 @@ Motor::Motor(MotorNum m, bool PID_enable)
 }
 
 /* Function: ~Motor()
- * 		standard destructor 
+ * 		standard destructor
  */
 Motor::~Motor()
 {
@@ -124,7 +123,7 @@ void Motor::update_pwm()
  * Inputs:
  * 	 None
  * Outputs:
- *	 None 	 
+ *	 None
  */
 void Motor::PID_control() 
 {
