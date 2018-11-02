@@ -28,6 +28,7 @@ Motor::Motor(MotorNum m)
     previous_encoder_value = enc->read();
 
 	// Begin the interval timer
+	//intTime.begin(PID_control, 5000);
 }
 
 Motor::~Motor()
