@@ -18,6 +18,7 @@
 #include "constants.h"
 #include "IntervalTimer.h"
 #include "Motor.hpp"
+#include "ultraSonicSwivel.h"
 
 #include <list>
 
@@ -42,6 +43,7 @@ class DemoInterface
 	private:
 		static Motor *mA;
 	    static Motor *mB;
+		static UltraSonicSwivel *servo;
 
 		IntervalTimer stop_timer;
 		const uint32 delay = 500000;

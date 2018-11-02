@@ -63,7 +63,7 @@ void setup(){
 
     // Loop goes here
     while(1){
-        if(status != -1){
+        if(false){//(status != -1){
             float accel_data[3][85];
             size_t accel_lengths[3];
             float gyro_data[3][85];

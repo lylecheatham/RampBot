@@ -12,21 +12,25 @@
  */
 
 #include "DemoInterface.hpp"
+#include "ultraSonicSwivel.h"
 
 int DemoInterface::servo_pos = 90;
 
 Motor* DemoInterface::mA = nullptr;
 Motor* DemoInterface::mB = nullptr;
 
+//Initialize swivel Variable
+UltraSonicSwivel* DemoInterface::servo = nullptr;
 
 DemoInterface::DemoInterface()
 {
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
+	servo = new UltraSonicSwivel(U_PING, S_PULSE, 1);
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
-	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
+	//Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
 	stop();
 }
 
@@ -34,6 +38,7 @@ DemoInterface::~DemoInterface()
 {
 	delete mA;
 	delete mB;
+	delete servo;
 }
 
 bool DemoInterface::run_command(int8 key)
@@ -118,17 +123,17 @@ void DemoInterface::turn_right()
 
 void DemoInterface::servo_left()
 {
-    servo_pos -= 2;
-
-    if(servo_pos < 0) servo_pos = 0;
+    int32_t current_pos = servo->get_position();
+	servo->set_position(current_pos - 1);
 }
 
 void DemoInterface::servo_right()
 {
-    servo_pos += 2;
-
-    if(servo_pos > 180) servo_pos = 180;
+    int32_t current_pos = servo->get_position();
+	servo->set_position(current_pos + 1);
 }
+
+
 
 int8 DemoInterface::get_char()
 {
