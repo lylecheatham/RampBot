@@ -26,6 +26,8 @@ int _write() { return -1; }
 DemoInterface* demo;
 
 void setup(){
+    pinMode(13, OUTPUT);
+    digitalWrite(13, HIGH);
 	/*
 	std::unique_ptr<Packet_Data> data(new Sensor_Packet());
 	Packet test (node_id::rasp_pi, packet_id::sensor_packet, std::move(data));
@@ -57,11 +59,6 @@ void setup(){
     Serial.println(print_buf);
 
     IMU.enableFifo(true, true, true, true);
-
-    PWMServo us_servo;
-    us_servo.attach(3);
-
-    NewPing sonar(23, 23, 200);
 
     // Loop goes here
     while(1){

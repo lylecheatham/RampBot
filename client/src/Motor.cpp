@@ -30,13 +30,10 @@ Motor::Motor(MotorNum m, bool PID_enable)
 	enc->write(0);
     previous_encoder_value = 0;
 	previous_speed = 0;
-	
 
-    {
-        InterruptDisable d();
-        interrupt_list.push_back(this);
-    }
 
+    InterruptDisable d();
+    interrupt_list.push_back(this);
 }
 
 /* Function: ~Motor()
@@ -90,7 +87,7 @@ int32_t Motor::get_count()
  * Inputs:
  * 	 None
  * Outputs:
- *	 None 	 
+ *	 None
  */
 void Motor::update_pwm()
 {
@@ -125,7 +122,7 @@ void Motor::update_pwm()
  * Outputs:
  *	 None
  */
-void Motor::PID_control() 
+void Motor::PID_control()
 {
 	float current_speed = (get_count() - previous_encoder_value)*freq;
 
@@ -156,7 +153,7 @@ void Motor::PID_control()
  * Inputs:
  * 	 None
  * Outputs:
- *	 None 	 
+ *	 None
  */
 void Motor::control_interrupt(){
     for (Motor* motor : interrupt_list){
