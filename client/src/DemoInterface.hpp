@@ -23,7 +23,7 @@
 #include <list>
 
 #define DEBUG_PRINT
-#define SPEED 1
+#define SPEED 2000
 #define NUM_CMD 8
 
 enum Command {

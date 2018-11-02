@@ -78,7 +78,7 @@ void DemoInterface::move_forward()
 	*/
 
 	// Temporarily just turn on working motor at low speed
-	mB->set_speed(50);
+	mA->set_speed(SPEED);
 }
 
 void DemoInterface::move_backward()
@@ -86,12 +86,14 @@ void DemoInterface::move_backward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving backward");
 #endif
-
+	/*
 	// CCW
 	mB->set_speed(-SPEED);	
 
 	// CW
 	mA->set_speed(SPEED);
+	*/
+	mA->set_speed(-SPEED);
 }
 
 void DemoInterface::stop()
