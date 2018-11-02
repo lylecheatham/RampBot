@@ -101,9 +101,11 @@ void Motor::PID_control() {
 	double i_out = i_term*error/freq;
 
 	//Derivative Value
-	double d_out = d_term*error*freq;
+	double d_out = d_term*(get_count() - previous_speed)*freq;
 
 	pwm_val = p_out + i_out + d_out;
+
+	previous_speed = get_count();
 }
 
 void Motor::control_interrupt(){
