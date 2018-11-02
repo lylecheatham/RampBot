@@ -49,10 +49,10 @@ class DemoInterface
 		// Key mapping
 		Command control_keys[26] =
 		{
-			LEFT, 		//a
+			INV,//LEFT, 		//a
 			INV, 		//b
 			INV,		//c
-			RIGHT, 		//d
+			INV,//RIGHT, 		//d
 			SRV_LFT, 	//e
 			INV, 		//f
 			INV, 		//g
@@ -67,11 +67,11 @@ class DemoInterface
 			INV, 		//p
 			INV, 		//q
 			SRV_RGT,	//r
-			BWD, 		//s
+			INV,//BWD, 		//s
 			INV, 		//t
 			INV, 		//u
 			INV, 		//v
-			FWD, 		//w
+			INV,//FWD, 		//w
 			INV, 		//x
 			INV, 		//y
 			INV  		//z
