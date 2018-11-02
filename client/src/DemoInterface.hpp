@@ -17,6 +17,9 @@
 #include "Arduino.h"
 #include "constants.h"
 #include "IntervalTimer.h"
+#include "Motor.hpp"
+
+#include <list>
 
 #define DEBUG_PRINT
 #define SPEED 1
@@ -37,6 +40,9 @@ enum Command {
 class DemoInterface
 {
 	private:
+		static Motor *mA;
+	    static Motor *mB;
+
 		IntervalTimer stop_timer;
 		const uint32 delay = 500000;
 
@@ -86,7 +92,7 @@ class DemoInterface
 
 	public:
 		DemoInterface();
-		~DemoInterface() {} ;
+		~DemoInterface();
 
 		bool run_command(int8 key);
 
@@ -94,6 +100,7 @@ class DemoInterface
 
 	private:
         static int servo_pos;
+
 		static void error();
 		static void move_forward();
 		static void move_backward();

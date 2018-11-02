@@ -15,24 +15,21 @@
 
 int DemoInterface::servo_pos = 90;
 
+Motor* DemoInterface::mA = new Motor(MotorA, true);
+Motor* DemoInterface::mB = new Motor(MotorB, true);
+
+
 DemoInterface::DemoInterface()
 {
-    pinMode(M_PWMA, OUTPUT);
-    pinMode(M_AIN1, OUTPUT);
-    pinMode(M_AIN2, OUTPUT);
-
-    pinMode(M_PWMB, OUTPUT);
-    pinMode(M_BIN1, OUTPUT);
-    pinMode(M_BIN2, OUTPUT);
-
-    pinMode(M_STDBY, OUTPUT);
 
     digitalWrite(M_STDBY, 1);
 	stop();
+}
 
-	// Set PWM to the desired frequency
-	digitalWrite(M_PWMA, SPEED);
-	digitalWrite(M_PWMB, SPEED);
+DemoInterface::~DemoInterface()
+{
+	delete mA;
+	delete mB;
 }
 
 bool DemoInterface::run_command(int8 key)
@@ -43,7 +40,7 @@ bool DemoInterface::run_command(int8 key)
 	(*commands[control_keys[key-'a']])();
 
 	//Timer
-	stop_timer.begin(stop, delay);
+	//stop_timer.begin(stop, delay);
 
 	return true;
 }
@@ -63,12 +60,10 @@ void DemoInterface::move_forward()
 #endif
 
 	// CCW
-	digitalWrite(M_AIN1, 0);
-	digitalWrite(M_AIN2, 1);
+	mA->set_speed(-SPEED);	
 
 	// CW
-	digitalWrite(M_BIN1, 1);
-	digitalWrite(M_BIN2, 0);
+	mB->set_speed(SPEED);
 }
 
 void DemoInterface::move_backward()
@@ -77,13 +72,11 @@ void DemoInterface::move_backward()
 	Serial.println("Moving backward");
 #endif
 
-	// CW
-	digitalWrite(M_AIN1, 1);
-	digitalWrite(M_AIN2, 0);
-
 	// CCW
-	digitalWrite(M_BIN1, 0);
-	digitalWrite(M_BIN2, 1);
+	mB->set_speed(-SPEED);	
+
+	// CW
+	mA->set_speed(SPEED);
 }
 
 void DemoInterface::stop()
@@ -93,10 +86,8 @@ void DemoInterface::stop()
 #endif
 
 	// Put both motors in STOP
-	digitalWrite(M_AIN1, 0);
-	digitalWrite(M_AIN2, 0);
-	digitalWrite(M_BIN1, 0);
-	digitalWrite(M_BIN2, 0);
+	mA->set_speed(0);
+	mB->set_speed(0);
 }
 
 void DemoInterface::turn_left()
@@ -106,10 +97,8 @@ void DemoInterface::turn_left()
 #endif
 
 	// CW
-	digitalWrite(M_AIN1, 1);
-	digitalWrite(M_AIN2, 0);
-	digitalWrite(M_BIN1, 1);
-	digitalWrite(M_BIN2, 0);
+	mA->set_speed(SPEED);
+	mB->set_speed(SPEED);
 }
 
 void DemoInterface::turn_right()
@@ -119,10 +108,8 @@ void DemoInterface::turn_right()
 #endif
 
 	// CCW
-	digitalWrite(M_AIN1, 0);
-	digitalWrite(M_AIN2, 1);
-	digitalWrite(M_BIN1, 0);
-	digitalWrite(M_BIN2, 1);
+	mA->set_speed(-SPEED);
+	mB->set_speed(-SPEED);
 }
 
 void DemoInterface::servo_left()
