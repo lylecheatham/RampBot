@@ -9,6 +9,8 @@ class Motor
 {
 	Encoder* enc;
 	IntervalTimer intTime;
+	int32_t pwm_pin, in1_pin, in2_pin;
+
 
 public:
     Motor(MotorNum m);
@@ -26,6 +28,9 @@ public:
     float d_term;
     float k_term;
     float i_term;
+
+	int32_t s_val;
+
 
     int32_t previous_encoder_value;
     int32_t previous_speed;
