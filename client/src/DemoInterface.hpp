@@ -28,6 +28,7 @@
 
 enum Command {
 	INV=0,		// Invalid
+	STOP,		// Stop
 	FWD,		// Forward
 	BWD,		// Backward
 	LEFT,		// Left
@@ -73,8 +74,8 @@ class DemoInterface
 			INV, 		//t
 			INV, 		//u
 			INV, 		//v
-			INV,//FWD, 		//w
-			INV, 		//x
+			FWD, 		//w
+			STOP,//INV, 		//x
 			INV, 		//y
 			INV  		//z
 
@@ -84,6 +85,7 @@ class DemoInterface
 		FunctionPointer commands[NUM_CMD] =
 		{
 			&error,
+			&stop,
 			&move_forward,
 			&move_backward,
 			&turn_left,

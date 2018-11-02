@@ -61,9 +61,18 @@ Motor::~Motor()
  */
 void Motor::set_speed(int32_t speed)
 {
+		/*
 	if(speed < max_speed && speed > -max_speed)
 	{
 		target_speed = speed*CPR_S; // translate to counts per second
+	}
+	*/
+
+	if(speed < 100 && speed > -100)
+	{
+		digitalWrite(in1_pin, 1);
+		digitalWrite(in2_pin, 0);
+		analogWrite(pwm_pin, speed);
 	}
 
 }
