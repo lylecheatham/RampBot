@@ -1,6 +1,10 @@
 #include "Motor.hpp"
 #include "InterruptDisable.h"
 
+
+std::list<Motor*> Motor::interrupt_list;
+
+
 /* Function: Motor()
  * 		constructor - setup the pins and encoder 
  * 	Inputs:
@@ -82,7 +86,40 @@ int32_t Motor::get_count()
 	return enc->read();
 }
 
-/* Function: <static> PID_control
+/* Function: update_pwm
+ * 		Updates the pwm pin with the latest value
+ * Inputs:
+ * 	 None
+ * Outputs:
+ *	 None 	 
+ */
+void Motor::update_pwm()
+{
+	if(pwm_val < 0)
+		pwm_val = 0;
+	else if(pwm_val > 255)
+		pwm_val = 255;
+
+	// Change direction
+	// CW
+	if(target_speed > 0 && direction)
+	{
+		digitalWrite(in1_pin, 1);
+		digitalWrite(in2_pin, 0);
+	}
+	// CCW
+	else if(target_speed < 0 && !direction)
+	{
+		digitalWrite(in1_pin, 0);
+		digitalWrite(in2_pin, 1);
+	}
+
+	// Update the pwm
+	analogWrite(pwm_pin, pwm_val);
+}
+
+
+/* Function: PID_control
  *		Executed consistently on a set interval
  * Inputs:
  * 	 None
@@ -111,6 +148,8 @@ void Motor::PID_control()
 	pwm_val *= PWM_CONV;
 
 	previous_speed = current_speed;
+
+	update_pwm();
 }
 
 /* Function: <static> control_interrupt

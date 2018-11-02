@@ -19,6 +19,7 @@ class Motor
 	static const int16_t max_speed = 600; //[rpm]	
 	std::unique_ptr<Encoder> enc;
 	int32_t pwm_pin, in1_pin, in2_pin;
+	int8_t  direction = 0; // zero for CW, one for CCW
 
 	// Member functions
   public:
@@ -48,11 +49,11 @@ class Motor
 
   private:
     void PID_control();
+	void update_pwm();
 
 	// Static functions to handle the control
     static void control_interrupt();
     static std::list<Motor*> interrupt_list;
-
 };
 
 #endif
