@@ -3,6 +3,8 @@
 
 
 std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
+int32_t  Motor::freq = 40;
+IntervalTimer Motor::intTime = IntervalTimer();
 
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
@@ -124,6 +126,7 @@ void Motor::update_pwm()
  */
 void Motor::PID_control()
 {
+	Serial.println("In pid control ---------------------------------------");
 	float current_speed = (get_count() - previous_encoder_value)*freq;
 
 	// Add error

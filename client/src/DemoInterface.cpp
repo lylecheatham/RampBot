@@ -23,6 +23,7 @@ DemoInterface::DemoInterface()
 {
 
     digitalWrite(M_STDBY, 1);
+	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
 	stop();
 }
 

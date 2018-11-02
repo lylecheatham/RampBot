@@ -12,16 +12,18 @@
 
 class Motor
 {
+  public:
 	// Static timer to handle the control
 	static IntervalTimer intTime;
+	static int32_t freq;
 
-	// Member variables
+  private:
 	static const int16_t max_speed = 600; //[rpm]
 	std::unique_ptr<Encoder> enc;
 	int32_t pwm_pin, in1_pin, in2_pin;
 	int8_t  direction = 0; // zero for CW, one for CCW
+	static std::set<Motor*> interrupt_list;	
 
-	// Member functions
   public:
     Motor(MotorNum m, bool PID_enable = true);
     ~Motor();
@@ -29,6 +31,10 @@ class Motor
     void    set_speed(int32_t speed);
     int32_t get_speed();
     int32_t get_count();
+
+	// Static function to handle the control
+    static void control_interrupt();
+
 
     float target_speed;
 
@@ -40,7 +46,6 @@ class Motor
     float i_term = 1;
 	float integration = 0;
 
-	int32_t freq;
     int32_t pwm_val;
 
     int32_t previous_encoder_value;
@@ -48,12 +53,9 @@ class Motor
 	float   previous_error;
 
   private:
-    void PID_control();
+    void PID_control();		
 	void update_pwm();
 
-	// Static functions to handle the control
-    static void control_interrupt();
-    static std::set<Motor*> interrupt_list;
 };
 
 #endif
