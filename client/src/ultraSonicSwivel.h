@@ -1,14 +1,18 @@
 #pragma once
 
-#include <Arduino.h>
 #include "constants.h"
+
+#include <Arduino.h>
+#include <cstdint>
+#include <NewPing.h>
+#include <PWMServo.h>
 
 
 class UltraSonicSwivel
 {
 public:
-    UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin);
-    ~UltraSonicSwivel() {} ;
+    UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t millis_per_deg);
+    ~UltraSonicSwivel();
 
     int32_t set_position();
     int32_t get_position();
@@ -25,6 +29,13 @@ public:
     swivel_data get_reading();
 
 private:
+    PWMServo servo;
+    NewPing sensor;
+
     int servo_set_pos;
+    int servo_prev_pos;
+
+    uint32_t millis_per_deg;
+
     uint32_t servo_set_timestamp;
 };
