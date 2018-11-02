@@ -1,6 +1,12 @@
 #include "Motor.hpp"
 #include "InterruptDisable.h"
 
+/* Function: Motor()
+ * 		constructor - setup the pins and encoder 
+ * 	Inputs:
+ * 		MotorNum   - enum to indicate motor A or B
+ * 		PID_enable - whether or not to us PID
+ */
 Motor::Motor(MotorNum m, bool PID_enable)
 {
 	if(m == MotorA)
@@ -28,30 +34,61 @@ Motor::Motor(MotorNum m, bool PID_enable)
         interrupt_list.push_back(this);
     }
 
-
 }
 
+/* Function: ~Motor()
+ * 		standard destructor 
+ */
 Motor::~Motor()
 {
     InterruptDisable d();
     interrupt_list.remove(this);
 }
 
-uint8_t Motor::set_speed(float speed)
+/* Function: set_speed
+ * Inputs:
+ *		speed - desired speed [rpm]
+ * Outputs:
+ * 		None
+ */
+void Motor::set_speed(int32_t speed)
 {
-	return true;
+	if(speed < max_speed && speed > -max_speed)
+	{
+		target_speed = speed*CPR_S; // translate to counts per second
+	}
+
 }
 
-float Motor::get_speed()
+/* Function: get_speed
+ * Inputs:
+ * 	 None
+ * Outputs:
+ * 	 speed [rpm]
+ */
+int32_t Motor::get_speed()
 {
-	return 0;
+	return (int32_t)(previous_speed/CPR_S);
 }
 
+/* Function: get_count
+ * Inputs:
+ * 	 None
+ * Outputs:
+ * 	 Current encoder count [counts]
+ */
 int32_t Motor::get_count()
 {
 	return enc->read();
 }
 
+/* Function: PID_control
+ *		Executed consistently on a set interval
+ * Inputs:
+ * 	 None
+ * Outputs:
+ *	 None 	 
+ */
 void Motor::PID_control() {
 
 	// Add error

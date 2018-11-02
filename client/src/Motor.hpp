@@ -7,19 +7,22 @@
 #include <list>
 #include <memory>
 
+#define CPR_S 10.28 //counts_per_rev*60s
+
 class Motor
 {
     std::unique_ptr<Encoder> enc;
 	IntervalTimer intTime;
 	int32_t pwm_pin, in1_pin, in2_pin;
 
+	static const int16_t max_speed = 600; //[rpm]
 
 public:
     Motor(MotorNum m, bool PID_enable = true);
     ~Motor();
 
-    uint8_t set_speed(float speed);
-    float get_speed();
+    void    set_speed(int32_t speed);
+    int32_t get_speed();
     int32_t get_count();
 
     float target_speed;
@@ -36,7 +39,7 @@ public:
     float pwm_val;
 
     int32_t previous_encoder_value;
-    int32_t previous_speed;
+    float	previous_speed;
 
 private:
     void PID_control(double setpoint, double input_val);
