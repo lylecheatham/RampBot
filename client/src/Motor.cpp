@@ -31,16 +31,8 @@ int32_t Motor::get_count()
 	return enc->read();
 }
 
-void Motor::PID_control(double in_vol) {
+void Motor::PID_control() {
 
-	double error = target_speed - in_vol;
 
-	//Calculate P term:
-	double P_out = k_term * error;
-
-	//Calculate I term:
-	double I_out = i_term * s_val;
-
-	//Calculate D term:
 
 }

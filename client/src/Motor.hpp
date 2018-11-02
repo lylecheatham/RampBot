@@ -27,13 +27,11 @@ public:
     float k_term;
     float i_term;
 
-    int s_val;
-
     int32_t previous_encoder_value;
     int32_t previous_speed;
 
 private:
-    void PID_control(double in_vol);
+    void PID_control();
 };
 
 #endif
