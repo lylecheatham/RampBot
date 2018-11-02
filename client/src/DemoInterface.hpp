@@ -102,7 +102,7 @@ class DemoInterface
 		static void servo_left();
 		static void servo_right();
 		static void stop();
-		
+
 };
 
 
