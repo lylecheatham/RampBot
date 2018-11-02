@@ -1,15 +1,9 @@
 #include "Motor.hpp"
 #include "InterruptDisable.h"
 
-<<<<<<< HEAD
 
 std::list<Motor*> Motor::interrupt_list;
 
-
-=======
-std::list<Motor*> Motor::interrupt_list;
-
->>>>>>> Merge in old code, now reading MPU and doing basic servo things
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
  * 	Inputs:
