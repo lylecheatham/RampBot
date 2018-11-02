@@ -25,10 +25,10 @@ Motor::Motor(MotorNum m, bool PID_enable)
 	}
 
 	enc->write(0);
-    previous_encoder_value = enc->read();
+    previous_encoder_value = 0;
+	previous_speed = 0;
+	
 
-	// Begin the interval timer
-	//intTime.begin(PID_control, 5000);
     {
         InterruptDisable d();
         interrupt_list.push_back(this);
@@ -82,32 +82,44 @@ int32_t Motor::get_count()
 	return enc->read();
 }
 
-/* Function: PID_control
+/* Function: <static> PID_control
  *		Executed consistently on a set interval
  * Inputs:
  * 	 None
  * Outputs:
  *	 None 	 
  */
-void Motor::PID_control() {
+void Motor::PID_control() 
+{
+	float current_speed = (get_count() - previous_encoder_value)*freq;
 
 	// Add error
-	double error = target_speed - previous_speed;
+	float error = target_speed - current_speed;
 
-	//Proporsional Value
-	double p_out = k_term*error;
+	// Proportional Value
+	float p_out = k_term*error;
 
-	//Integral Value
-	double i_out = i_term*error/freq;
+	// Integral Value
+	integration += error/freq;
+	float i_out = i_term*integration;
 
-	//Derivative Value
-	double d_out = d_term*(get_count() - previous_speed)*freq;
+	// Derivative Value
+	float d_out = d_term*(error - previous_error)*freq;
 
-	pwm_val = p_out + i_out + d_out;
+	// Get pwm val
+	pwm_val  = p_out + i_out + d_out;
+	pwm_val *= PWM_CONV;
 
-	previous_speed = get_count();
+	previous_speed = current_speed;
 }
 
+/* Function: <static> control_interrupt
+ * 		Static function to call the interrupts on each instance of Motor
+ * Inputs:
+ * 	 None
+ * Outputs:
+ *	 None 	 
+ */
 void Motor::control_interrupt(){
     for (Motor* motor : interrupt_list){
         motor->PID_control();
