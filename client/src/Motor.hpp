@@ -31,12 +31,13 @@ public:
 
 	int32_t s_val;
 
+    float pwm_val;
 
     int32_t previous_encoder_value;
     int32_t previous_speed;
 
 private:
-    void PID_control();
+    void Motor::PID_control(double setpoint, double input_val);
 };
 
 #endif
