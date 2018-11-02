@@ -15,18 +15,32 @@ UltraSonicSwivel::~UltraSonicSwivel() {
 
 }
 
-int32_t UltraSonicSwivel::set_position(){
+bool UltraSonicSwivel::set_position(int32_t new_position){
+    // Constrain the position
+    if(new_position > 180) new_position = 180;
+    if(new_position < 0) new_position = 0;
 
+    if(settled){
+        this->servo_prev_pos = this->servo_set_pos;
+    } else {
+        if(new_position > 90) this->servo_prev_pos = 180;
+        else this->servo_prev_pos = 0;
+    }
+
+    this->servo_set_timestamp = millis();
+
+    this->servo_set_pos = new_position;
+
+    this->servo.write(this->servo_set_pos);
 }
 
 int32_t UltraSonicSwivel::get_position(){
-
+    return this->servo_set_pos;
 }
 
 bool UltraSonicSwivel::get_settled(){
     return (millis() - servo_set_timestamp) >
         abs(servo_set_pos - servo_prev_pos) * millis_per_deg;
-
 }
 
 int32_t UltraSonicSwivel::get_distance(){

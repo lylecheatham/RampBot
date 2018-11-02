@@ -14,7 +14,7 @@ public:
     UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t millis_per_deg);
     ~UltraSonicSwivel();
 
-    int32_t set_position();
+    bool set_position(int32_t new_position);
     int32_t get_position();
     bool get_settled();
 
