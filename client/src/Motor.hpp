@@ -37,7 +37,7 @@ public:
     int32_t previous_speed;
 
 private:
-    void Motor::PID_control(double setpoint, double input_val);
+    void Motor::PID_control();
 };
 
 #endif

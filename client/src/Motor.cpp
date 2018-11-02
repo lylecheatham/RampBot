@@ -34,10 +34,10 @@ int32_t Motor::get_count()
 	return enc->read();
 }
 
-void Motor::PID_control(double setpoint, double input_val) {
+void Motor::PID_control() {
 
 	// Add error
-	double error = setpoint - input_val;
+	double error = target_speed - previous_speed;
 
 	//Proporsional Value
 	double p_out = k_term*error;
