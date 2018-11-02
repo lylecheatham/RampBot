@@ -1,10 +1,10 @@
-#ifndef MOTOR_HPP 
+#ifndef MOTOR_HPP
 #define MOTOR_HPP
 
 #include "constants.h"
 #include <Encoder.h>
 #include <IntervalTimer.h>
-#include <list>
+#include <set>
 #include <memory>
 
 #define CPR_S 10.28 //counts_per_rev*60s
@@ -14,9 +14,9 @@ class Motor
 {
 	// Static timer to handle the control
 	static IntervalTimer intTime;
-	
+
 	// Member variables
-	static const int16_t max_speed = 600; //[rpm]	
+	static const int16_t max_speed = 600; //[rpm]
 	std::unique_ptr<Encoder> enc;
 	int32_t pwm_pin, in1_pin, in2_pin;
 	int8_t  direction = 0; // zero for CW, one for CCW
@@ -53,7 +53,7 @@ class Motor
 
 	// Static functions to handle the control
     static void control_interrupt();
-    static std::list<Motor*> interrupt_list;
+    static std::set<Motor*> interrupt_list;
 };
 
 #endif

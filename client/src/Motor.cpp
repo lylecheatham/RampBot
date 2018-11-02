@@ -2,7 +2,7 @@
 #include "InterruptDisable.h"
 
 
-std::list<Motor*> Motor::interrupt_list;
+std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
@@ -33,7 +33,7 @@ Motor::Motor(MotorNum m, bool PID_enable)
 
 
     InterruptDisable d();
-    interrupt_list.push_back(this);
+    interrupt_list.insert(this);
 }
 
 /* Function: ~Motor()
@@ -42,7 +42,7 @@ Motor::Motor(MotorNum m, bool PID_enable)
 Motor::~Motor()
 {
     InterruptDisable d();
-    interrupt_list.remove(this);
+    interrupt_list.erase(interrupt_list.find(this));
 }
 
 /* Function: set_speed
