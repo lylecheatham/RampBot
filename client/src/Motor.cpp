@@ -9,6 +9,9 @@ Motor::Motor(MotorNum m)
 
 	enc->write(0);
     previous_encoder_value = enc->read();
+
+	// Begin the interval timer
+	//intTime.begin(PID_control, 5000);
 }
 
 Motor::~Motor()
@@ -40,10 +43,10 @@ void Motor::PID_control(double setpoint, double input_val) {
 	double p_out = k_term*error;
 
 	//Integral Value
-	double i_out = i_term/s_val;
+	double i_out = i_term/freq;
 
 	//Derivative Value
-	double d_out = d_term*s_val;
+	double d_out = d_term*freq;
 
 	pwm_val = p_out + i_out + d_out;
 }

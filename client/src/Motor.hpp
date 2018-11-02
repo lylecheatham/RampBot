@@ -29,7 +29,7 @@ public:
     float k_term;
     float i_term;
 
-	int32_t s_val;
+	int32_t freq;
 
     float pwm_val;
 
