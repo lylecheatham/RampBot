@@ -24,8 +24,8 @@ Motor::Motor(MotorNum m, bool PID_enable)
 	else
 	{
 		pwm_pin = M_PWMB;
-		in1_pin = M_AIN1;
-		in2_pin = M_AIN2;
+		in1_pin = M_BIN1;
+		in2_pin = M_BIN2;
 		enc = std::make_unique<Encoder>(M_BENC1, M_BENC2);
 	}
 
@@ -33,14 +33,14 @@ Motor::Motor(MotorNum m, bool PID_enable)
     previous_encoder_value = 0;
 	previous_speed = 0;
 
+    pinMode(pwm_pin, OUTPUT);
+    pinMode(in1_pin, OUTPUT);
+    pinMode(in2_pin, OUTPUT);
+
 
     {
         InterruptDisable d();
         interrupt_list.insert(this);
-    }
-
-    for(auto motor : interrupt_list){
-        Serial.println(buf);
     }
 }
 
@@ -99,27 +99,31 @@ int32_t Motor::get_count()
  */
 void Motor::update_pwm()
 {
-	if(pwm_val < 0)
-		pwm_val = 0;
-	else if(pwm_val > 255)
-		pwm_val = 255;
+	if(pwm_val < -100)
+		pwm_val = -100;
+	else if(pwm_val > 100)
+		pwm_val = 100;
 
 	// Change direction
 	// CW
-	if(target_speed > 0 && direction)
+	if(pwm_val > 0 && direction)
 	{
 		digitalWrite(in1_pin, 1);
 		digitalWrite(in2_pin, 0);
+
+        direction = false;
 	}
 	// CCW
-	else if(target_speed < 0 && !direction)
+	else if(pwm_val < 0 && !direction)
 	{
 		digitalWrite(in1_pin, 0);
 		digitalWrite(in2_pin, 1);
+
+        direction = true;
 	}
 
 	// Update the pwm
-	analogWrite(pwm_pin, pwm_val);
+	analogWrite(pwm_pin, abs(pwm_val));
 }
 
 
@@ -141,8 +145,8 @@ void Motor::PID_control()
 	float p_out = k_term*error;
 
 	// Integral Value
-	integration += error/freq;
-	float i_out = i_term*integration;
+	integration += error;
+	float i_out = i_term*integration/freq;
 
 	// Derivative Value
 	float d_out = d_term*(error - previous_error)*freq;
@@ -151,7 +155,8 @@ void Motor::PID_control()
 	pwm_val  = p_out + i_out + d_out;
 	pwm_val *= PWM_CONV;
 
-	previous_speed = current_speed;
+	previous_speed = current_speed; //TODO: delete maybe?
+    previous_error = error;
 
 	update_pwm();
 }

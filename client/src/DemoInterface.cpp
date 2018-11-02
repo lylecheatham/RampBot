@@ -24,6 +24,7 @@ DemoInterface::DemoInterface()
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
 
+    pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
 	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
 	stop();
