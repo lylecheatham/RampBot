@@ -20,7 +20,7 @@ bool UltraSonicSwivel::set_position(int32_t new_position){
     if(new_position > 180) new_position = 180;
     if(new_position < 0) new_position = 0;
 
-    if(settled){
+    if(get_settled()){
         this->servo_prev_pos = this->servo_set_pos;
     } else {
         if(new_position > 90) this->servo_prev_pos = 180;
