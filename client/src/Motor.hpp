@@ -29,6 +29,9 @@ public:
 
     int32_t previous_encoder_value;
     int32_t previous_speed;
+
+private:
+    void PID_control();
 };
 
 #endif

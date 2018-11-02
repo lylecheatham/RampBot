@@ -16,7 +16,7 @@ Motor::~Motor()
 	delete enc;
 }
 
-uint8 Motor::set_speed(float speed)
+uint8_t Motor::set_speed(float speed)
 {
 	return true;
 }
@@ -26,7 +26,7 @@ float Motor::get_speed()
 	return 0;
 }
 
-int32 Motor::get_count()
+int32_t Motor::get_count()
 {
 	return enc->read();
 }
