@@ -43,10 +43,10 @@ void Motor::PID_control() {
 	double p_out = k_term*error;
 
 	//Integral Value
-	double i_out = i_term/freq;
+	double i_out = i_term*error/freq;
 
 	//Derivative Value
-	double d_out = d_term*freq;
+	double d_out = d_term*error*freq;
 
 	pwm_val = p_out + i_out + d_out;
 }
