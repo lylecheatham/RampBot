@@ -12,6 +12,7 @@ IntervalTimer Motor::intTime = IntervalTimer();
  * 		MotorNum   - enum to indicate motor A or B
  * 		PID_enable - whether or not to us PID
  */
+
 Motor::Motor(MotorNum m, bool PID_enable)
 {
 	if(m == MotorA)
@@ -36,6 +37,10 @@ Motor::Motor(MotorNum m, bool PID_enable)
     pinMode(pwm_pin, OUTPUT);
     pinMode(in1_pin, OUTPUT);
     pinMode(in2_pin, OUTPUT);
+
+	digitalWrite(in1_pin, 1);
+	digitalWrite(in2_pin, 0);
+
 
 
     {
@@ -67,14 +72,8 @@ void Motor::set_speed(int32_t speed)
 		target_speed = speed*CPR_S; // translate to counts per second
 	}
 	*/
-
-	if(speed < 100 && speed > -100)
-	{
-		digitalWrite(in1_pin, 1);
-		digitalWrite(in2_pin, 0);
-		analogWrite(pwm_pin, speed);
-	}
-
+	pwm_val = speed;
+	update_pwm();
 }
 
 /* Function: get_speed
@@ -108,10 +107,10 @@ int32_t Motor::get_count()
  */
 void Motor::update_pwm()
 {
-	if(pwm_val < -100)
-		pwm_val = -100;
-	else if(pwm_val > 100)
-		pwm_val = 100;
+	// if(pwm_val < -100)
+	// 	pwm_val = -100;
+	// else if(pwm_val > 100)
+	// 	pwm_val = 100;
 
 	// Change direction
 	// CW

@@ -23,7 +23,7 @@
 #include <list>
 
 #define DEBUG_PRINT
-#define SPEED 2000
+#define SPEED 1000
 #define NUM_CMD 8
 
 enum Command {
@@ -70,7 +70,7 @@ class DemoInterface
 			INV, 		//p
 			INV, 		//q
 			SRV_RGT,	//r
-			INV,//BWD, 		//s
+			BWD, 		//s
 			INV, 		//t
 			INV, 		//u
 			INV, 		//v
