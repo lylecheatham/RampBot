@@ -8,6 +8,7 @@ Motor::Motor(MotorNum m)
 		enc = new Encoder(M_BENC1, M_BENC2);
 
 	enc->write(0);
+    previous_encoder_value = enc->read();
 }
 
 Motor::~Motor()
@@ -30,3 +31,8 @@ int32 Motor::get_count()
 	return enc->read();
 }
 
+void Motor::PID_control() {
+
+
+
+}
