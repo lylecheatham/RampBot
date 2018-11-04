@@ -8,7 +8,8 @@
 #include <memory>
 
 #define CPR_S 10.28 //counts_per_rev*60s
-#define PWM_CONV 1  //converts pid output to pwm val
+#define PWM_CONV 0.65  //converts pid output to pwm val
+
 
 class Motor
 {
@@ -36,7 +37,7 @@ class Motor
     float target_speed;						// Desired motor speed (counts/sec)
 
     int32_t i_counter;						//
-    int32_t i_max;							//
+    static int32_t i_max;							//
 
     static float d_term;				// Kd
     static float k_term;				// Kp

@@ -60,7 +60,7 @@ bool DemoInterface::run_command(int8 key)
 void DemoInterface::update_speeds()
 {
 	mA->set_speed(speedA);
-	mB->set_speed(speedB);
+//	mB->set_speed(speedB);
 }
 
 void DemoInterface::error()
@@ -79,6 +79,12 @@ void DemoInterface::move_forward()
 	
 	speedA -= 5;
 	speedB += 5;
+
+	//Serial.println(speedA);
+	//Serial.print(" - ");
+	//Serial.print(mA->pwm_val);
+	//Serial.println(" ,");
+	
 	update_speeds();
 }
 

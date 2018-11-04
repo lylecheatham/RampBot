@@ -6,9 +6,10 @@ std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 int32_t  Motor::freq = 40;
 IntervalTimer Motor::intTime = IntervalTimer();
 
-float Motor::k_term = 1;
+float Motor::k_term = 0.5;
 float Motor::d_term = 0;
-float Motor::i_term = 0;
+float Motor::i_term = 5;
+int32_t Motor::i_max = 10;
 
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
@@ -19,6 +20,8 @@ float Motor::i_term = 0;
 
 Motor::Motor(MotorNum m, bool PID_enable)
 {
+	i_counter = 0;
+		
 	if(m == MotorA)
 	{
 		pwm_pin = M_PWMA;
@@ -109,10 +112,10 @@ int32_t Motor::get_count()
  */
 void Motor::update_pwm()
 {
-	// if(pwm_val < -100)
-	// 	pwm_val = -100;
-	// else if(pwm_val > 100)
-	// 	pwm_val = 100;
+	if(pwm_val < -2000)
+	 	pwm_val = -2000;
+	else if(pwm_val > 2000)
+		pwm_val = 2000;
 
 	// Change direction
 	// CW
@@ -147,6 +150,7 @@ void Motor::update_pwm()
 void Motor::PID_control()
 {
 	float current_speed = (get_count() - previous_encoder_value)*freq;
+	previous_encoder_value = get_count();
 
 	// Add error
 	float error = target_speed - current_speed;
@@ -155,8 +159,16 @@ void Motor::PID_control()
 	float p_out = k_term*error;
 
 	// Integral Value
+	if(i_counter > i_max)
+	{
+		i_counter = 0;
+		integration = 0;
+	}
+
 	integration += error;
+	Serial.println(get_count());
 	float i_out = i_term*integration/freq;
+	i_counter++;
 
 	// Derivative Value
 	float d_out = d_term*(error - previous_error)*freq;
@@ -164,6 +176,8 @@ void Motor::PID_control()
 	// Get pwm val
 	pwm_val  = p_out + i_out + d_out;
 	pwm_val *= PWM_CONV;
+
+	//Serial.println(current_speed);
 
 	previous_speed = current_speed; //TODO: delete maybe?
     previous_error = error;
