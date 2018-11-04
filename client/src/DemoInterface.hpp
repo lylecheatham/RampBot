@@ -105,6 +105,7 @@ class DemoInterface
 		static int8 get_char();
 
 	private:
+		void standby();
 		static void update_speeds();
 
 		static void error();

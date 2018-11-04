@@ -9,6 +9,7 @@
 
 #define CPR_S 10.28 //counts_per_rev*60s
 #define PWM_CONV 0.65  //converts pid output to pwm val
+#define LIMIT 2000 //pwm limit
 
 
 class Motor

@@ -32,7 +32,6 @@ DemoInterface::DemoInterface()
 	servo = new UltraSonicSwivel(U_PING, S_PULSE, 1);
 
     pinMode(M_STDBY, OUTPUT);
-    digitalWrite(M_STDBY, 1);
 	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
 	stop();
 }
@@ -46,21 +45,29 @@ DemoInterface::~DemoInterface()
 
 bool DemoInterface::run_command(int8 key)
 {
+	if(key == 10 || key == 13)
+	{
+		standby();
+		return true;
+	}
+
 	if(key > 'z' || key < 'a')
 		return false;
 
 	(*commands[control_keys[key-'a']])();
 
-	//Timer
-	//stop_timer.begin(stop, delay);
-
 	return true;
+}
+
+void DemoInterface::standby() 
+{
+    digitalWrite(M_STDBY, 1);
 }
 
 void DemoInterface::update_speeds()
 {
 	mA->set_speed(speedA);
-//	mB->set_speed(speedB);
+	mB->set_speed(speedB);
 }
 
 void DemoInterface::error()
@@ -77,14 +84,8 @@ void DemoInterface::move_forward()
 	Serial.println("Moving forward");
 #endif
 	
-	speedA -= 5;
-	speedB += 5;
-
-	//Serial.println(speedA);
-	//Serial.print(" - ");
-	//Serial.print(mA->pwm_val);
-	//Serial.println(" ,");
-	
+	speedA += 5;
+	speedB -= 5;
 	update_speeds();
 }
 
@@ -94,8 +95,8 @@ void DemoInterface::move_backward()
 	Serial.println("Moving backward");
 #endif
 
-	speedA += 5;
-	speedB -= 5;
+	speedA -= 5;
+	speedB += 5;
 	update_speeds();	
 }
 
