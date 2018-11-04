@@ -19,6 +19,9 @@ int DemoInterface::servo_pos = 90;
 Motor* DemoInterface::mA = nullptr;
 Motor* DemoInterface::mB = nullptr;
 
+int32_t DemoInterface::speedA = 0;
+int32_t DemoInterface::speedB = 0;
+
 //Initialize swivel Variable
 UltraSonicSwivel* DemoInterface::servo = nullptr;
 
@@ -30,7 +33,7 @@ DemoInterface::DemoInterface()
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
-	//Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
+	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
 	stop();
 }
 
@@ -54,6 +57,12 @@ bool DemoInterface::run_command(int8 key)
 	return true;
 }
 
+void DemoInterface::update_speeds()
+{
+	mA->set_speed(speedA);
+	mB->set_speed(speedB);
+}
+
 void DemoInterface::error()
 {
 #ifdef DEBUG_PRINT
@@ -67,18 +76,10 @@ void DemoInterface::move_forward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving forward");
 #endif
-	/*
-
-	// CCW
-	mA->set_speed(-SPEED);	
-
-	// CW
-	mB->set_speed(SPEED);
-
-	*/
-
-	// Temporarily just turn on working motor at low speed
-	mA->set_speed(SPEED);
+	
+	speedA -= 5;
+	speedB += 5;
+	update_speeds();
 }
 
 void DemoInterface::move_backward()
@@ -86,14 +87,10 @@ void DemoInterface::move_backward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving backward");
 #endif
-	/*
-	// CCW
-	mB->set_speed(-SPEED);	
 
-	// CW
-	mA->set_speed(SPEED);
-	*/
-	mA->set_speed(-SPEED);
+	speedA += 5;
+	speedB -= 5;
+	update_speeds();	
 }
 
 void DemoInterface::stop()
@@ -103,8 +100,9 @@ void DemoInterface::stop()
 #endif
 
 	// Put both motors in STOP
-	mA->set_speed(0);
-	mB->set_speed(0);
+	speedA = 0;
+	speedB = 0;
+	update_speeds();	
 }
 
 void DemoInterface::turn_left()
@@ -113,9 +111,9 @@ void DemoInterface::turn_left()
 	Serial.println("Turning Left");
 #endif
 
-	// CW
-	mA->set_speed(SPEED);
-	mB->set_speed(SPEED);
+	speedA += 5;
+	speedB += 5;
+	update_speeds();
 }
 
 void DemoInterface::turn_right()
@@ -124,9 +122,9 @@ void DemoInterface::turn_right()
 	Serial.println("Turning right");
 #endif
 
-	// CCW
-	mA->set_speed(-SPEED);
-	mB->set_speed(-SPEED);
+	speedA -= 5;
+	speedB -= 5;
+	update_speeds();
 }
 
 void DemoInterface::servo_left()

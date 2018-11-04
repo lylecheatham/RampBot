@@ -23,7 +23,6 @@
 #include <list>
 
 #define DEBUG_PRINT
-#define SPEED 1000
 #define NUM_CMD 8
 
 enum Command {
@@ -45,9 +44,12 @@ class DemoInterface
 		static Motor *mA;
 	    static Motor *mB;
 		static UltraSonicSwivel *servo;
+        static int servo_pos;		
 
 		IntervalTimer stop_timer;
 		const uint32 delay = 500000;
+
+		static int32_t speedA, speedB;
 
 		// Key mapping
 		Command control_keys[26] =
@@ -103,7 +105,7 @@ class DemoInterface
 		static int8 get_char();
 
 	private:
-        static int servo_pos;
+		static void update_speeds();
 
 		static void error();
 		static void move_forward();

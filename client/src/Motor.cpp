@@ -6,6 +6,10 @@ std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 int32_t  Motor::freq = 40;
 IntervalTimer Motor::intTime = IntervalTimer();
 
+float Motor::k_term = 1;
+float Motor::d_term = 0;
+float Motor::i_term = 0;
+
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
  * 	Inputs:
@@ -66,14 +70,12 @@ Motor::~Motor()
  */
 void Motor::set_speed(int32_t speed)
 {
-		/*
+	
 	if(speed < max_speed && speed > -max_speed)
 	{
 		target_speed = speed*CPR_S; // translate to counts per second
 	}
-	*/
-	pwm_val = speed;
-	update_pwm();
+
 }
 
 /* Function: get_speed
