@@ -28,10 +28,10 @@ enum MotorNum {MotorA, MotorB};
 
 /* Ultrasonic */
 
-#define U_PING 3
+#define U_PING 2
 
 /* Servo */
 
-#define S_PULSE 2
+#define S_PULSE 3
 
 #endif

@@ -29,7 +29,7 @@ DemoInterface::DemoInterface()
 {
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
-	servo = new UltraSonicSwivel(U_PING, S_PULSE, 1);
+	servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
 
     pinMode(M_STDBY, OUTPUT);
 	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
@@ -83,7 +83,7 @@ void DemoInterface::move_forward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving forward");
 #endif
-	
+
 	speedA += 5;
 	speedB -= 5;
 	update_speeds();
@@ -97,7 +97,7 @@ void DemoInterface::move_backward()
 
 	speedA -= 5;
 	speedB += 5;
-	update_speeds();	
+	update_speeds();
 }
 
 void DemoInterface::stop()
@@ -109,7 +109,7 @@ void DemoInterface::stop()
 	// Put both motors in STOP
 	speedA = 0;
 	speedB = 0;
-	update_speeds();	
+	update_speeds();
 }
 
 void DemoInterface::turn_left()
