@@ -100,8 +100,16 @@ void setup(){
                     mag_data[0][0],
                     temp_data[0]
                     );
-            Serial.println(print_buf);
+            /* Serial.println(print_buf); */
         }
+
+        float read_voltage_A = ((float)analogRead(A8) * 33 / 10) / 65535;
+        float read_voltage_B = ((float)analogRead(A9) * 33 / 10) / 65535;
+
+        snprintf(print_buf, 200, "A:%+5f, B:%+5f", read_voltage_A, read_voltage_B);
+
+        Serial.println(print_buf);
+
         int8 rcv_char = DemoInterface::get_char();
         demo->run_command(rcv_char);
     }
