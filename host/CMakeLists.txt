@@ -13,6 +13,19 @@ find_package(Boost
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -lboost_system")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
+macro(get_WIN32_WINNT version)
+    if (WIN32 AND CMAKE_SYSTEM_VERSION)
+        set(ver ${CMAKE_SYSTEM_VERSION})
+        string(REPLACE "." "" ver ${ver})
+        string(REGEX REPLACE "([0-9])" "0\\1" ver ${ver})
+
+        set(${version} "0x${ver}")
+    endif()
+endmacro()
+
+get_WIN32_WINNT(ver)
+add_definitions(-D_WIN32_WINNT=${ver})
+
 add_subdirectory(../share/packet ${CMAKE_CURRENT_BINARY_DIR}/packet)
 
 
