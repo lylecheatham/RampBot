@@ -9,6 +9,7 @@
 #include <MPU9250.h>
 #include <PWMServo.h>
 #include <NewPing.h>
+#include <ADC.h>
 
 #include "packet.h"
 #include "sensor_packet.h"
@@ -24,6 +25,8 @@ int _write() { return -1; }
 }
 
 DemoInterface* demo;
+
+ADC adc();
 
 void setup(){
 
