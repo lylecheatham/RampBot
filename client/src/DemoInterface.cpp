@@ -70,6 +70,10 @@ void DemoInterface::standby()
 
 void DemoInterface::update_speeds()
 {
+    if(speedA > 3000) speedA = 3000;
+    if(speedA < -3000) speedA = -3000;
+    if(speedB > 3000) speedB = 3000;
+    if(speedB < -3000) speedB = -3000;
 	mA->set_speed(speedA);
 	mB->set_speed(speedB);
 }
