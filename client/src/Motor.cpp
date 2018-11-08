@@ -173,9 +173,9 @@ void Motor::PID_control()
     previous_error = error;
 
 	 //Uncomment for debug info
-	char buff [200];
-	snprintf(buff, 200, "Target Speed: %f   Current Speed: %f   Error:  %f  Integration:  %f   Direction: %d  Encoder Count: %ld", target_speed, current_speed, error, integration, direction, get_count());
-	Serial.println(buff);
+	//char buff [200];
+	//snprintf(buff, 200, "Target Speed: %f   Current Speed: %f   Error:  %f  Integration:  %f   Direction: %d  Encoder Count: %ld", target_speed, current_speed, error, integration, direction, get_count());
+	//Serial.println(buff);
 	
 
 	update_pwm();
