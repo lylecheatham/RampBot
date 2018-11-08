@@ -23,7 +23,6 @@
 #include <list>
 
 #define DEBUG_PRINT
-#define NUM_CMD 8
 
 enum Command {
 	INV=0,		// Invalid
@@ -33,7 +32,9 @@ enum Command {
 	LEFT,		// Left
 	RIGHT,		// Right
 	SRV_LFT,	// Servo left (ccw)
-	SRV_RGT		// Servo right (cw)
+	SRV_RGT,	// Servo right (cw)
+    PRN_ERR,    // Get Error
+    NUM_CMD
 };
 
 
@@ -44,7 +45,8 @@ class DemoInterface
 		static Motor *mA;
 	    static Motor *mB;
 		static UltraSonicSwivel *servo;
-        static int servo_pos;		
+        static int servo_pos;
+        static std::string error_string;
 
 		IntervalTimer stop_timer;
 		const uint32 delay = 500000;
@@ -70,7 +72,7 @@ class DemoInterface
 			INV, 		//n
 			INV, 		//o
 			INV, 		//p
-			INV, 		//q
+			PRN_ERR, 		//q
 			SRV_RGT,	//r
 			BWD, 		//s
 			INV, 		//t
@@ -93,7 +95,8 @@ class DemoInterface
 			&turn_left,
 			&turn_right,
 			&servo_left,
-			&servo_right
+			&servo_right,
+            &print_error
 		};
 
 	public:
@@ -116,6 +119,7 @@ class DemoInterface
 		static void servo_left();
 		static void servo_right();
 		static void stop();
+        static void print_error();
 
 };
 

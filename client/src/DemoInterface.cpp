@@ -22,6 +22,8 @@ Motor* DemoInterface::mB = nullptr;
 int32_t DemoInterface::speedA = 0;
 int32_t DemoInterface::speedB = 0;
 
+std::string DemoInterface::error_string = "";
+
 //Initialize swivel Variable
 UltraSonicSwivel* DemoInterface::servo = nullptr;
 
@@ -32,7 +34,9 @@ DemoInterface::DemoInterface()
 	servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
 
     pinMode(M_STDBY, OUTPUT);
-	Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq);
+	if(!Motor::intTime.begin(Motor::control_interrupt, 1000000/Motor::freq)){
+        error_string.append("interrupt init fail;");
+    }
 	stop();
 }
 
@@ -155,6 +159,10 @@ void DemoInterface::servo_right()
 {
     int32_t current_pos = servo->get_position();
 	servo->set_position(current_pos + 1);
+}
+
+void DemoInterface::print_error(){
+    Serial.println(error_string.c_str());
 }
 
 
