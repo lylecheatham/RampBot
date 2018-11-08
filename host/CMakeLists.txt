@@ -5,12 +5,16 @@ project(RampBotHost C CXX)
 
 # Find Boost
 find_package(Boost
-    1.62.0
-    REQUIRED
+        1.62.0
+        REQUIRED
+        COMPONENTS
+        system
 )
 
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
 # Make sure cmake gets the right boost version
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -lboost_system")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 macro(get_WIN32_WINNT version)
@@ -41,6 +45,7 @@ add_executable(RampBotHost
 
 target_link_libraries(RampBotHost PRIVATE
         packet
+        ${Boost_LIBRARIES}
         )
 
 target_include_directories(RampBotHost PRIVATE
