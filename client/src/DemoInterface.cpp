@@ -83,9 +83,14 @@ void DemoInterface::move_forward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving forward");
 #endif
+	if(abs(speedA) < abs(speedB))
+		speedB = speedA;
+	else
+		speedA = speedB;
 
 	speedA += 5;
-	speedB -= 5;
+	//speedB -= 5;
+	speedB += 5;
 	update_speeds();
 }
 
@@ -94,9 +99,15 @@ void DemoInterface::move_backward()
 #ifdef DEBUG_PRINT
 	Serial.println("Moving backward");
 #endif
+	if(abs(speedA) < abs(speedB))
+		speedB = speedA;
+	else
+		speedA = speedB;
+
 
 	speedA -= 5;
-	speedB += 5;
+	//speedB += 5;
+	speedB -= 5;
 	update_speeds();
 }
 
@@ -119,7 +130,7 @@ void DemoInterface::turn_left()
 #endif
 
 	speedA += 5;
-	speedB += 5;
+	speedB = 0;
 	update_speeds();
 }
 
@@ -129,8 +140,8 @@ void DemoInterface::turn_right()
 	Serial.println("Turning right");
 #endif
 
-	speedA -= 5;
-	speedB -= 5;
+	speedA = 0;
+	speedB += 5;
 	update_speeds();
 }
 

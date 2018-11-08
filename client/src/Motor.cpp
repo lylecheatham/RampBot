@@ -6,9 +6,9 @@ std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 int32_t  Motor::freq = 40;
 IntervalTimer Motor::intTime = IntervalTimer();
 
-float Motor::k_term = 0.09;
-float Motor::d_term = 0.001;
-float Motor::i_term = 10;
+float Motor::k_term = 0.122; //0.12215 // was 0.09 for old motors 
+float Motor::d_term = 0.001;              //0.001;
+float Motor::i_term = 2.774;          //10;
 int32_t Motor::i_max = 10;
 
 /* Function: Motor()
@@ -172,11 +172,11 @@ void Motor::PID_control()
 	previous_speed = current_speed; //TODO: delete maybe?
     previous_error = error;
 
-	/* //Uncomment for debug info
+	 //Uncomment for debug info
 	char buff [200];
 	snprintf(buff, 200, "Target Speed: %f   Current Speed: %f   Error:  %f  Integration:  %f   Direction: %d  Encoder Count: %ld", target_speed, current_speed, error, integration, direction, get_count());
 	Serial.println(buff);
-	*/
+	
 
 	update_pwm();
 }
