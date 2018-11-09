@@ -15,9 +15,42 @@
 #pragma once
 #include <boost/circular_buffer.hpp>
 #include "BufferedAsyncSerial.h"
+#include "packet_data.h"
+#include "packet.h"
 
-class Packet_Data;
-class Packet;
+
+
+class SendEntry {
+public:
+    SendEntry(std::unique_ptr<Packet> _packet,
+              uint16_t _serial_number) :
+        packet(std::move(_packet)),
+        serial_number(_serial_number),
+        callback_void(nullptr),
+        callback_data(nullptr) {}
+
+    SendEntry(std::unique_ptr<Packet> _packet,
+              uint16_t _serial_number,
+              void (*_callback_data)(std::unique_ptr<Packet_Data>)) :
+        packet(std::move(_packet)),
+        serial_number(_serial_number),
+        callback_void(nullptr),
+        callback_data(_callback_data) {}
+
+    SendEntry(std::unique_ptr<Packet> _packet,
+              uint16_t _serial_number,
+              void (*_callback_void)()) :
+        packet(std::move(_packet)),
+        serial_number(_serial_number),
+        callback_void(_callback_void),
+        callback_data(nullptr) {}
+
+private:
+    std::unique_ptr<Packet> packet;
+    uint16_t serial_number;
+    void (*callback_void)();
+    void (*callback_data)(std::unique_ptr<Packet_Data>);
+};
 
 class PacketHandler {
 public:
@@ -30,19 +63,11 @@ public:
     bool run_receive_packet();
 
 
-
 private:
     std::pair<bool, std::unique_ptr<Packet> > send_packet_impl(std::unique_ptr<Packet_Data> data);
     void port_error_handler();
 
-    typedef struct{
-        std::unique_ptr<Packet> packet;
-        uint16_t serial_number;
-        void (*callback_void)();
-        void (*callback_data)(std::unique_ptr<Packet_Data>);
-    } send_entry;
-
-    boost::circular_buffer<send_entry> sent_list;
+    boost::circular_buffer<SendEntry> sent_list;
 
     BufferedAsyncSerial serial;
 
