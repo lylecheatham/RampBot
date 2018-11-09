@@ -40,6 +40,11 @@
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/lu.hpp>
+
+#ifdef DEBUG
+#include <string>
+#endif
 
 namespace ublas = boost::numeric::ublas;
 
@@ -54,12 +59,20 @@ class Golay
 	private:
 		bool inverse(ublas::matrix<float> A, ublas::matrix<float> &A_inv);
 
+#ifdef DEBUG
+		void print(std::string title, ublas::vector<float> *vec);
+		void print(std::string title, ublas::matrix<float> *mat);
+#endif
+
 	private:
 		ublas::matrix<float>* T_star;	// (T'T)^(-1) T'
-		ublas::vector<float>* y;
 		ublas::vector<float>* c;
 		ublas::vector<float>* t;
 		ublas::vector<float>* t_prime;
+		
+		std::vector<float>* y;
+		uint32_t y_idx;
+		uint32_t window;
 
 
 

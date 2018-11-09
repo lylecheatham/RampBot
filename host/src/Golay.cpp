@@ -8,6 +8,7 @@
 
 #include "Golay.h"
 #include <cmath>
+#include <iostream>
 
 
 /* Function: Golay()
@@ -20,7 +21,8 @@
  * Outputs:
  *	 None
  */
-Golay::Golay(uint32_t sample_freq, uint32_t sample_points = 5, uint32_t order = 2)
+Golay::Golay(uint32_t sample_freq, uint32_t sample_points, uint32_t order)
+	: window(sample_points)
 {
 	float dt = 1.0/sample_freq;
 
@@ -28,37 +30,40 @@ Golay::Golay(uint32_t sample_freq, uint32_t sample_points = 5, uint32_t order = 
 	t       = new ublas::vector<float>(order + 1);
 	t_prime = new ublas::vector<float>(order + 1);
 
-	float curr_t = dt*(order+1);
+	float curr_t = dt*(sample_points);
 
-	for (int32_t i = 0; i < order + 1; i++)
+	for (uint32_t i = 0; i < order + 1; i++)
 	{
 		(*t)(i) = pow(curr_t, order - i);
 
-		(*t_prime)(i) = pow(curr_t, order - i - 1)*(order - i);
+		(*t_prime)(i) = i != order ? pow(curr_t, order - i - 1)*(order - i) : 0;
 	}
 
 	// Set up T
 	ublas::matrix<float> T(sample_points, order + 1);
-	for (int32_t i = 0; i < T.size1(); i++)
+	for (uint32_t i = 0; i < T.size1(); i++)
 	{
-		for (int32_t j = 0; j < T.size2(); j++)
+		for (uint32_t j = 0; j < T.size2(); j++)
 		{
-			T(i,j) = pow((i*dt), order-j);
+			T(i,j) = pow(((sample_points-1-i)*dt), order-j);
 		}
 	}
 
 	// Set up T* = (T'T)^(-1) T'
 	ublas::matrix<float> T_prime = ublas::trans(T);
 	T_star  = new ublas::matrix<float>(order + 1, sample_points); 
-	*T_star = ublas::prod( inverse(ublas::prod(T_prime, *T)), T_prime );
+	*T_star = ublas::prod(T_prime, T);
+	inverse(*T_star, *T_star);
+	*T_star = ublas::prod( *T_star, T_prime );
 
-	// Initialize c and y
-	y = new ublas::vector<float>(sample_points);
+	// Initialize c 
 	c = new ublas::vector<float>(order + 1);
-	for (auto it = y->begin(); it != y->end(); it++)
-		*it = 0;
 	for (auto it = c->begin(); it != c->end(); it++)
 		*it = 0;
+
+	// Setup y
+	y     = new std::vector<float>(sample_points, 0);
+	y_idx = 0;
 }
 
 /* Function: ~Golay
@@ -71,8 +76,10 @@ Golay::Golay(uint32_t sample_freq, uint32_t sample_points = 5, uint32_t order = 
 Golay::~Golay()
 {
 	delete T_star;
-	delete y;
 	delete c;
+	delete t;
+	delete t_prime;
+	delete y;
 }
 
 /* Function: filter
@@ -86,11 +93,25 @@ Golay::~Golay()
  */
 void Golay::filter(float new_point, float &next_point, float &next_deriv)
 {
-	*c = ublas::prod(*T_star, *y); 
+	(*y)[y_idx] = new_point;
+	y_idx = (y_idx + 1) % window;
 
-	next_point = inner_prod(*t, *c);
+	ublas::vector<float> new_y(window);
+	for (int32_t i = 0; i < window; i++)
+	{
+		new_y(window-1-i) = (*y)[(y_idx + i) % window];
+	}
 
-	next_deriv = inner_prod(*t_prime, *c);
+	*c = ublas::prod(*T_star, new_y); 
+
+#ifdef DEBUG
+	print("c: ", c);
+	print("y: ", &new_y);
+#endif
+
+	next_point = ublas::inner_prod(*t, *c);
+
+	next_deriv = ublas::inner_prod(*t_prime, *c);
 }
 
 
@@ -102,19 +123,50 @@ void Golay::filter(float new_point, float &next_point, float &next_deriv)
  * Outputs:
  *	 A_inv : The inverse of the given matrix
  *	 bool  : Whether able to invert or not
+ * 
+ * Note: https://gist.github.com/lilac/2464434
  */
-bool Golay::inverse(ublas::matrix<float> A, ublas::matrix<float> A_inv)
+bool Golay::inverse(ublas::matrix<float> A, ublas::matrix<float> &A_inv)
 {
 	// partial pivoting (rows only)
-	ublas::permutation_matrix<int32_t> p(A.size1());
+	ublas::permutation_matrix<int32_t> pm(A.size1());
 
 	// Factorize
-	int32_t luf = ublas::lu_factorize(A, p);
+	int32_t luf = ublas::lu_factorize(A, pm);
 	if (luf)
 		return 0;
 
+	A_inv.assign(ublas::identity_matrix<float>(A.size1()));
+
 	// Use substitution to get the inverse
-	lu_substitute(A, pm, A_inv);
+	ublas::lu_substitute(A, pm, A_inv);
 
 	return 1;
 }
+
+#ifdef DEBUG
+void Golay::print(std::string title, ublas::vector<float> *vec)
+{
+	std::cout << title;
+	for (auto it = vec->begin(); it != vec->end(); it++)
+	{
+		std::cout << *it << ", ";
+	}
+	std::cout << std::endl;
+}
+
+void Golay::print(std::string title, ublas::matrix<float> *mat)
+{
+	std::cout << title;
+	for (uint32_t i = 0; i < mat->size1(); i++)
+	{
+		for (uint32_t j = 0; j < mat->size2(); j++)
+		{
+			std::cout << (*mat)(i, j) << ", ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+#endif
