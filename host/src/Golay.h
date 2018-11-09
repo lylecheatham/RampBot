@@ -52,12 +52,14 @@ class Golay
 		void filter(float new_point, float &next_point, float &next_deriv); 
 
 	private:
-		void inverse(ublas::matrix<float> A, ublas::matrix<float> &A_inv);
+		bool inverse(ublas::matrix<float> A, ublas::matrix<float> &A_inv);
 
 	private:
 		ublas::matrix<float>* T_star;	// (T'T)^(-1) T'
 		ublas::vector<float>* y;
 		ublas::vector<float>* c;
+		ublas::vector<float>* t;
+		ublas::vector<float>* t_prime;
 
 
 
