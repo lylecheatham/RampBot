@@ -14,7 +14,7 @@ find_package(Boost
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 # Make sure cmake gets the right boost version
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS} -lpthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 macro(get_WIN32_WINNT version)
