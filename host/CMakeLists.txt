@@ -27,8 +27,10 @@ macro(get_WIN32_WINNT version)
     endif()
 endmacro()
 
-get_WIN32_WINNT(ver)
-add_definitions(-D_WIN32_WINNT=${ver})
+if(WIN32)
+    get_WIN32_WINNT(ver)
+    add_definitions(-D_WIN32_WINNT=${ver})
+endif()
 
 add_subdirectory(../share/packet ${CMAKE_CURRENT_BINARY_DIR}/packet)
 
