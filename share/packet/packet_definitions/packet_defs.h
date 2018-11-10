@@ -3,8 +3,8 @@
  * FILENAME: packet_utils.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -23,7 +23,7 @@ enum node_id : uint8_t {
     rasp_pi = 0x03,
 
     // Leave this at end
-        number_node_ids
+    number_node_ids
 };
 
 enum packet_id : uint8_t {
@@ -35,6 +35,5 @@ enum packet_id : uint8_t {
     motor_packet = 0x05,
 
     // Leave this at end
-        number_packet_ids
+    number_packet_ids
 };
-

@@ -5,46 +5,51 @@
  */
 
 
+#include <ADC.h>
 #include <Arduino.h>
 #include <MPU9250.h>
-#include <PWMServo.h>
 #include <NewPing.h>
-#include <ADC.h>
+#include <PWMServo.h>
 
+#include "DemoInterface.hpp"
+#include "constants.h"
 #include "packet.h"
 #include "sensor_packet.h"
-#include "constants.h"
-#include "DemoInterface.hpp"
 
 
 // Hacky stuff, don't remove
 extern "C" {
-int _getpid() { return -1; }
-int _kill(int pid, int sig) { return -1; }
-int _write() { return -1; }
+int _getpid() {
+    return -1;
+}
+int _kill(int pid, int sig) {
+    return -1;
+}
+int _write() {
+    return -1;
+}
 }
 
 DemoInterface* demo;
 
 ADC adc();
 
-void setup(){
+void setup() {
+    analogWriteResolution(12);
 
-	analogWriteResolution(12);
-	
     pinMode(13, OUTPUT);
     digitalWrite(13, HIGH);
-	/*
-	std::unique_ptr<Packet_Data> data(new Sensor_Packet());
-	Packet test (node_id::rasp_pi, packet_id::sensor_packet, std::move(data));
-    auto result = test.serialize();
-    if(result.first == p_err_none){
-        Serial.write(result.second.data(), result.second.size());
-    }*/
+    /*
+    std::unique_ptr<Packet_Data> data(new Sensor_Packet());
+    Packet test (node_id::rasp_pi, packet_id::sensor_packet, std::move(data));
+auto result = test.serialize();
+if(result.first == p_err_none){
+    Serial.write(result.second.data(), result.second.size());
+}*/
 
-	// Startup the demo
-	demo = new DemoInterface();
-	Serial.println("Starting...");
+    // Startup the demo
+    demo = new DemoInterface();
+    Serial.println("Starting...");
 
     Wire.begin();
 
@@ -67,11 +72,11 @@ void setup(){
 
     IMU.enableFifo(true, true, true, true);
 
-	NewPing sonar(U_PING, U_PING, 300);
+    NewPing sonar(U_PING, U_PING, 300);
 
     // Loop goes here
-    while(1){
-        if(false){/*(status != -1){*/
+    while (1) {
+        if (false) { /*(status != -1){*/
             float accel_data[3][85];
             size_t accel_lengths[3];
             float gyro_data[3][85];
@@ -94,23 +99,14 @@ void setup(){
             IMU.getFifoMagZ_uT(&mag_lengths[2], mag_data[2]);
             IMU.getFifoTemperature_C(&temp_length, temp_data);
 
-            snprintf(print_buf, 200, "s:%-3d, ax:%-3u, gx:%-3u, mx:%-3u, t:%-3u, AX:%+5f, GX:%+5f, MX:%+5f, T:%+5f",
-                    status,
-                    accel_lengths[0],
-                    gyro_lengths[0],
-                    mag_lengths[0],
-                    temp_length,
-                    accel_data[0][0],
-                    gyro_data[0][0],
-                    mag_data[0][0],
-                    temp_data[0]
-                    );
+            snprintf(print_buf, 200, "s:%-3d, ax:%-3u, gx:%-3u, mx:%-3u, t:%-3u, AX:%+5f, GX:%+5f, MX:%+5f, T:%+5f", status, accel_lengths[0], gyro_lengths[0],
+                     mag_lengths[0], temp_length, accel_data[0][0], gyro_data[0][0], mag_data[0][0], temp_data[0]);
             /* Serial.println(print_buf); */
         }
 
-		//delayMicroseconds(1000);
-		int32_t dist = sonar.ping_cm();
-		Serial.println(dist);
+        // delayMicroseconds(1000);
+        int32_t dist = sonar.ping_cm();
+        Serial.println(dist);
         /* float read_voltage_A = ((float)analogRead(A8) * 33 / 10) / 65535; */
         /* float read_voltage_B = ((float)analogRead(A9) * 33 / 10) / 65535; */
 
@@ -123,4 +119,4 @@ void setup(){
     }
 }
 
-void loop(){}
+void loop() {}

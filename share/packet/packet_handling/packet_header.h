@@ -3,8 +3,8 @@
  * FILENAME: packet_header.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include <vector>
-#include <tuple>
 #include <memory>
+#include <tuple>
+#include <vector>
 #include "packet_defs.h"
 #include "packet_errors.h"
 

@@ -3,8 +3,8 @@
  * FILENAME: PacketHandler.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/16/18
  *
@@ -15,35 +15,20 @@
 #pragma once
 #include <boost/circular_buffer.hpp>
 #include "BufferedAsyncSerial.h"
-#include "packet_data.h"
 #include "packet.h"
-
+#include "packet_data.h"
 
 
 class SendEntry {
 public:
-    SendEntry(std::unique_ptr<Packet> _packet,
-              uint16_t _serial_number) :
-        packet(std::move(_packet)),
-        serial_number(_serial_number),
-        callback_void(nullptr),
-        callback_data(nullptr) {}
+    SendEntry(std::unique_ptr<Packet> _packet, uint16_t _serial_number)
+        : packet(std::move(_packet)), serial_number(_serial_number), callback_void(nullptr), callback_data(nullptr) {}
 
-    SendEntry(std::unique_ptr<Packet> _packet,
-              uint16_t _serial_number,
-              void (*_callback_data)(std::unique_ptr<Packet_Data>)) :
-        packet(std::move(_packet)),
-        serial_number(_serial_number),
-        callback_void(nullptr),
-        callback_data(_callback_data) {}
+    SendEntry(std::unique_ptr<Packet> _packet, uint16_t _serial_number, void (*_callback_data)(std::unique_ptr<Packet_Data>))
+        : packet(std::move(_packet)), serial_number(_serial_number), callback_void(nullptr), callback_data(_callback_data) {}
 
-    SendEntry(std::unique_ptr<Packet> _packet,
-              uint16_t _serial_number,
-              void (*_callback_void)()) :
-        packet(std::move(_packet)),
-        serial_number(_serial_number),
-        callback_void(_callback_void),
-        callback_data(nullptr) {}
+    SendEntry(std::unique_ptr<Packet> _packet, uint16_t _serial_number, void (*_callback_void)())
+        : packet(std::move(_packet)), serial_number(_serial_number), callback_void(_callback_void), callback_data(nullptr) {}
 
 private:
     std::unique_ptr<Packet> packet;
@@ -70,7 +55,4 @@ private:
     boost::circular_buffer<SendEntry> sent_list;
 
     BufferedAsyncSerial serial;
-
 };
-
-

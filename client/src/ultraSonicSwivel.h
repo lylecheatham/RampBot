@@ -3,13 +3,12 @@
 #include "constants.h"
 
 #include <Arduino.h>
-#include <cstdint>
 #include <NewPing.h>
 #include <PWMServo.h>
+#include <cstdint>
 
 
-class UltraSonicSwivel
-{
+class UltraSonicSwivel {
 public:
     UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t millis_per_deg);
     ~UltraSonicSwivel();

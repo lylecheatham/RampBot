@@ -1,6 +1,6 @@
 #include <cstdint>
 
-class TempSense{
+class TempSense {
 public:
     TempSense(int pin, bool continuous = true);
     ~TempSense();
@@ -13,10 +13,7 @@ public:
     int32_t get_raw();
     bool is_continuous();
 
-    enum configuration {
-        high_side,
-        low_side
-    };
+    enum configuration { high_side, low_side };
 
     static constexpr float default_B = 4267;
     static constexpr float default_R_25C = 100000;

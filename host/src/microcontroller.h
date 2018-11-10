@@ -3,8 +3,8 @@
  * FILENAME: microcontroller.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -13,16 +13,11 @@
  *******************************************************************************/
 
 
-
 #ifndef RAMPBOTHOST_MICROCONTROLLER_H
 #define RAMPBOTHOST_MICROCONTROLLER_H
 
 
-
-class microcontroller {
-
-};
+class microcontroller {};
 
 
-
-#endif //RAMPBOTHOST_MICROCONTROLLER_H
+#endif  // RAMPBOTHOST_MICROCONTROLLER_H

@@ -3,8 +3,8 @@
  * FILENAME: packet_externs.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/15/18
  *
@@ -13,14 +13,14 @@
  *******************************************************************************/
 
 #pragma once
-#include "packet_defs.h"
-#include <vector>
 #include <cstddef>
 #include <memory>
+#include <vector>
+#include "packet_defs.h"
 
 class Packet_Data;
 
-namespace packet_externs{
+namespace packet_externs {
 
 uint16_t get_serial_packet(node_id destination);
 
@@ -34,4 +34,4 @@ extern node_id this_node;
 
 std::unique_ptr<Packet_Data> packet_from_id(packet_id id);
 
-}
+}  // namespace packet_externs

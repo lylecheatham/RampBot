@@ -3,8 +3,8 @@
  * FILENAME: robot.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -13,16 +13,11 @@
  *******************************************************************************/
 
 
-
 #ifndef RAMPBOTHOST_ROBOT_H
 #define RAMPBOTHOST_ROBOT_H
 
 
-
-class robot {
-
-};
+class robot {};
 
 
-
-#endif //RAMPBOTHOST_ROBOT_H
+#endif  // RAMPBOTHOST_ROBOT_H

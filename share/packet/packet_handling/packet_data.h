@@ -3,8 +3,8 @@
  * FILENAME: packet_Data.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/4/18
  *
@@ -14,11 +14,11 @@
 
 #pragma once
 #include <vector>
-#include "packet_errors.h"
 #include "packet_defs.h"
+#include "packet_errors.h"
 
 
-class Packet_Data{
+class Packet_Data {
 public:
     virtual ~Packet_Data(){};
 

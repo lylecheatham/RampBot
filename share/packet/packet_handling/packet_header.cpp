@@ -3,8 +3,8 @@
  * FILENAME: packet_header.cpp
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -13,10 +13,10 @@
  *******************************************************************************/
 
 #include "packet_header.h"
-#include "packet_utils.h"
 #include "packet_externs.h"
+#include "packet_utils.h"
 
-Packet_Header::Packet_Header(){
+Packet_Header::Packet_Header() {
     this->source = null_node;
     this->destination = null_node;
     this->source_dest_serial_number = 0;
@@ -24,7 +24,7 @@ Packet_Header::Packet_Header(){
     this->packet_type = null_packet;
 }
 
-Packet_Header::Packet_Header(node_id destination, packet_id type, uint8_t length){
+Packet_Header::Packet_Header(node_id destination, packet_id type, uint8_t length) {
     this->source = packet_externs::this_node;
     this->destination = destination;
     this->source_dest_serial_number = packet_externs::get_serial_packet(destination);
@@ -32,15 +32,15 @@ Packet_Header::Packet_Header(node_id destination, packet_id type, uint8_t length
     this->packet_type = type;
 };
 
-void Packet_Header::set_length(uint8_t length){
+void Packet_Header::set_length(uint8_t length) {
     this->length = length;
 }
 
-uint8_t Packet_Header::get_length(){
+uint8_t Packet_Header::get_length() {
     return this->length;
 };
 
-packet_id Packet_Header::get_packet_id(){
+packet_id Packet_Header::get_packet_id() {
     return this->packet_type;
 }
 
@@ -76,16 +76,16 @@ std::vector<char> Packet_Header::serialize() {
     return data;
 }
 
-packet_error Packet_Header::deserialize(const char *data){
+packet_error Packet_Header::deserialize(const char *data) {
     // Check for the catch character
-    if(data[0] != '*') return p_err_no_catch_character;
+    if (data[0] != '*') return p_err_no_catch_character;
 
     // Calculate the CRC
     uint16_t calculated_crc = packet_externs::packet_get_crc(data, 7);
 
     // Check the CRC on the end for a match
     packet_utils::unpack(data, 7, header_crc);
-    if(header_crc != calculated_crc) return p_err_bad_crc;
+    if (header_crc != calculated_crc) return p_err_bad_crc;
 
     // Unpack the rest
     size_t index = 1;

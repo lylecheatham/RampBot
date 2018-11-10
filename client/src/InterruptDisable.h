@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-class InterruptDisable{
+class InterruptDisable {
 public:
     InterruptDisable();
     ~InterruptDisable();
@@ -12,4 +12,3 @@ private:
     static bool interrupts_enabled();
     static int32_t interrupt_disable_count();
 };
-

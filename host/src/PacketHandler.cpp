@@ -3,8 +3,8 @@
  * FILENAME: PacketHandler.cpp
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/16/18
  *
@@ -14,13 +14,13 @@
 
 
 #include "PacketHandler.h"
-#include "packet_data.h"
 #include "packet.h"
+#include "packet_data.h"
 #include "packet_externs.h"
 
 #include "config_packet.h"
-#include "time_packet.h"
 #include "sensor_packet.h"
+#include "time_packet.h"
 
 
 struct packet_creation_entry {
@@ -29,15 +29,14 @@ struct packet_creation_entry {
 };
 
 
-static std::array<packet_creation_entry, number_packet_ids> packet_creation_list =
-    {{
-         {.id=null_packet, .func=nullptr},
-         {.id=packet_response, .func=nullptr},
-         {.id=config_packet, .func=Config_Packet::create_packet},
-         {.id=time_packet, .func=Time_Packet::create_packet},
-         {.id=sensor_packet, .func=Sensor_Packet::create_packet},
-         {.id=motor_packet, .func=nullptr},
-     }};
+static std::array<packet_creation_entry, number_packet_ids> packet_creation_list = {{
+    {.id = null_packet, .func = nullptr},
+    {.id = packet_response, .func = nullptr},
+    {.id = config_packet, .func = Config_Packet::create_packet},
+    {.id = time_packet, .func = Time_Packet::create_packet},
+    {.id = sensor_packet, .func = Sensor_Packet::create_packet},
+    {.id = motor_packet, .func = nullptr},
+}};
 
 
 std::unique_ptr<Packet_Data> packet_externs::packet_from_id(packet_id id) {
@@ -49,19 +48,16 @@ std::unique_ptr<Packet_Data> packet_externs::packet_from_id(packet_id id) {
     return nullptr;
 }
 
-PacketHandler::PacketHandler() :
-    sent_list(50),
-    serial() {
+PacketHandler::PacketHandler() : sent_list(50), serial() {
     serial.open("/dev/cu.usbserial-00000000", 115200);
 
     send_packet(std::unique_ptr<Packet_Data>(new Config_Packet(Config_Packet::wakeup)));
-
 }
 
 bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data) {
     auto response = send_packet_impl(std::move(data));
 
-    if(!response.first) return false;
+    if (!response.first) return false;
 
     // TODO: Fix this
 
@@ -74,7 +70,7 @@ bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data) {
 bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data, void (*callback)()) {
     auto response = send_packet_impl(std::move(data));
 
-    if(!response.first) return false;
+    if (!response.first) return false;
 
     sent_list.push_back(SendEntry(std::move(response.second), response.second->get_serial_number(), callback));
 
@@ -84,7 +80,7 @@ bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data, void (*callba
 bool PacketHandler::send_packet(std::unique_ptr<Packet_Data> data, void (*callback)(std::unique_ptr<Packet_Data>)) {
     auto response = send_packet_impl(std::move(data));
 
-    if(!response.first) return false;
+    if (!response.first) return false;
 
     sent_list.push_back(SendEntry(std::move(response.second), response.second->get_serial_number(), callback));
 
@@ -95,7 +91,7 @@ bool PacketHandler::run_receive_packet() {
     return false;
 }
 
-std::pair<bool, std::unique_ptr<Packet> > PacketHandler::send_packet_impl(std::unique_ptr<Packet_Data> data){
+std::pair<bool, std::unique_ptr<Packet> > PacketHandler::send_packet_impl(std::unique_ptr<Packet_Data> data) {
     // Create the packet
     std::unique_ptr<Packet> packet(new Packet(node_id::micro, data->get_packet_id(), std::move(data)));
 
@@ -118,8 +114,6 @@ void PacketHandler::port_error_handler() {
     serial.close();
     serial.open("/dev/cu.usbserial-00000000", 115200);
     if (serial.errorStatus()) {
-        //TODO: throw something here
+        // TODO: throw something here
     }
 }
-
-

@@ -3,8 +3,8 @@
  * FILENAME: config_packet.cpp
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/14/18
  *
@@ -16,15 +16,9 @@
 #include "packet_utils.h"
 
 
-Config_Packet::Config_Packet() :
-    message(heartbeat) {
+Config_Packet::Config_Packet() : message(heartbeat) {}
 
-}
-
-Config_Packet::Config_Packet(message_type message) :
-    message(message) {
-
-}
+Config_Packet::Config_Packet(message_type message) : message(message) {}
 
 packet_error Config_Packet::deserialize(const char *data, uint8_t size) {
     if (size > 1) return p_err_oversize;

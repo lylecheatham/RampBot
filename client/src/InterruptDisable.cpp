@@ -2,21 +2,21 @@
 #include <Arduino.h>
 
 
-InterruptDisable::InterruptDisable(){
+InterruptDisable::InterruptDisable() {
     noInterrupts();
     counter++;
 }
 
-InterruptDisable::~InterruptDisable(){
+InterruptDisable::~InterruptDisable() {
     interrupts();
     counter--;
 }
 
-bool InterruptDisable::interrupts_enabled(){
+bool InterruptDisable::interrupts_enabled() {
     return counter == 0;
 }
 
-int32_t InterruptDisable::interrupt_disable_count(){
+int32_t InterruptDisable::interrupt_disable_count() {
     return counter;
 }
 

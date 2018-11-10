@@ -3,8 +3,8 @@
  * FILENAME: packet.cpp
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/6/18
  *
@@ -18,14 +18,12 @@
 #include "packet_utils.h"
 
 // This library is incompatible otherwise
-static_assert(std::is_same<std::uint8_t, unsigned char>::value,
-              "We require std::uint8_t to be implemented as unsigned char");
+static_assert(std::is_same<std::uint8_t, unsigned char>::value, "We require std::uint8_t to be implemented as unsigned char");
 
 Packet::Packet() : header(null_node, null_packet), data(nullptr) {}
 
-Packet::Packet(node_id destination, packet_id type, std::unique_ptr<Packet_Data> data_ptr) : header(destination, type),
-                                                                                   data(std::move(data_ptr)) {}
-Packet::~Packet(){}
+Packet::Packet(node_id destination, packet_id type, std::unique_ptr<Packet_Data> data_ptr) : header(destination, type), data(std::move(data_ptr)) {}
+Packet::~Packet() {}
 
 std::pair<packet_error, std::vector<char>> Packet::serialize() {
     std::vector<char> data_bytes;
@@ -49,7 +47,7 @@ std::pair<packet_error, std::vector<char>> Packet::serialize() {
     if (data_bytes.size() > UINT8_MAX) return std::make_pair(p_err_oversize, std::vector<char>());
 
     // Set the length in the header
-    this->header.set_length((uint8_t) data_bytes.size());
+    this->header.set_length((uint8_t)data_bytes.size());
 
     // Serialize the header
     std::vector<char> packet_bytes = this->header.serialize();
@@ -82,11 +80,11 @@ packet_error Packet::deserialize(const char *data_bytes) {
 
     data = std::move(packet_externs::packet_from_id(header.get_packet_id()));
 
-    if(data != nullptr) {
+    if (data != nullptr) {
         // Deserialize the data
         data->deserialize(data_bytes + Packet_Header::header_length, header.get_length());
     } else {
-        if(header.get_length() != 0){
+        if (header.get_length() != 0) {
             return p_err_oversize;
         }
     }
@@ -94,11 +92,11 @@ packet_error Packet::deserialize(const char *data_bytes) {
     return p_err_none;
 }
 
-std::unique_ptr<Packet_Data> Packet::reacquire_data(){
+std::unique_ptr<Packet_Data> Packet::reacquire_data() {
     return std::move(data);
 }
 
 
-uint16_t Packet::get_serial_number() const{
+uint16_t Packet::get_serial_number() const {
     return header.get_serial_number();
 }

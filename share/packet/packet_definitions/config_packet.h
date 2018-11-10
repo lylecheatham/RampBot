@@ -3,8 +3,8 @@
  * FILENAME: config_packet.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/14/18
  *
@@ -19,7 +19,7 @@
 
 class Config_Packet : public Packet_Data {
 public:
-    enum message_type : uint8_t{
+    enum message_type : uint8_t {
         heartbeat = 0,
         wakeup,
         reset,
@@ -27,15 +27,13 @@ public:
         resume,
 
         // Leave at end
-            num_message_type
+        num_message_type
     };
 
     Config_Packet();
     Config_Packet(message_type message);
 
-    static inline Packet_Data *create_packet() {
-        return new Config_Packet();
-    }
+    static inline Packet_Data *create_packet() { return new Config_Packet(); }
 
     packet_error deserialize(const char *data, uint8_t size) override;
     std::pair<packet_error, std::vector<char>> serialize() override;

@@ -3,8 +3,8 @@
  * FILENAME: packet.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/3/18
  *
@@ -14,13 +14,12 @@
 
 #pragma once
 
-#include <vector>
 #include <memory>
-#include <vector>
 #include <tuple>
+#include <vector>
+#include "packet_data.h"
 #include "packet_defs.h"
 #include "packet_header.h"
-#include "packet_data.h"
 
 
 class Packet {
@@ -42,4 +41,3 @@ private:
     std::unique_ptr<Packet_Data> data;
     uint16_t tail_crc;
 };
-

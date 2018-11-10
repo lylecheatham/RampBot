@@ -3,8 +3,8 @@
  * FILENAME: sensor_packet.cpp
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/6/18
  *
@@ -13,8 +13,8 @@
  *******************************************************************************/
 
 #include "sensor_packet.h"
-#include "packet_utils.h"
 #include <bitset>
+#include "packet_utils.h"
 
 
 Sensor_Packet::Sensor_Packet() {
@@ -43,19 +43,19 @@ packet_error Sensor_Packet::deserialize(const char *data, uint8_t size) {
 
 
     // Calculate the expected length based on flags
-    if (ultrasonic_reading.first){
+    if (ultrasonic_reading.first) {
         expected_size += 4;
     }
-    if (encoder_reading.first){
+    if (encoder_reading.first) {
         expected_size += 8;
     }
-    if (gyroscope_reading.first){
+    if (gyroscope_reading.first) {
         expected_size += 12;
     }
-    if (accelerometer_reading.first){
+    if (accelerometer_reading.first) {
         expected_size += 12;
     }
-    if (compass_reading.first){
+    if (compass_reading.first) {
         expected_size += 12;
     }
 
@@ -108,7 +108,7 @@ std::pair<packet_error, std::vector<char>> Sensor_Packet::serialize() {
     flags[3] = accelerometer_reading.first;
     flags[4] = compass_reading.first;
 
-    data.push_back((char) flags.to_ulong());
+    data.push_back((char)flags.to_ulong());
 
     if (ultrasonic_reading.first) {
         packet_utils::pack(data, ultrasonic_reading.second);
@@ -140,7 +140,7 @@ std::pair<packet_error, std::vector<char>> Sensor_Packet::serialize() {
     return std::make_pair(p_err_none, data);
 }
 
-packet_id Sensor_Packet::get_packet_id(){
+packet_id Sensor_Packet::get_packet_id() {
     return packet_id::sensor_packet;
 }
 
@@ -179,14 +179,12 @@ std::array<int32_t, 2> Sensor_Packet::get_encoder_reading() const {
 }
 
 void Sensor_Packet::set_gyroscope_reading(std::array<float, 3> gyroscope_reading) {
-
     this->gyroscope_reading.first = true;
     this->gyroscope_reading.second = gyroscope_reading;
 }
 
 bool Sensor_Packet::has_gyroscope_reading() const {
     return this->gyroscope_reading.first;
-
 }
 
 std::array<float, 3> Sensor_Packet::get_gyroscope_reading() const {
@@ -196,17 +194,14 @@ std::array<float, 3> Sensor_Packet::get_gyroscope_reading() const {
 void Sensor_Packet::set_accelerometer_reading(std::array<float, 3> accelerometer_reading) {
     this->accelerometer_reading.first = true;
     this->accelerometer_reading.second = accelerometer_reading;
-
 }
 
 bool Sensor_Packet::has_accelerometer_reading() const {
     return this->accelerometer_reading.first;
-
 }
 
 std::array<float, 3> Sensor_Packet::get_accelerometer_reading() const {
     return this->accelerometer_reading.second;
-
 }
 
 void Sensor_Packet::set_compass_reading(std::array<float, 3> compass_reading) {

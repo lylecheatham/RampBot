@@ -3,8 +3,8 @@
  * FILENAME: sensor_packet.h
  *
  * PROJECT: RampBotHost
- *                    
- * ORIGINAL AUTHOR: Lyle Cheatham                       
+ *
+ * ORIGINAL AUTHOR: Lyle Cheatham
  *
  * DATE: 10/6/18
  *
@@ -14,17 +14,15 @@
 
 #pragma once
 
-#include "packet_data.h"
 #include <array>
+#include "packet_data.h"
 
 
 class Sensor_Packet : public Packet_Data {
 public:
     Sensor_Packet();
 
-    static inline Packet_Data *create_packet() {
-        return new Sensor_Packet();
-    }
+    static inline Packet_Data *create_packet() { return new Sensor_Packet(); }
 
     packet_error deserialize(const char *data, uint8_t size) override;
     std::pair<packet_error, std::vector<char> > serialize() override;
@@ -66,4 +64,3 @@ private:
 
     std::pair<bool, std::array<float, 3> > compass_reading;
 };
-
