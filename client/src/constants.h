@@ -1,8 +1,6 @@
 #ifndef CONST_H
 #define CONST_H
 
-#include "types.h"
-
 enum MotorNum {MotorA, MotorB};
 
 /* Motors */

@@ -49,7 +49,7 @@ class DemoInterface
         static std::string error_string;
 
 		IntervalTimer stop_timer;
-		const uint32 delay = 500000;
+		const uint32_t delay = 500000;
 
 		static int32_t speedA, speedB;
 
@@ -85,8 +85,10 @@ class DemoInterface
 
 		};
 
+        typedef void(*command_fn_ptr)();
+
 		// Commands
-		FunctionPointer commands[NUM_CMD] =
+		command_fn_ptr commands[NUM_CMD] =
 		{
 			&error,
 			&stop,
@@ -103,9 +105,9 @@ class DemoInterface
 		DemoInterface();
 		~DemoInterface();
 
-		bool run_command(int8 key);
+		bool run_command(int8_t key);
 
-		static int8 get_char();
+		static int8_t get_char();
 
 	private:
 		void standby();

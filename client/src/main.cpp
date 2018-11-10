@@ -118,7 +118,7 @@ void setup(){
 
         /* Serial.println(print_buf); */
 
-        int8 rcv_char = DemoInterface::get_char();
+        int8_t rcv_char = DemoInterface::get_char();
         demo->run_command(rcv_char);
     }
 }

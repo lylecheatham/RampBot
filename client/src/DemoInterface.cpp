@@ -47,7 +47,7 @@ DemoInterface::~DemoInterface()
 	delete servo;
 }
 
-bool DemoInterface::run_command(int8 key)
+bool DemoInterface::run_command(int8_t key)
 {
 	if(key == 10 || key == 13)
 	{
@@ -171,7 +171,7 @@ void DemoInterface::print_error(){
 
 
 
-int8 DemoInterface::get_char()
+int8_t DemoInterface::get_char()
 {
 	if(Serial.available() > 0)
 		return Serial.read();
