@@ -72,7 +72,7 @@ if(result.first == p_err_none){
 
     IMU.enableFifo(true, true, true, true);
 
-    NewPing sonar(U_PING, U_PING, 300);
+    //NewPing sonar(U_PING, U_PING, 300);
 
     // Loop goes here
     while (1) {
@@ -105,8 +105,8 @@ if(result.first == p_err_none){
         }
 
         // delayMicroseconds(1000);
-        int32_t dist = sonar.ping_cm();
-        Serial.println(dist);
+        //int32_t dist = sonar.ping_cm();
+        //Serial.println(dist);
         /* float read_voltage_A = ((float)analogRead(A8) * 33 / 10) / 65535; */
         /* float read_voltage_B = ((float)analogRead(A9) * 33 / 10) / 65535; */
 
