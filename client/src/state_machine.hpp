@@ -49,13 +49,13 @@ public:
 private:
     void standby();
     static void stop();
-    void state_machine::state_update();
-    static void state_machine::ramp_pos_1();
-    static void state_machine::ramp();
-    static void state_machine::pole_id();
-    static void state_machine::ramp_pos_2();
-    static void state_machine::base_return();
-    static void state_machine::update_speeds();
+    void state_update();
+    static void ramp_pos_1();
+    static void ramp();
+    static void pole_id();
+    static void ramp_pos_2();
+    static void base_return();
+    static void update_speeds();
 };
 
 

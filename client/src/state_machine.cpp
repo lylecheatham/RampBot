@@ -93,9 +93,7 @@ void state_machine::pole_id(){
     
 }
 
-void state_machine::ramp_pos_2(){
 
-}
 
 void state_machine::base_return(){
 
@@ -109,17 +107,5 @@ void state_machine::update_speeds() {
     mA->set_speed(speedA);
     mB->set_speed(speedB);
 }
-
-void DemoInterface::stop() {
-#ifdef DEBUG_PRINT
-    Serial.println("Stopping");
-#endif
-
-    // Put both motors in STOP
-    speedA = 0;
-    speedB = 0;
-    update_speeds();
-}
-
 
 
