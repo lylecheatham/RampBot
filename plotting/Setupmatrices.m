@@ -1,6 +1,6 @@
-sample_freq = 20e6;
-window      = 20;
-order       = 3;
+sample_freq = 1;
+window      = 5;
+order       = 2;
 dt = 1.0/sample_freq;
 
 % Set up t and t' vectors

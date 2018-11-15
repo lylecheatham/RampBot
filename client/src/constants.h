@@ -22,7 +22,7 @@ enum MotorNum { MotorA, MotorB };
 #define M_BENC2 15
 
 /* IMU */
-
+#define IMU_INT 17
 
 /* Ultrasonic */
 

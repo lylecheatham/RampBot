@@ -14,6 +14,8 @@
 #include "Motor.hpp"
 #include "constants.h"
 #include "ultraSonicSwivel.h"
+#include <MPU9250.h>
+
 
 #include <list>
 
@@ -26,6 +28,7 @@ private:
     static UltraSonicSwivel *servo;
     static int servo_pos;
     static std::string error_string;
+	static MPU9250FIFO *IMU;
 
     //State tracking variables
     static int32_t start_pos[2];
@@ -38,6 +41,18 @@ private:
 
     static int32_t speedA, speedB;
 
+	// IMU Values
+	static char		print_buf[200];
+	static float 	accel_data[3][85];
+    static size_t 	accel_lengths[3];
+    static float 	gyro_data[3][85];
+    static size_t 	gyro_lengths[3];
+    static float 	mag_data[3][85];
+    static size_t 	mag_lengths[3];
+    static float 	temp_data[85];
+    static size_t 	temp_length;
+	static int32_t 	status;
+
 public:
     state_machine();
     ~state_machine();
@@ -47,6 +62,7 @@ public:
     static int8_t get_char();
 
 private:
+	bool setup_IMU();
     void standby();
     static void stop();
     void state_update();
@@ -56,6 +72,8 @@ private:
     static void ramp_pos_2();
     static void base_return();
     static void update_speeds();
+
+	static void read_IMU();
 };
 
 
