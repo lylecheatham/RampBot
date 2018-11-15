@@ -1,150 +1,47 @@
-/* IMU.cpp
- * MTE 380 Design Project
- * Original Author(s): Eric Murphy-Zaremba & Conner Currie
- * Creation Date: Nov 14 /2018
- *
- *
- * Implements the IMU class
- */
-//extern "C"{
-//#include "MadgwickAHRS.h"}
+//=====================================================================================================
+// MadgwickAHRS.c
+//=====================================================================================================
+//
+// Implementation of Madgwick's IMU and AHRS algorithms.
+// See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+//
+// Date			Author          Notes
+// 29/09/2011	SOH Madgwick    Initial release
+// 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
+// 19/02/2012	SOH Madgwick	Magnetometer measurement is normalised
+//
+//=====================================================================================================
 
-#include "IMU.hpp"
+//---------------------------------------------------------------------------------------------------
+// Header files
+
+#include "MadgwickAHRS.h"
 #include <math.h>
 
-#define ACCELEROMETER_SENSITIVITY 8192.0
-#define sampleFreq	50.0f		// sample frequency in Hz
+//---------------------------------------------------------------------------------------------------
+// Definitions
+
+#define sampleFreq	512.0f		// sample frequency in Hz
 #define betaDef		0.1f		// 2 * proportional gain
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
-// Init MPU9250 FIFO
-MPU9250FIFO* IMU::MPU = nullptr;
+volatile float beta = betaDef;								// 2 * proportional gain (Kp)
+volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
 
-//Init imu values
-char		IMU::print_buf[200];
-float 		IMU::accel_data[3][85];
-size_t 		IMU::accel_lengths[3];
-float  		IMU::gyro_data[3][85];
-size_t 		IMU::gyro_lengths[3];
-float  	 	IMU::mag_data[3][85];
-size_t 		IMU::mag_lengths[3];
-float  	 	IMU::temp_data[85];
-size_t 		IMU::temp_length;
-int32_t 	IMU::status;
-float       IMU::yaw;
-float 	    IMU::pitch;
-float 	    IMU::roll;
+//---------------------------------------------------------------------------------------------------
+// Function declarations
 
-float 		IMU::beta = betaDef;								// 2 * proportional gain (Kp)
-float 		IMU::q0 = 1.0f;
-float 		IMU::q1 = 0.0f;
-float 		IMU::q2 = 0.0f;
-float		IMU::q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
+float invSqrt(float x);
 
-//elapsedMillis time;
+//====================================================================================================
+// Functions
 
-IMU::IMU() {
-	Wire.begin();
-	MPU = new MPU9250FIFO(Wire, 0x68);
-	status = MPU->begin();	
+//---------------------------------------------------------------------------------------------------
+// AHRS algorithm update
 
-    snprintf(print_buf, 120, "Status: %d", status);
-    Serial.println(print_buf);
-    
-    MPU->setAccelRange(MPU9250::AccelRange::ACCEL_RANGE_16G);
-    snprintf(print_buf, 120, "Accel Range Success: %d", status);
-    Serial.println(print_buf);
-
-    MPU->setGyroRange(MPU9250::GyroRange::GYRO_RANGE_2000DPS);
-    snprintf(print_buf, 120, "Gyro Range Success: %d", status);
-    Serial.println(print_buf);
-
-    MPU->enableFifo(true, true, true, true);
-
-  	// setting DLPF bandwidth to 20 Hz
-  	MPU->setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_20HZ);
-    
-  	// setting SRD to 19 for a 50 Hz update rate
-  	MPU->setSrd(19);
-
-  	// enabling the data ready interrupt
-  	MPU->enableDataReadyInterrupt();
-
-  	// attaching the interrupt to microcontroller pin 1
-  	pinMode(IMU_INT,INPUT);
-  	attachInterrupt(IMU_INT,read_IMU,RISING);
-}
-
-IMU::~IMU() {
-	delete MPU;	
-}
-
-void IMU::read_IMU() {
-    //Set up LED 
-    static bool LED_state = false;
-    digitalWrite(13, LED_state);
-    LED_state = !LED_state;
-
-	status = MPU->readFifo();
-
-    MPU->getFifoAccelX_mss(&accel_lengths[0], accel_data[0]);
-    MPU->getFifoAccelY_mss(&accel_lengths[1], accel_data[1]);
-    MPU->getFifoAccelZ_mss(&accel_lengths[2], accel_data[2]);
-    MPU->getFifoGyroX_rads(&gyro_lengths[0], gyro_data[0]);
-    MPU->getFifoGyroY_rads(&gyro_lengths[1], gyro_data[1]);
-    MPU->getFifoGyroZ_rads(&gyro_lengths[2], gyro_data[2]);
-    MPU->getFifoMagX_uT(&mag_lengths[0], mag_data[0]);
-    MPU->getFifoMagY_uT(&mag_lengths[1], mag_data[1]);
-    MPU->getFifoMagZ_uT(&mag_lengths[2], mag_data[2]);
-    MPU->getFifoTemperature_C(&temp_length, temp_data);
-    
-    //snprintf(print_buf, 200, "s:%-3d, ax:%-3u, gx:%-3u, mx:%-3u, t:%-3u, AX:%+5f, GX:%+5f, MX:%+5f, T:%+5f", 
-    //         status, accel_lengths[0], gyro_lengths[0],
-    //         mag_lengths[0], temp_length, accel_data[0][0], gyro_data[0][0], mag_data[0][0], temp_data[0]);
-
-    MadgwickAHRSupdate(gyro_data[0][0],gyro_data[1][0],gyro_data[2][0],
-                            accel_data[0][0], accel_data[1][0], accel_data[2][0],
-                            mag_data[0][0], mag_data[1][0], mag_data[2][0]);
-	//Update Euler values
-	get_euler();
-	//Print Values
-    snprintf(print_buf, 200, "Yaw:%-3u, Pitch:%-3d, Roll:%-3u", yaw, pitch, roll);
-    Serial.println(print_buf);
-    //Serial.println(time);
-}
-
-void IMU::ComplementaryFilter()
-{
-    //Inputs: short accData[3], short gyrData[3], float *pitch, float *roll
-    float dt = 0.02;
-    float GYROSCOPE_SENSITIVITY = 65.536;
-    float pitchAcc, rollAcc;               
-    
-    pitchAcc = gyro_data[0][0];
-    // Integrate the gyroscope data -> int(angularSpeed) = angle
-    pitch += (gyro_data[0][0] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the X-axis
-    roll -= (gyro_data[1][0] / GYROSCOPE_SENSITIVITY) * dt;    // Angle around the Y-axis
- 
-    // Compensate for drift with accelerometer data if !bullshit
-    // Sensitivity = -2 to 2 G at 16Bit -> 2G = 32768 && 0.5G = 8192
-    int forceMagnitudeApprox = abs(accel_data[0][0]) + abs(accel_data[1][0]) + abs(accel_data[2][0]);
-
-    if (forceMagnitudeApprox > 8192 && forceMagnitudeApprox < 32768)
-    {
-
-	// Turning around the X axis results in a vector on the Y-axis
-        pitchAcc = atan2f(accel_data[1][0], accel_data[2][0]) * 180 / M_PI;
-        pitch = pitch * 0.98 + pitchAcc * 0.02;
- 
-	// Turning around the Y axis results in a vector on the X-axis
-        rollAcc = atan2f(accel_data[0][0], accel_data[2][0]) * 180 / M_PI;
-        roll = roll * 0.98 + rollAcc * 0.02;
-    }
-} 
-
-void IMU::MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
+void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
 	float recipNorm;
 	float s0, s1, s2, s3;
 	float qDot1, qDot2, qDot3, qDot4;
@@ -243,7 +140,7 @@ void IMU::MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, f
 //---------------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void IMU::MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
+void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
 	float recipNorm;
 	float s0, s1, s2, s3;
 	float qDot1, qDot2, qDot3, qDot4;
@@ -315,7 +212,7 @@ void IMU::MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay
 // Fast inverse square-root
 // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-float IMU::invSqrt(float x) {
+float invSqrt(float x) {
 	float halfx = 0.5f * x;
 	float y = x;
 	long i = *(long*)&y;
@@ -325,28 +222,6 @@ float IMU::invSqrt(float x) {
 	return y;
 }
 
-void IMU::get_euler(){
-    double test = q1*q2 + q3*q0;
-	if (test > 0.499) { // singularity at north pole
-		yaw = 2 * atan2(q1,q0);
-		pitch = M_PI/2;
-		roll = 0;
-		return;
-	}
-	if (test < -0.499) { // singularity at south pole
-		yaw = -2 * atan2(q1,q0);
-		pitch = - M_PI/2;
-		roll = 0;
-		return;
-	}
-    double sqx = q1*q1;
-    double sqy = q2*q2;
-    double sqz = q3*q3;
-
-    yaw = atan2(2*q2*q0-2*q1*q3 , 1 - 2*sqy - 2*sqz);
-	pitch = asin(2*test);
-	roll = atan2(2*q1*q0-2*q2*q3 , 1 - 2*sqx - 2*sqz);
-}
 //====================================================================================================
 // END OF CODE
 //====================================================================================================

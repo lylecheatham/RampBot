@@ -5,7 +5,7 @@
  */
 
 
-#include <ADC.h>
+//#include <ADC.h>
 #include <Arduino.h>
 #include <MPU9250.h>
 #include <NewPing.h>
@@ -33,7 +33,7 @@ int _write() {
 
 DemoInterface* demo;
 
-ADC adc();
+//ADC adc();
 
 void setup() {
     analogWriteResolution(12);
