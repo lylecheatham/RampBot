@@ -46,16 +46,17 @@ int32_t 	state_machine::status;
 
 
 state_machine::state_machine() {
-    mA = new Motor(MotorA, true);
-    mB = new Motor(MotorB, true);
-    servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
+    //mA = new Motor(MotorA, true);
+    //mB = new Motor(MotorB, true);
+    //servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
+    
 	setup_IMU();
 	
-    pinMode(M_STDBY, OUTPUT);
-    if (!Motor::intTime.begin(Motor::control_interrupt, 1000000 / Motor::freq)) {
-        error_string.append("interrupt init fail;");
-    }
-    stop();
+    //pinMode(M_STDBY, OUTPUT);
+    //if (!Motor::intTime.begin(Motor::control_interrupt, 1000000 / Motor::freq)) {
+    //    error_string.append("interrupt init fail;");
+    //}
+    //stop();
 }
 
 
@@ -74,7 +75,7 @@ bool state_machine::setup_IMU() {
 
     snprintf(print_buf, 120, "Status: %d", status);
     Serial.println(print_buf);
-
+    
     IMU->setAccelRange(MPU9250::AccelRange::ACCEL_RANGE_16G);
     snprintf(print_buf, 120, "Accel Range Success: %d", status);
     Serial.println(print_buf);
@@ -162,6 +163,11 @@ void state_machine::update_speeds() {
 
 
 void state_machine::read_IMU() {
+    //Set up LED 
+    static bool LED_state = false;
+    digitalWrite(13, LED_state);
+    LED_state = !LED_state;
+
 	status = IMU->readFifo();
 
     IMU->getFifoAccelX_mss(&accel_lengths[0], accel_data[0]);

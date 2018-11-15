@@ -2,4 +2,4 @@
 .piolibdeps
 *vscode/
 .travis.yml
-.gitignore.swp
+*.gitignore.swp
