@@ -11,14 +11,14 @@
 #include "DemoInterface.hpp"
 
 
+elapsedMillis time;
+
+/* Setup the static variables */
 //center the servo
 int state_machine::servo_pos = 90;
 
 Motor* state_machine::mA = nullptr;
 Motor* state_machine::mB = nullptr;
-
-int32_t state_machine::speedA = 0;
-int32_t state_machine::speedB = 0;
 
 std::string state_machine::error_string = "";
 
@@ -29,25 +29,33 @@ UltraSonicSwivel* state_machine::servo = nullptr;
 IMU* state_machine::imu = nullptr;
 
 //Initialize the Ultrasonic Sensor - (pin,pin,max)
-NewPing sonar(U_PING, U_PING, 300);
+NewPing*  state_machine::sonar = nullptr; 
 
-
+/* function: state_machine()
+ *
+ *
+ *
+ */
 state_machine::state_machine() {
-    //mA = new Motor(MotorA, true);
-    //mB = new Motor(MotorB, true);
-    //servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
-    
+    mA = new Motor(MotorA, true);
+    mB = new Motor(MotorB, true);
+    servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
+    sonar = new NewPing(U_PING, U_PING, 300);
 	imu = new IMU();
 	
-    //pinMode(M_STDBY, OUTPUT);
-    //if (!Motor::intTime.begin(Motor::control_interrupt, 1000000 / Motor::freq)) {
-    //    error_string.append("interrupt init fail;");
-    //}
-    //stop();
+    pinMode(M_STDBY, OUTPUT);
+	digitalWrite(M_STDBY, 1);
+    if (!Motor::intTime.begin(Motor::control_interrupt, 1000000 / Motor::freq)) {
+        error_string.append("interrupt init fail;");
+    }
+    stop();
 }
 
 
-
+/* function: ~state_machine()
+ *
+ *
+ */
 state_machine::~state_machine() {
     delete mA;
     delete mB;
@@ -55,65 +63,143 @@ state_machine::~state_machine() {
 	delete imu;
 }
 
-
-//Function for initially finding the position of the robot on the course
-void state_machine::state_update(){
-    //Main loop
-    switch(state) { 
-    case 0: //Drive towards back wall
-        //statements 
-        break; 
-    case 1: //Drive towards ramp
-        //statements
-        break; 
-    case 2: //Drive up and down ramp
-        //statements
-        break; 
-    case 3: //Identify the post
-        //statements
-        break; 
-    case 4: //Drive towards the post
-        //statements
-        break; 
-    case 5: //Drive towards back wall
-        //statements
-        break; 
-    case 6: //Drive towards ramp
-        //statements
-        break; 
-    case 7: //Drive up and down ramp
-        //statements
-    case 8: //Drive towards starting location
-        //statements
-        break; 
-}
-    
-}
-
-void state_machine::ramp_pos_2(){
-    //1. Drive towards the ramp 
-}
-
-void state_machine::ramp(){
-    //1. Drive towards the ramp 
-}
-
-void state_machine::pole_id(){
-    
+inline void state_machine::get_dist(int32_t &dist) {
+	dist = sonar->ping_cm();
+	dist = dist == 0 ? 300 : dist;
 }
 
 
+/* function: start()
+ *
+ * 	 	Function for initially finding the position of the robot on the course
+ *
+ *
+*/
+void state_machine::start() {
+	while(1){
+		// First wait for keypress
+		Serial.print("Waiting for keypress");
+		while(get_char() != 'g') {
+			delayMicroseconds(100000);
+			Serial.print(".");
+			Serial.println(sonar->ping_cm());
+		}
 
-void state_machine::base_return(){
+		int32_t distance;
+		get_dist(distance);
 
+		forward();
+		// Drive to boundary
+		while(distance > 60 ) { get_dist(distance); }	
+		
+		// Turn right
+		stop();
+		turn_right();
+		forward();
+		
+		get_dist(distance);
+		 // Drive to ramp 
+		while(distance > 20) {get_dist(distance);}
+		
+		stop();
+
+    	// Turn left
+    	turn_left();
+    	
+    	// Reverse up ramp
+		backward();
+    	
+    	// Stop once off ramp
+		get_dist(distance);
+    	while(distance < 300) {get_dist(distance);}
+    	while(distance > 20) {get_dist(distance);}
+ 
+    	stop();
+
+    	// Turn left
+    	turn_left();
+    	
+    	// Turn servo towards wall
+    	servo->set_position(180);
+    	
+    	// Drive until distance closer than 240cm found
+		get_dist(distance);
+		while(distance > 20) {get_dist(distance);}
+    	stop();
+    	servo->set_position(90);
+
+    	// Turn right
+    	turn_right();
+    	
+    	// Drive straight until distance small
+    	forward();
+		get_dist(distance);
+		while(distance > 10) {get_dist(distance);}
+
+    	stop();
+	}
 }
 
-void state_machine::update_speeds() {
-    if (speedA > 150) speedA = 150;
-    if (speedA < -150) speedA = -150;
-    if (speedB > 150) speedB = 150;
-    if (speedB < -150) speedB = -150;
-    mA->set_speed(speedA);
-    mB->set_speed(speedB);
+
+/* function: get_char()
+ *
+ */
+int8_t state_machine::get_char() {
+    if (Serial.available() > 0) return Serial.read();
+    return -1;
+}
+
+/* function: turn_left()
+ *
+ */
+void state_machine::turn_left() {
+	/*
+	 *int32_t curr_bearing = imu->get_orientation();
+	 *mA->set_speed(speed);
+	 *while (imu->get_orientation() != curr_bearing + 90);
+	 *stop();
+	 */
+	time = 0;
+	stop();
+	mA->set_speed(speed);
+	while(time < 2000);
+	stop();
+}
+
+/* function: turn_right()
+ *
+ */
+void state_machine::turn_right() {
+	/*
+	 *int32_t curr_bearing = imu->get_orientation();
+	 *mB->set_speed(speed);
+	 *while (imu->get_orientation() != curr_bearing - 90);
+	 *stop();
+	 */
+}
+
+/* function: stop()
+ *
+ */
+void state_machine::stop() {
+	mA->set_speed(0);
+	mB->set_speed(0);
+}
+
+/* function: forward()
+ *
+ */
+void state_machine::forward() {
+	mA->set_speed(speed);
+	mB->set_speed(speed);
+}
+
+
+/* function: backward()
+ *
+ */
+void state_machine::backward() {
+	mA->set_speed(-speed);
+	mB->set_speed(-speed);
 }
 

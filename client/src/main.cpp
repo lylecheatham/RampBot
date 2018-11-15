@@ -43,6 +43,7 @@ void setup() {
     
     // Startup the State Machine
     state_machine machine;
+	machine.start();
     //Serial.println("Established State Machine");
     //Create ultrasonic instance
     //NewPing sonar(U_PING, U_PING, 300);
