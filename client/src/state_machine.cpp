@@ -26,7 +26,7 @@ std::string state_machine::error_string = "";
 UltraSonicSwivel* state_machine::servo = nullptr;
 
 // Initialize IMU
-IMU* state_machine::imu = nullptr;
+//IMU* state_machine::imu = nullptr;
 
 //Initialize the Ultrasonic Sensor - (pin,pin,max)
 NewPing*  state_machine::sonar = nullptr; 
@@ -41,7 +41,7 @@ state_machine::state_machine() {
     mB = new Motor(MotorB, true);
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     sonar = new NewPing(U_PING, U_PING, 300);
-	imu = new IMU();
+	//imu = new IMU();
 	
     pinMode(M_STDBY, OUTPUT);
 	digitalWrite(M_STDBY, 1);
@@ -60,7 +60,7 @@ state_machine::~state_machine() {
     delete mA;
     delete mB;
     delete servo;
-	delete imu;
+	//delete imu;
 }
 
 inline void state_machine::get_dist(int32_t &dist) {

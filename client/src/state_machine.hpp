@@ -14,7 +14,7 @@
 #include "Motor.hpp"
 #include "constants.h"
 #include "ultraSonicSwivel.h"
-#include "IMU.hpp"
+//#include "IMU.hpp"
 
 
 #include <list>
@@ -29,7 +29,7 @@ private:
     static UltraSonicSwivel *servo;
     static int servo_pos;
     static std::string error_string;
-	static IMU *imu;
+	//static IMU *imu;
 	static NewPing *sonar;
 
     // State tracking variables
