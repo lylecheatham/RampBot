@@ -14,6 +14,7 @@
 
 // Init MPU9250 FIFO
 MPU9250* IMU::MPU = nullptr;
+QuaternionFilter IMU::filter = QuaternionFilter();
 
 // Init imu values
 char IMU::print_buf[200];
@@ -151,7 +152,7 @@ void IMU::read_IMU() {
     MPU->updateTime();
 
     // Mahony Algorithm
-    MahonyQuaternionUpdate(MPU->ax, MPU->ay, MPU->az, MPU->gx * DEG_TO_RAD, MPU->gy * DEG_TO_RAD, MPU->gz * DEG_TO_RAD, MPU->my, MPU->mx, MPU->mz, MPU->deltat);
+    filter.mahonyUpdate(MPU->ax, MPU->ay, MPU->az, MPU->gx * DEG_TO_RAD, MPU->gy * DEG_TO_RAD, MPU->gz * DEG_TO_RAD, MPU->my, MPU->mx, MPU->mz, MPU->deltat);
 
     if (!AHRS) {
         MPU->delt_t = millis() - MPU->count;
@@ -167,11 +168,12 @@ void IMU::read_IMU() {
         // update LCD once per half-second independent of read rate
         if (MPU->delt_t > 100) {
             // Get Pitch, Yaw and Roll fromQuaternions
-            MPU->yaw = atan2(2.0f * (getQ()[1] * getQ()[2] + getQ()[0] * getQ()[3]),
-                             pow(getQ()[0], 2) + pow(getQ()[1], 2) - pow(getQ()[2], 2) - pow(getQ()[3], 2));
-            MPU->pitch = -asin(2.0f * (getQ()[1] * getQ()[3] - getQ()[0] * getQ()[2]));
-            MPU->roll = atan2(2.0f * (getQ()[0] * getQ()[1] + getQ()[2] * getQ()[3]),
-                              pow(getQ()[0], 2) - pow(getQ()[1], 2) - pow(getQ()[2], 2) + pow(getQ()[3], 2));
+            const auto q = filter.getQ();
+            MPU->yaw = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]),
+                             pow(q[0], 2) + pow(q[1], 2) - pow(q[2], 2) - pow(q[3], 2));
+            MPU->pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+            MPU->roll = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]),
+                              pow(q[0], 2) - pow(q[1], 2) - pow(q[2], 2) + pow(q[3], 2));
             MPU->pitch *= RAD_TO_DEG;
             MPU->yaw *= RAD_TO_DEG;
             MPU->roll *= RAD_TO_DEG;

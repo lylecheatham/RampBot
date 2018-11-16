@@ -46,12 +46,14 @@ constexpr float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // Compute beta
 // set to a small or zero value
 constexpr float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;
 
-// Vector to hold integral error for Mahony method
-static std::array<float, 3> eInt = {{0.0f, 0.0f, 0.0f}};
-// Vector to hold quaternion
-static std::array<float, 4> q = {{1.0f, 0.0f, 0.0f, 0.0f}};
 
-void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat) {
+QuaternionFilter::QuaternionFilter(){
+    eInt = {{0.0f, 0.0f, 0.0f}};
+    q = {{1.0f, 0.0f, 0.0f, 0.0f}};
+}
+
+
+void QuaternionFilter::madgwickUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat) {
     // short name local variable for readability
     float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];
     float norm;
@@ -153,7 +155,7 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, 
 
 // Similar to Madgwick scheme but uses proportional and integral filtering on
 // the error between estimated reference vectors and measured ones.
-void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat) {
+void QuaternionFilter::mahonyUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat) {
     // short name local variable for readability
     float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];
     float norm;
@@ -241,6 +243,6 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
     q[3] = q4 * norm;
 }
 
-const std::array<float, 4>& getQ() {
+const std::array<float, 4>& QuaternionFilter::getQ() {
     return q;
 }

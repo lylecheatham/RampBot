@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include "MPU9250.hpp"
 #include "constants.h"
+#include "quaternionFilters.hpp"
 
 #define AHRS true         // Set to false for basic data read
 #define SerialDebug true  // Set to true to get Serial output for debugging
@@ -27,6 +28,7 @@ public:
     void print_values();
 
 private:
+    static QuaternionFilter filter;
     /* Local Members */
     // float yaw_os, pitch_os, roll_os;
 

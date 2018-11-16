@@ -14,8 +14,19 @@
 #include <Arduino.h>
 #include <array>
 
-void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat);
-void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat);
-const std::array<float, 4>& getQ();
+class QuaternionFilter{
+public:
+    QuaternionFilter();
+
+    void madgwickUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat);
+    void mahonyUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz, float deltat);
+    const std::array<float, 4>& getQ();
+
+private:
+    // Vector to hold integral error for Mahony method
+    std::array<float, 3> eInt;
+    // Vector to hold quaternion
+    std::array<float, 4> q;
+};
 
 #endif  // _QUATERNIONFILTERS_H_
