@@ -16,8 +16,7 @@
  * Outputs:
  *	 None
  */
-Golay::Golay() : y_idx(0) {
-}
+Golay::Golay() : y_idx(0) {}
 
 /* Function: ~Golay
  *		Standard destructor
@@ -26,8 +25,7 @@ Golay::Golay() : y_idx(0) {
  * Outputs:
  *	 None
  */
-Golay::~Golay() {
-}
+Golay::~Golay() {}
 
 /* Function: filter
  *		Called whenever new data is received, finds the coefficient matrix
@@ -42,32 +40,25 @@ void Golay::filter(float new_point, float &next_point, float &next_deriv) {
     y[y_idx] = new_point;
     y_idx = (y_idx + 1) % window;
 
-    //ub<float> new_y(window);
-    //for (int32_t i = 0; i < window; i++) {
-        //new_y(window - 1 - i) = (*y)[(y_idx + i) % window];
+    // ub<float> new_y(window);
+    // for (int32_t i = 0; i < window; i++) {
+    // new_y(window - 1 - i) = (*y)[(y_idx + i) % window];
     //}
 
 
-	// Get the new coefficient vector
-	for (int32_t i = 0; i < order+1; i++)
-	{
-		c[i] = 0;
-		for (int32_t j = 0; j < window; j++)
-		{
-			c[i] += T_star[i][window-j] * y[(y_idx + j) % window];
-		}
-	}
+    // Get the new coefficient vector
+    for (int32_t i = 0; i < order + 1; i++) {
+        c[i] = 0;
+        for (int32_t j = 0; j < window; j++) {
+            c[i] += T_star[i][window - j] * y[(y_idx + j) % window];
+        }
+    }
 
-	// Get the next point
-	next_point = 0;
-	for (int32_t i = 0; i < order+1; i++)
-		next_point += t[i]*c[i];
+    // Get the next point
+    next_point = 0;
+    for (int32_t i = 0; i < order + 1; i++) next_point += t[i] * c[i];
 
-	// Get the next derivative
-	next_deriv = 0;
-	for (int32_t i = 0; i < order+1; i++)
-		next_deriv += t_prime[i]*c[i];
-
+    // Get the next derivative
+    next_deriv = 0;
+    for (int32_t i = 0; i < order + 1; i++) next_deriv += t_prime[i] * c[i];
 }
-
-

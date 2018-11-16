@@ -31,27 +31,23 @@ int _write() {
 }
 
 
-void setup()
-{
-  /* Await serial connection */
-  // TWBR = 12;  
-  Serial.begin(38400); // 400 kbit/sec I2C speed
-  while(!Serial){};
+void setup() {
+    /* Await serial connection */
+    // TWBR = 12;
+    Serial.begin(38400);  // 400 kbit/sec I2C speed
+    while (!Serial) {
+    };
 
-  pinMode(STD_LED, OUTPUT);
-  digitalWrite(STD_LED, HIGH);
+    pinMode(STD_LED, OUTPUT);
+    digitalWrite(STD_LED, HIGH);
 
-  /* Setup state machine */
-  //state_machine machine;
-  IMU myIMU;
+    /* Setup state machine */
+    // state_machine machine;
+    IMU myIMU;
 
-  while(1)
-  {
-	myIMU.print_values();		
-  }
-
+    while (1) {
+        myIMU.print_values();
+    }
 }
 
-void loop()
-{	
-}
+void loop() {}

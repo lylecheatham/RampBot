@@ -23,14 +23,14 @@
 
 class state_machine {
 private:
-	// Static objects
+    // Static objects
     static Motor *mA;
     static Motor *mB;
     static UltraSonicSwivel *servo;
     static int servo_pos;
     static std::string error_string;
-	//static IMU *imu;
-	static NewPing *sonar;
+    // static IMU *imu;
+    static NewPing *sonar;
 
     // State tracking variables
     static int32_t start_pos[2];
@@ -38,8 +38,8 @@ private:
     static int32_t cur_dist;
     static int32_t state;
 
-	// Speed to run motors at
-	const static int32_t speed = 75;
+    // Speed to run motors at
+    const static int32_t speed = 75;
 
 public:
     state_machine();
@@ -48,14 +48,14 @@ public:
     void start();
 
 private:
-	int8_t get_char();
+    int8_t get_char();
     void standby();
-	void turn_left();
-	void turn_right();
-	void stop();
-	void forward();
-	void backward();
-	void get_dist(int32_t &dist);
+    void turn_left();
+    void turn_right();
+    void stop();
+    void forward();
+    void backward();
+    void get_dist(int32_t &dist);
 };
 
 

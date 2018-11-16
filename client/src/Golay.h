@@ -47,22 +47,18 @@ public:
     void filter(float new_point, float& next_point, float& next_deriv);
 
 private:
-	const static int32_t window = 5;
-	const static int32_t order  = 2;
+    const static int32_t window = 5;
+    const static int32_t order = 2;
 
-	// (T'T)^(-1) T' CHANGES WITH SAMPLE_FREQ
-    std::array<std::array<float, window>, order+1> T_star = {{ 
-					{{1, 1, 1}},
-					{{1, 1, 1}},
-					{{1, 1, 1}}	
-		}};	    
+    // (T'T)^(-1) T' CHANGES WITH SAMPLE_FREQ
+    std::array<std::array<float, window>, order + 1> T_star = {{{{1, 1, 1}}, {{1, 1, 1}}, {{1, 1, 1}}}};
 
-	std::array<float, order+1> c = {{0}};
-	std::array<float, order+1> t = {{1,1,1}};
-	std::array<float, order+1> t_prime = {{1,1,1}};
+    std::array<float, order + 1> c = {{0}};
+    std::array<float, order + 1> t = {{1, 1, 1}};
+    std::array<float, order + 1> t_prime = {{1, 1, 1}};
 
-    uint32_t y_idx;	
-	std::array<float, window>  y = {{0}};
+    uint32_t y_idx;
+    std::array<float, window> y = {{0}};
 };
 
 
