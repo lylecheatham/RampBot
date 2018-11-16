@@ -98,19 +98,25 @@ IMU::~IMU() {
 }
 
 void IMU::print_values() {
-#if SerialDebug
-    // Serial.println(digitalRead(IMU_INT));
-    /*
-Serial.print("Yaw, Pitch, Roll: ");
-Serial.print((170 + MPU->yaw)/0.675, 2);
-Serial.print(", ");
-Serial.print(MPU->pitch, 2);
-Serial.print(", ");
-Serial.println(MPU->roll, 2);
+            // Get Pitch, Yaw and Roll fromQuaternions
+            MPU->yaw = atan2(2.0f * (filter.getQ()[1] * filter.getQ()[2] + filter.getQ()[0] * filter.getQ()[3]),
+                             pow(filter.getQ()[0], 2) + pow(filter.getQ()[1], 2) - pow(filter.getQ()[2], 2) - pow(filter.getQ()[3], 2));
+            MPU->pitch = -asin(2.0f * (filter.getQ()[1] * filter.getQ()[3] - filter.getQ()[0] * filter.getQ()[2]));
+            MPU->roll = atan2(2.0f * (filter.getQ()[0] * filter.getQ()[1] + filter.getQ()[2] * filter.getQ()[3]),
+                              pow(filter.getQ()[0], 2) - pow(filter.getQ()[1], 2) - pow(filter.getQ()[2], 2) + pow(filter.getQ()[3], 2));
+            MPU->pitch *= RAD_TO_DEG;
+            MPU->yaw *= RAD_TO_DEG;
+            MPU->roll *= RAD_TO_DEG;
 
-Serial.print("rate = ");
-Serial.print((float)MPU->sumCount / MPU->sum, 2);
-Serial.println(" Hz");*/
+#if SerialDebug
+	Serial.print("Yaw, Pitch, Roll: ");
+	Serial.print((170 + MPU->yaw)/0.675, 2);
+	Serial.print(", ");
+	Serial.print(MPU->pitch, 2);
+	Serial.print(", ");
+	Serial.println(MPU->roll, 2);
+	
+	Serial.println("200 Hz");
 #endif
 }
 
@@ -147,40 +153,7 @@ void IMU::read_IMU() {
     MPU->my = (float)MPU->magCount[1] * MPU->mRes * MPU->factoryMagCalibration[1] - MPU->magBias[1];
     MPU->mz = (float)MPU->magCount[2] * MPU->mRes * MPU->factoryMagCalibration[2] - MPU->magBias[2];
 
-    // Must be called before updating quaternions!
-
-    MPU->updateTime();
 
     // Mahony Algorithm
     filter.mahonyUpdate(MPU->ax, MPU->ay, MPU->az, MPU->gx * DEG_TO_RAD, MPU->gy * DEG_TO_RAD, MPU->gz * DEG_TO_RAD, MPU->my, MPU->mx, MPU->mz, MPU->deltat);
-
-    if (!AHRS) {
-        MPU->delt_t = millis() - MPU->count;
-        if (MPU->delt_t > 100) {
-            MPU->count = millis();
-            digitalWrite(STD_LED, !digitalRead(STD_LED));  // toggle led
-        }                                                  // if (MPU->delt_t > 500)
-    }                                                      // if (!AHRS)
-    else {
-        // Serial print and/or display at 0.5 s rate independent of data rates
-        MPU->delt_t = millis() - MPU->count;
-
-        // update LCD once per half-second independent of read rate
-        if (MPU->delt_t > 100) {
-            // Get Pitch, Yaw and Roll fromQuaternions
-            const auto q = filter.getQ();
-            MPU->yaw = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]),
-                             pow(q[0], 2) + pow(q[1], 2) - pow(q[2], 2) - pow(q[3], 2));
-            MPU->pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-            MPU->roll = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]),
-                              pow(q[0], 2) - pow(q[1], 2) - pow(q[2], 2) + pow(q[3], 2));
-            MPU->pitch *= RAD_TO_DEG;
-            MPU->yaw *= RAD_TO_DEG;
-            MPU->roll *= RAD_TO_DEG;
-
-            MPU->count = millis();
-            MPU->sumCount = 0;
-            MPU->sum = 0;
-        }  // if (MPU->delt_t > 500)
-    }      // if (AHRS)
 }

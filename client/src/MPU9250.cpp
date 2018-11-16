@@ -162,18 +162,6 @@ int16_t MPU9250::readTempData() {
     return ((int16_t)rawData[0] << 8) | rawData[1];
 }
 
-// Calculate the time the last update took for use in the quaternion filters
-// TODO: This doesn't really belong in this class.
-void MPU9250::updateTime() {
-    Now = micros();
-
-    // Set integration time by time elapsed since last filter update
-    deltat = ((Now - lastUpdate) / 1000000.0f);
-    lastUpdate = Now;
-
-    sum += deltat;  // sum for averaging filter update rate
-    sumCount++;
-}
 
 void MPU9250::initAK8963(float *destination) {
     // First extract the factory calibration for each magnetometer axis
@@ -232,8 +220,8 @@ void MPU9250::initMPU9250() {
     // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
     // Use a 200 Hz rate; a rate consistent with the filter update rate
     // determined inset in CONFIG above.
-    // writeByte(_I2Caddr, SMPLRT_DIV, 0x04);
-    writeByte(_I2Caddr, SMPLRT_DIV, 0x13);
+    writeByte(_I2Caddr, SMPLRT_DIV, 0x04);
+    //writeByte(_I2Caddr, SMPLRT_DIV, 0x13);
 
     // Set gyroscope full scale range
     // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are

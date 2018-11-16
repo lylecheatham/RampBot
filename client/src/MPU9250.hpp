@@ -251,12 +251,9 @@ public:
     int16_t tempCount;    // Temperature raw count output
     uint32_t delt_t = 0;  // Used to control display output rate
 
-    uint32_t count = 0, sumCount = 0;          // used to control display output rate
-    float deltat = 0.0f, sum = 0.0f;           // integration interval for both filter schemes
-    uint32_t lastUpdate = 0, firstUpdate = 0;  // used to calculate integration interval
-    uint32_t Now = 0;                          // used to calculate integration interval
-
-    int16_t gyroCount[3];  // Stores the 16-bit signed gyro sensor output
+    float deltat = 0.005f;           // integration interval for both filter schemes
+  
+  	int16_t gyroCount[3];  // Stores the 16-bit signed gyro sensor output
     int16_t magCount[3];   // Stores the 16-bit signed magnetometer sensor output
     // Scale resolutions per LSB for the sensors
     float aRes, gRes, mRes;
@@ -280,7 +277,6 @@ public:
     void readGyroData(int16_t *);
     void readMagData(int16_t *);
     int16_t readTempData();
-    void updateTime();
     void initAK8963(float *);
     void initMPU9250();
     void calibrateMPU9250(float *gyroBias, float *accelBias);
