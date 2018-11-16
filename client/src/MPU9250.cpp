@@ -1,3 +1,12 @@
+/* This code courtesy of Kris Winer, adapted for MTE 380 Robot Project:
+ *
+ * by: Kris Winer
+ * date: April 1, 2014
+ * license: Beerware - Use this code however you'd like. If you 
+ * find it useful you can buy me a beer some time.
+ * 
+ */
+
 #include "MPU9250.hpp"
 
 //==============================================================================
@@ -243,7 +252,8 @@ void MPU9250::initMPU9250()
   // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
   // Use a 200 Hz rate; a rate consistent with the filter update rate
   // determined inset in CONFIG above.
-  writeByte(_I2Caddr, SMPLRT_DIV, 0x04);
+  //writeByte(_I2Caddr, SMPLRT_DIV, 0x04);
+  writeByte(_I2Caddr, SMPLRT_DIV, 0x13);
 
   // Set gyroscope full scale range
   // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are
@@ -289,7 +299,8 @@ void MPU9250::initMPU9250()
   // until interrupt cleared, clear on read of INT_STATUS, and enable
   // I2C_BYPASS_EN so additional chips can join the I2C bus and all can be
   // controlled by the Arduino as master.
-  writeByte(_I2Caddr, INT_PIN_CFG, 0x22);
+  //writeByte(_I2Caddr, INT_PIN_CFG, 0x22);
+  writeByte(_I2Caddr, INT_PIN_CFG, 0x2);
   // Enable data ready (bit 0) interrupt
   writeByte(_I2Caddr, INT_ENABLE, 0x01);
   delay(100);
@@ -1055,3 +1066,6 @@ uint8_t MPU9250::ak8963WhoAmI_SPI()
 
   return response;
 }
+
+
+
