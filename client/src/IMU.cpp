@@ -167,11 +167,11 @@ void IMU::read_IMU() {
         // update LCD once per half-second independent of read rate
         if (MPU->delt_t > 100) {
             // Get Pitch, Yaw and Roll fromQuaternions
-            MPU->yaw = atan2(2.0f * (*(getQ() + 1) * *(getQ() + 2) + *getQ() * *(getQ() + 3)),
-                             *getQ() * *getQ() + *(getQ() + 1) * *(getQ() + 1) - *(getQ() + 2) * *(getQ() + 2) - *(getQ() + 3) * *(getQ() + 3));
-            MPU->pitch = -asin(2.0f * (*(getQ() + 1) * *(getQ() + 3) - *getQ() * *(getQ() + 2)));
-            MPU->roll = atan2(2.0f * (*getQ() * *(getQ() + 1) + *(getQ() + 2) * *(getQ() + 3)),
-                              *getQ() * *getQ() - *(getQ() + 1) * *(getQ() + 1) - *(getQ() + 2) * *(getQ() + 2) + *(getQ() + 3) * *(getQ() + 3));
+            MPU->yaw = atan2(2.0f * (getQ()[1] * getQ()[2] + getQ()[0] * getQ()[3]),
+                             pow(getQ()[0], 2) + pow(getQ()[1], 2) - pow(getQ()[2], 2) - pow(getQ()[3], 2));
+            MPU->pitch = -asin(2.0f * (getQ()[1] * getQ()[3] - getQ()[0] * getQ()[2]));
+            MPU->roll = atan2(2.0f * (getQ()[0] * getQ()[1] + getQ()[2] * getQ()[3]),
+                              pow(getQ()[0], 2) - pow(getQ()[1], 2) - pow(getQ()[2], 2) + pow(getQ()[3], 2));
             MPU->pitch *= RAD_TO_DEG;
             MPU->yaw *= RAD_TO_DEG;
             MPU->roll *= RAD_TO_DEG;
