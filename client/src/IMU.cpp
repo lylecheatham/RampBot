@@ -120,82 +120,65 @@ void IMU::read_IMU() {
     LED_state = !LED_state;
     // Serial.println(".");
     // MPU->readByte(MPU9250_ADDRESS_AD0, INT_STATUS); // Clear
-    /*
-        MPU->readAccelData(MPU->accelCount);  // Read the x/y/z adc values
+    MPU->readAccelData(MPU->accelCount);  // Read the x/y/z adc values
 
-        // Now we'll calculate the accleration value into actual g's
-        // This depends on scale being set
-        MPU->ax = (float)MPU->accelCount[0] * MPU->aRes; // - MPU->accelBias[0];
-        MPU->ay = (float)MPU->accelCount[1] * MPU->aRes; // - MPU->accelBias[1];
-        MPU->az = (float)MPU->accelCount[2] * MPU->aRes; // - MPU->accelBias[2];
+    // Now we'll calculate the accleration value into actual g's
+    // This depends on scale being set
+    MPU->ax = (float)MPU->accelCount[0] * MPU->aRes;  // - MPU->accelBias[0];
+    MPU->ay = (float)MPU->accelCount[1] * MPU->aRes;  // - MPU->accelBias[1];
+    MPU->az = (float)MPU->accelCount[2] * MPU->aRes;  // - MPU->accelBias[2];
 
-        MPU->readGyroData(MPU->gyroCount);  // Read the x/y/z adc values
+    MPU->readGyroData(MPU->gyroCount);  // Read the x/y/z adc values
 
-        // Calculate the gyro value into actual degrees per second
-        // This depends on scale being set
-        MPU->gx = (float)MPU->gyroCount[0] * MPU->gRes;
-        MPU->gy = (float)MPU->gyroCount[1] * MPU->gRes;
-        MPU->gz = (float)MPU->gyroCount[2] * MPU->gRes;
+    // Calculate the gyro value into actual degrees per second
+    // This depends on scale being set
+    MPU->gx = (float)MPU->gyroCount[0] * MPU->gRes;
+    MPU->gy = (float)MPU->gyroCount[1] * MPU->gRes;
+    MPU->gz = (float)MPU->gyroCount[2] * MPU->gRes;
 
-        MPU->readMagData(MPU->magCount);  // Read the x/y/z adc values
+    MPU->readMagData(MPU->magCount);  // Read the x/y/z adc values
 
-        // Calculate the magnetometer values in milliGauss
-        // Include factory calibration per data sheet and user environmental
-        // corrections
-        // Get actual magnetometer value, this depends on scale being set
-        MPU->mx = (float)MPU->magCount[0] * MPU->mRes
-                   * MPU->factoryMagCalibration[0] - MPU->magBias[0];
-        MPU->my = (float)MPU->magCount[1] * MPU->mRes
-                   * MPU->factoryMagCalibration[1] - MPU->magBias[1];
-        MPU->mz = (float)MPU->magCount[2] * MPU->mRes
-                   * MPU->factoryMagCalibration[2] - MPU->magBias[2];
+    // Calculate the magnetometer values in milliGauss
+    // Include factory calibration per data sheet and user environmental
+    // corrections
+    // Get actual magnetometer value, this depends on scale being set
+    MPU->mx = (float)MPU->magCount[0] * MPU->mRes * MPU->factoryMagCalibration[0] - MPU->magBias[0];
+    MPU->my = (float)MPU->magCount[1] * MPU->mRes * MPU->factoryMagCalibration[1] - MPU->magBias[1];
+    MPU->mz = (float)MPU->magCount[2] * MPU->mRes * MPU->factoryMagCalibration[2] - MPU->magBias[2];
 
-            // Must be called before updating quaternions!
+    // Must be called before updating quaternions!
 
-            MPU->updateTime();
+    MPU->updateTime();
 
-            // Mahony Algorithm
-            MahonyQuaternionUpdate(MPU->ax, MPU->ay, MPU->az, MPU->gx * DEG_TO_RAD,
-                                   MPU->gy * DEG_TO_RAD, MPU->gz * DEG_TO_RAD, MPU->my,
-                                   MPU->mx, MPU->mz, MPU->deltat);
+    // Mahony Algorithm
+    MahonyQuaternionUpdate(MPU->ax, MPU->ay, MPU->az, MPU->gx * DEG_TO_RAD, MPU->gy * DEG_TO_RAD, MPU->gz * DEG_TO_RAD, MPU->my, MPU->mx, MPU->mz, MPU->deltat);
 
-            if (!AHRS)
-            {
-              MPU->delt_t = millis() - MPU->count;
-              if (MPU->delt_t > 100)
-              {
-                MPU->count = millis();
-                digitalWrite(STD_LED, !digitalRead(STD_LED));  // toggle led
-              } // if (MPU->delt_t > 500)
-            } // if (!AHRS)
-            else
-            {
-              // Serial print and/or display at 0.5 s rate independent of data rates
-              MPU->delt_t = millis() - MPU->count;
+    if (!AHRS) {
+        MPU->delt_t = millis() - MPU->count;
+        if (MPU->delt_t > 100) {
+            MPU->count = millis();
+            digitalWrite(STD_LED, !digitalRead(STD_LED));  // toggle led
+        }                                                  // if (MPU->delt_t > 500)
+    }                                                      // if (!AHRS)
+    else {
+        // Serial print and/or display at 0.5 s rate independent of data rates
+        MPU->delt_t = millis() - MPU->count;
 
-              // update LCD once per half-second independent of read rate
-              if (MPU->delt_t > 100)
-              {
+        // update LCD once per half-second independent of read rate
+        if (MPU->delt_t > 100) {
+            // Get Pitch, Yaw and Roll fromQuaternions
+            MPU->yaw = atan2(2.0f * (*(getQ() + 1) * *(getQ() + 2) + *getQ() * *(getQ() + 3)),
+                             *getQ() * *getQ() + *(getQ() + 1) * *(getQ() + 1) - *(getQ() + 2) * *(getQ() + 2) - *(getQ() + 3) * *(getQ() + 3));
+            MPU->pitch = -asin(2.0f * (*(getQ() + 1) * *(getQ() + 3) - *getQ() * *(getQ() + 2)));
+            MPU->roll = atan2(2.0f * (*getQ() * *(getQ() + 1) + *(getQ() + 2) * *(getQ() + 3)),
+                              *getQ() * *getQ() - *(getQ() + 1) * *(getQ() + 1) - *(getQ() + 2) * *(getQ() + 2) + *(getQ() + 3) * *(getQ() + 3));
+            MPU->pitch *= RAD_TO_DEG;
+            MPU->yaw *= RAD_TO_DEG;
+            MPU->roll *= RAD_TO_DEG;
 
-                // Get Pitch, Yaw and Roll fromQuaternions
-                MPU->yaw   = atan2(2.0f * (*(getQ()+1) * *(getQ()+2) + *getQ()
-                              * *(getQ()+3)), *getQ() * *getQ() + *(getQ()+1)
-                              * *(getQ()+1) - *(getQ()+2) * *(getQ()+2) - *(getQ()+3)
-                              * *(getQ()+3));
-                MPU->pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ()
-                              * *(getQ()+2)));
-                MPU->roll  = atan2(2.0f * (*getQ() * *(getQ()+1) + *(getQ()+2)
-                              * *(getQ()+3)), *getQ() * *getQ() - *(getQ()+1)
-                              * *(getQ()+1) - *(getQ()+2) * *(getQ()+2) + *(getQ()+3)
-                              * *(getQ()+3));
-                MPU->pitch *= RAD_TO_DEG;
-                MPU->yaw   *= RAD_TO_DEG;
-                MPU->roll *= RAD_TO_DEG;
-
-                MPU->count = millis();
-                MPU->sumCount = 0;
-                MPU->sum = 0;
-              } // if (MPU->delt_t > 500)
-            } // if (AHRS)
-    */
+            MPU->count = millis();
+            MPU->sumCount = 0;
+            MPU->sum = 0;
+        }  // if (MPU->delt_t > 500)
+    }      // if (AHRS)
 }
