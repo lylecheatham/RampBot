@@ -98,25 +98,24 @@ IMU::~IMU() {
 }
 
 void IMU::print_values() {
-            // Get Pitch, Yaw and Roll fromQuaternions
-            MPU->yaw = atan2(2.0f * (filter.getQ()[1] * filter.getQ()[2] + filter.getQ()[0] * filter.getQ()[3]),
-                             pow(filter.getQ()[0], 2) + pow(filter.getQ()[1], 2) - pow(filter.getQ()[2], 2) - pow(filter.getQ()[3], 2));
-            MPU->pitch = -asin(2.0f * (filter.getQ()[1] * filter.getQ()[3] - filter.getQ()[0] * filter.getQ()[2]));
-            MPU->roll = atan2(2.0f * (filter.getQ()[0] * filter.getQ()[1] + filter.getQ()[2] * filter.getQ()[3]),
-                              pow(filter.getQ()[0], 2) - pow(filter.getQ()[1], 2) - pow(filter.getQ()[2], 2) + pow(filter.getQ()[3], 2));
-            MPU->pitch *= RAD_TO_DEG;
-            MPU->yaw *= RAD_TO_DEG;
-            MPU->roll *= RAD_TO_DEG;
+    const auto q = filter.getQ();
+    // Get Pitch, Yaw and Roll fromQuaternions
+    MPU->yaw = atan2f(2.0f * (q[1] * q[2] + q[0] * q[3]), powf(q[0], 2) + powf(q[1], 2) - powf(q[2], 2) - powf(q[3], 2));
+    MPU->pitch = -asinf(2.0f * (q[1] * q[3] - q[0] * q[2]));
+    MPU->roll = atan2f(2.0f * (q[0] * q[1] + q[2] * q[3]), powf(q[0], 2) - powf(q[1], 2) - powf(q[2], 2) + powf(q[3], 2));
+    MPU->pitch *= RAD_TO_DEG;
+    MPU->yaw *= RAD_TO_DEG;
+    MPU->roll *= RAD_TO_DEG;
 
 #if SerialDebug
-	Serial.print("Yaw, Pitch, Roll: ");
-	Serial.print((170 + MPU->yaw)/0.675, 2);
-	Serial.print(", ");
-	Serial.print(MPU->pitch, 2);
-	Serial.print(", ");
-	Serial.println(MPU->roll, 2);
-	
-	Serial.println("200 Hz");
+    Serial.print("Yaw, Pitch, Roll: ");
+    Serial.print((170 + MPU->yaw) / 0.675, 2);
+    Serial.print(", ");
+    Serial.print(MPU->pitch, 2);
+    Serial.print(", ");
+    Serial.println(MPU->roll, 2);
+
+    Serial.println("200 Hz");
 #endif
 }
 
