@@ -4,11 +4,19 @@
 enum MotorNum { MotorA, MotorB };
 #define STD_SPEED 50 // RPM
 
+/* Useful Ratios */
+//#define PI 3.1415
+//#define RAD_TO_DEG 57.3
+#define RAD_TO_DEG_RND 57
+//#define DEG_TO_RAD 0.0175
+
 /* Mechanical Values */
 #define D_O_WHEEL 50 //mm
 #define D_I_WHEEL 30 //mm
 #define RPM_TO_VO (0.26) //cm/s
 #define RPM_TO_VI (0.16) //cm/s
+#define WHEELBASE 149 //mm
+#define COUNTS_REV 1203 //encoder counts per revolution
 
 /* LEDs */
 #define STD_LED 13

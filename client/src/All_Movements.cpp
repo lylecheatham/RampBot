@@ -43,29 +43,85 @@ Status DriveDistance::update()
 {
 	if(last_status == FAILURE) // check if not started
 	{
+		// Save previous speeds
+		prev_speedA = mA->get_speed();
+		prev_speedB = mB->get_speed();
+
+		// Set new speed
 		mA->set_speed(speed);
 		mB->set_speed(speed);
+
+		// Initial Conditions
 		dist += sonar->ping_cm(); // add current distance to our travel offset
 	}
 
 	int32_t curr_t = millis();
 	int32_t curr_d = sonar->ping_cm();
 
-	//TODO validate encoder values with ultrasonic (complementary filter)
-	//TODO add correction if not driving straight
-	//angle = 0.98 (angle + yaw_angle*time_interval) + 0.02*enc_angle;
+	// Correct orientation
+	correct();
 
 	if(curr_t > timeout)
 		last_status = FAILURE;
+
 	else if((speed > 0 && dist - curr_d > TOL) || 
 					(speed < 0 && curr_d - dist > TOL))
 		last_status = ONGOING;
+
 	else
+	{
 		last_status = SUCCESS;
+
+		// return to original state
+		mA->set_speed(prev_speedA);
+		mB->set_speed(prev_speedB);
+	}
 
 	return last_status;
 }
 
+/* correct
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ * 	Notes:
+ * 		A positive error would correspond to a positive angle: turning left
+ * 		A negative  ||    ||       ||       || negative  ||  : turning right
+ *
+ * 		PID output would correspond to a delta: positive delta = need to turn right
+ * 			apply half of delta to mB, apply half of -delta to mA
+ */
+void DriveDistance::correct()
+{
+	//TODO validate encoder values with ultrasonic (complementary filter) 
+	//TODO add correction if not driving straight (PID essentially)
+	//angle = 0.98 (angle + yaw_angle*time_interval) + 0.02*enc_angle;
+
+	// calculate error as a combination of encoder and yaw
+	
+
+
+	// basic PID control to compensate for the error
+    // Proportional Value
+/*
+ *    float p_out = kp * error;
+ *
+ *    // Integral Value=
+ *    integration += error;
+ *    float i_out = ki * integration * dt;
+ *
+ *    // Derivative Value
+ *    float d_out = kd * (error - previous_error) / dt;
+ *
+ *    previous_error = error;
+ *    float delta = p_out + i_out _ d_out;
+ *
+ *    // Set new speeds
+ *    mB->set_speed(speed + delta/2);
+ *    mA->set_speed(speed - delta/2);
+ */
+}
 
 /********************* Turn Angle ***************************/
 /* TurnAngle
@@ -111,23 +167,75 @@ Status TurnAngle::update()
 {
 	if(last_status == FAILURE)
 	{
+		// Save previous speeds
+		prev_speedD = mDrive->get_speed();
+		prev_speedP = mPivot->get_speed();
+		
+		// Set turning speed
 		mDrive->set_speed(speed);
 		mPivot->set_speed(0);
-		angle += imu->get_yaw(); //TODO make sure account for degrees popping back over
+
+		// Initial Conditions
+		start_angle = imu->get_yaw(); //TODO make sure account for degrees popping back over
+		prev_angle = 0;
+		start_enc  = mDrive->get_count();
 	}
 
-	int32_t curr_angle = imu->get_yaw();
 	int32_t curr_t = millis();
 
-	//TODO complementary filter of encoder and imu values for current angle
+	// Complementary filter of encoder and imu values for current angle
+	int32_t enc_ang = encoder_angle();
+	int32_t imu_ang = imu_angle();
+
+	prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
+
+	prev_t = curr_t;
+
 
 	if(curr_t > timeout)
 		last_status = FAILURE;
-	else if(( left_turn && angle - curr_angle > TOL) ||
-					( !left_turn && curr_angle - angle > TOL))
+	else if(( left_turn && angle - prev_angle > TOL) ||
+					( !left_turn && prev_angle - angle > TOL))
 		last_status = ONGOING;
 	else
+	{
 		last_status = SUCCESS;
 
+		// Reset original state
+		mDrive->set_speed(prev_speedD);
+		mPivot->set_speed(prev_speedP);
+	}
+
 	return last_status;
+}
+
+/* encoder_angle
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		current angle calculated based on encoder values
+ */
+int32_t TurnAngle::encoder_angle()
+{
+	int32_t	dx = mDrive->get_count() - start_enc; // get encoder count so far
+	dx *= (2*PI*D_O_WHEEL/2); // translate to linear distance
+
+	dx *= 1000; //Try to avoid truncation
+
+	dx /= COUNTS_REV;			
+	
+	int32_t angle = dx/WHEELBASE*RAD_TO_DEG;
+
+	return angle/1000; // Reset truncation fix
+}
+
+/* imu_angle
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		current angle based on imu
+ */
+int32_t TurnAngle::imu_angle() 
+{
+	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
 }

@@ -39,9 +39,12 @@ class DriveDistance : Movement {
 
 	private:
 		uint32_t timeout;
-		int32_t dist, speed;
+		int32_t dist;
+	    int32_t	speed, prev_speedA, prev_speedB;
 		Motor *mA, *mB;
 		NewPing *sonar;
+
+		void correct();
 };
 
 
@@ -54,11 +57,16 @@ class TurnAngle : Movement {
 		Status update();
 
 	private:
-		bool left_turn;
-		uint32_t timeout;
-		int32_t angle, speed;
+		uint32_t timeout, prev_t;
+		int32_t start_enc;
+		int32_t angle, start_angle, prev_angle;
+		int32_t speed, prev_speedD, prev_speedP;
 		Motor *mDrive, *mPivot;
 		IMU *imu;
+		bool left_turn;		
+
+		int32_t encoder_angle();
+		int32_t imu_angle();
 };
 
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
