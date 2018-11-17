@@ -27,10 +27,10 @@
  */
 
 #define TIMEOUT_TOL 3000 // timeout tolerance in ms
-#define TOL 1 // distance tolerance in cm
+#define TOL 10 // distance tolerance in cm
 
 /* Drive Distance - (drive in a straight line a set distance) */
-class DriveDistance : Movement {
+class DriveDistance : public Movement {
 	public:
 		DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPing* sonar_, int32_t speed_ = STD_SPEED);
 		~DriveDistance() {};
@@ -38,7 +38,8 @@ class DriveDistance : Movement {
 		Status update();
 
 	private:
-		uint32_t timeout;
+		uint32_t timeout, prev_t;
+		int32_t encA_start, encB_start;
 		int32_t dist;
 	    int32_t	speed, prev_speedA, prev_speedB;
 		Motor *mA, *mB;
@@ -49,7 +50,7 @@ class DriveDistance : Movement {
 
 
 /* Turn Angle - (Turn to a specified angle off of current orientation / pivot turning) */
-class TurnAngle : Movement {
+class TurnAngle : public Movement {
 	public:
 		TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_, int32_t speed_ = STD_SPEED);
 		~TurnAngle() {};
@@ -70,7 +71,7 @@ class TurnAngle : Movement {
 };
 
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
-//class DriveOntoRamp : Movement {
+//class DriveOntoRamp : public Movement {
 	//public:
 		//DriveOntoRamp();
 		//~DriveOntoRamp() {};

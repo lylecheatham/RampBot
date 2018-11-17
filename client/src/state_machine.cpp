@@ -9,6 +9,7 @@
 #include "state_machine.hpp"
 #include "DemoInterface.hpp"
 #include "ultraSonicSwivel.h"
+#include "All_Movements.hpp"
 
 
 elapsedMillis time;
@@ -26,7 +27,7 @@ std::string state_machine::error_string = "";
 UltraSonicSwivel* state_machine::servo = nullptr;
 
 // Initialize IMU
-// IMU* state_machine::imu = nullptr;
+IMU* state_machine::imu = nullptr;
 
 // Initialize the Ultrasonic Sensor - (pin,pin,max)
 NewPing* state_machine::sonar = nullptr;
@@ -41,7 +42,7 @@ state_machine::state_machine() {
     mB = new Motor(MotorB, true);
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     sonar = new NewPing(U_PING, U_PING, 300);
-    // imu = new IMU();
+   // imu = new IMU();
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
@@ -82,76 +83,96 @@ void state_machine::start() {
         while (get_char() != 'g') {
             delayMicroseconds(100000);
             Serial.print(".");
-            Serial.println(sonar->ping_cm());
+        //    Serial.println(sonar->ping_cm());
         }
+		mA->set_speed(STD_SPEED);
+		mB->set_speed(STD_SPEED);
+		delayMicroseconds(5000000);
+		mA->set_speed(0);
+		mB->set_speed(0);
+		//TurnAngle turnL(90, mA, mB, imu);
+		//TurnAngle turnR(-90, mA, mB, imu);
+		//Serial.println(execute(turnL));
+		//Serial.println(execute(turnR));
 
-        int32_t distance;
-        get_dist(distance);
-
-        forward();
-        // Drive to boundary
-        while (distance > 60) {
-            get_dist(distance);
-        }
-
-        // Turn right
-        stop();
-        turn_right();
-        forward();
-
-        get_dist(distance);
-        // Drive to ramp
-        while (distance > 20) {
-            get_dist(distance);
-        }
-
-        stop();
-
-        // Turn left
-        turn_left();
-
-        // Reverse up ramp
-        backward();
-
-        // Stop once off ramp
-        get_dist(distance);
-        while (distance < 300) {
-            get_dist(distance);
-        }
-        while (distance > 20) {
-            get_dist(distance);
-        }
-
-        stop();
-
-        // Turn left
-        turn_left();
-
-        // Turn servo towards wall
-        servo->set_position(180);
-
-        // Drive until distance closer than 240cm found
-        get_dist(distance);
-        while (distance > 20) {
-            get_dist(distance);
-        }
-        stop();
-        servo->set_position(90);
-
-        // Turn right
-        turn_right();
-
-        // Drive straight until distance small
-        forward();
-        get_dist(distance);
-        while (distance > 10) {
-            get_dist(distance);
-        }
-
-        stop();
+/*
+ *        int32_t distance;
+ *        get_dist(distance);
+ *
+ *        forward();
+ *        // Drive to boundary
+ *        while (distance > 60) {
+ *            get_dist(distance);
+ *        }
+ *
+ *        // Turn right
+ *        stop();
+ *        turn_right();
+ *        forward();
+ *
+ *        get_dist(distance);
+ *        // Drive to ramp
+ *        while (distance > 20) {
+ *            get_dist(distance);
+ *        }
+ *
+ *        stop();
+ *
+ *        // Turn left
+ *        turn_left();
+ *
+ *        // Reverse up ramp
+ *        backward();
+ *
+ *        // Stop once off ramp
+ *        get_dist(distance);
+ *        while (distance < 300) {
+ *            get_dist(distance);
+ *        }
+ *        while (distance > 20) {
+ *            get_dist(distance);
+ *        }
+ *
+ *        stop();
+ *
+ *        // Turn left
+ *        turn_left();
+ *
+ *        // Turn servo towards wall
+ *        servo->set_position(180);
+ *
+ *        // Drive until distance closer than 240cm found
+ *        get_dist(distance);
+ *        while (distance > 20) {
+ *            get_dist(distance);
+ *        }
+ *        stop();
+ *        servo->set_position(90);
+ *
+ *        // Turn right
+ *        turn_right();
+ *
+ *        // Drive straight until distance small
+ *        forward();
+ *        get_dist(distance);
+ *        while (distance > 10) {
+ *            get_dist(distance);
+ *        }
+ *
+ *        stop();
+ */
     }
 }
 
+
+/* function: execute
+ * 		Executes a given movement
+ */
+Status state_machine::execute(Movement &m)
+{
+	while((m.update() == ONGOING));
+	return m.last_status;
+}
 
 /* function: get_char()
  *

@@ -153,8 +153,12 @@ TurnAngle::TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_, int32_t 
 		left_turn = false;
 	}
 	
-	timeout = TIMEOUT_TOL*angle_/45 + millis(); // get timeout criteria
+	timeout = angle_ < 0 ? TIMEOUT_TOL*(-angle_)/45 : TIMEOUT_TOL*(angle_)/45;
+   	timeout += millis(); // get timeout criteria
 	speed = speed < 0 ? -speed : speed;   		// only work for forward turns currently
+	last_status = FAILURE;
+
+	Serial.println("Constructed turnangle!");
 }
 
 /* update
@@ -168,15 +172,15 @@ Status TurnAngle::update()
 	if(last_status == FAILURE)
 	{
 		// Save previous speeds
-		prev_speedD = mDrive->get_speed();
-		prev_speedP = mPivot->get_speed();
+		prev_speedD = 0;// mDrive->get_speed();
+		prev_speedP = 0;//mPivot->get_speed();
 		
 		// Set turning speed
 		mDrive->set_speed(speed);
 		mPivot->set_speed(0);
 
 		// Initial Conditions
-		start_angle = imu->get_yaw(); //TODO make sure account for degrees popping back over
+		start_angle = 0;// imu->get_yaw(); //TODO make sure account for degrees popping back over
 		prev_angle = 0;
 		start_enc  = mDrive->get_count();
 	}
@@ -187,13 +191,19 @@ Status TurnAngle::update()
 	int32_t enc_ang = encoder_angle();
 	int32_t imu_ang = imu_angle();
 
-	prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
+	prev_angle = enc_ang;//0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
 
 	prev_t = curr_t;
 
 
 	if(curr_t > timeout)
+	{
 		last_status = FAILURE;
+
+		// Reset original state
+		mDrive->set_speed(prev_speedD);
+		mPivot->set_speed(prev_speedP);
+	}
 	else if(( left_turn && angle - prev_angle > TOL) ||
 					( !left_turn && prev_angle - angle > TOL))
 		last_status = ONGOING;
@@ -205,7 +215,7 @@ Status TurnAngle::update()
 		mDrive->set_speed(prev_speedD);
 		mPivot->set_speed(prev_speedP);
 	}
-
+	
 	return last_status;
 }
 
@@ -226,7 +236,7 @@ int32_t TurnAngle::encoder_angle()
 	
 	int32_t angle = dx/WHEELBASE*RAD_TO_DEG;
 
-	return angle/1000; // Reset truncation fix
+	return left_turn ? angle/1000 : -angle/1000; // Reset truncation fix
 }
 
 /* imu_angle
@@ -237,5 +247,5 @@ int32_t TurnAngle::encoder_angle()
  */
 int32_t TurnAngle::imu_angle() 
 {
-	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
+	return 0;//imu->get_yaw() - start_angle; //TODO account for degrees popping back over
 }

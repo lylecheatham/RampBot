@@ -31,8 +31,8 @@ class Movement {
 	public:
 		Status last_status;
 
-		Movement();
-		~Movement();
+		Movement() {};
+		~Movement() {};
 
 		virtual Status update() = 0;	
 };

@@ -14,7 +14,7 @@
 #include "constants.h"
 #include "packet.h"
 #include "sensor_packet.h"
-//#include "state_machine.hpp"
+#include "state_machine.hpp"
 #include "IMU.hpp"
 
 // Hacky stuff, don't remove
@@ -42,11 +42,13 @@ void setup() {
     digitalWrite(STD_LED, HIGH);
 
     /* Setup state machine */
-    // state_machine machine;
-    IMU myIMU;
+    state_machine machine;
+    //IMU myIMU;
+
+	machine.start();
 
     while (1) {
-        myIMU.print_values();
+        //myIMU.print_values();
     }
 }
 
