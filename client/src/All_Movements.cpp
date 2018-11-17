@@ -44,8 +44,8 @@ Status DriveDistance::update()
 	if(last_status == FAILURE) // check if not started
 	{
 		// Save previous speeds
-		prev_speedA = mA->get_speed();
-		prev_speedB = mB->get_speed();
+		prev_speedA = 0;
+		prev_speedB = 0;
 
 		// Set new speed
 		mA->set_speed(speed);
@@ -186,13 +186,20 @@ Status TurnAngle::update()
 	int32_t curr_t = millis();
 
 	// Complementary filter of encoder and imu values for current angle
-	int32_t enc_ang = encoder_angle();
-	int32_t imu_ang = imu_angle();
+	float enc_ang = encoder_angle();
+	float imu_ang = imu_angle();
 
 	prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
 
 	prev_t = curr_t;
 
+
+	Serial.print("Enc angle: ");
+	Serial.print(enc_ang);
+	Serial.print("  IMU angle: ");
+	Serial.print(imu_ang);
+	Serial.print("  Angle: ");
+	Serial.println(prev_angle);
 
 	if(curr_t > timeout)
 	{
@@ -202,8 +209,8 @@ Status TurnAngle::update()
 		mDrive->set_speed(prev_speedD);
 		mPivot->set_speed(prev_speedP);
 	}
-	else if(( right_turn && angle - prev_angle > TOL) ||
-					( !right_turn && prev_angle - angle > TOL))
+	else if(( right_turn && (angle - prev_angle) > TOL) ||
+					( !right_turn && (prev_angle - angle) > TOL))
 		last_status = ONGOING;
 	else
 	{
@@ -224,16 +231,16 @@ Status TurnAngle::update()
  * 		current angle calculated based on encoder values
  */
 
-int32_t TurnAngle::encoder_angle()
+float TurnAngle::encoder_angle()
 {
-	int32_t	dx = mDrive->get_count() - start_enc; // get encoder count so far
+	float	dx = mDrive->get_count() - start_enc; // get encoder count so far
 	dx *= (2*PI*D_O_WHEEL/2); // translate to linear distance
 
 	dx *= 1000; //Try to avoid truncation
 
 	dx /= COUNTS_REV;			
 	
-	int32_t angle = dx/WHEELBASE*RAD_TO_DEG;
+	float angle = dx/WHEELBASE*RAD_TO_DEG;
 
 	return right_turn ? angle/1000 : -angle/1000; // Reset truncation fix
 }
@@ -244,7 +251,7 @@ int32_t TurnAngle::encoder_angle()
  * 	Outputs:
  * 		current angle based on imu
  */
-int32_t TurnAngle::imu_angle() 
+float TurnAngle::imu_angle() 
 {
 	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
 }
