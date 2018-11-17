@@ -215,6 +215,7 @@ Status TurnAngle::update()
  * 	Outputs:
  * 		current angle calculated based on encoder values
  */
+
 int32_t TurnAngle::encoder_angle()
 {
 	int32_t	dx = mDrive->get_count() - start_enc; // get encoder count so far

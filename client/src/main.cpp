@@ -46,7 +46,7 @@ void setup() {
     IMU myIMU;
 
     while (1) {
-        myIMU.print_values();
+        Serial.print(myIMU.get_yaw());
     }
 }
 
