@@ -42,7 +42,7 @@ state_machine::state_machine() {
     mB = new Motor(MotorB, true);
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     sonar = new NewPing(U_PING, U_PING, 300);
-   // imu = new IMU();
+    imu = new IMU();
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
@@ -80,20 +80,22 @@ void state_machine::start() {
     while (1) {
         // First wait for keypress
         Serial.print("Waiting for keypress");
-        while (get_char() != 'g') {
+		int8_t character = get_char();
+        while (character != 'e' && character != 'r') {
             delayMicroseconds(100000);
             Serial.print(".");
+			character = get_char();
         //    Serial.println(sonar->ping_cm());
         }
-		mA->set_speed(STD_SPEED);
-		mB->set_speed(STD_SPEED);
-		delayMicroseconds(5000000);
-		mA->set_speed(0);
-		mB->set_speed(0);
-		//TurnAngle turnL(90, mA, mB, imu);
-		//TurnAngle turnR(-90, mA, mB, imu);
-		//Serial.println(execute(turnL));
-		//Serial.println(execute(turnR));
+				//Serial.println(execute(turnL));
+		TurnAngle turnL(-90, mA, mB, imu);
+		TurnAngle turnR(90, mA, mB, imu);
+
+		if(character == 'r')
+			Serial.println(execute(turnR));
+		else
+			Serial.println(execute(turnL));
+
 
 /*
  *        int32_t distance;

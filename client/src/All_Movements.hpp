@@ -64,7 +64,7 @@ class TurnAngle : public Movement {
 		int32_t speed, prev_speedD, prev_speedP;
 		Motor *mDrive, *mPivot;
 		IMU *imu;
-		bool left_turn;		
+		bool right_turn;		
 
 		int32_t encoder_angle();
 		int32_t imu_angle();
