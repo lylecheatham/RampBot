@@ -2,8 +2,17 @@
 #define CONST_H
 
 enum MotorNum { MotorA, MotorB };
+#define STD_SPEED 50 // RPM
 
+/* Mechanical Values */
+#define D_O_WHEEL 50 //mm
+#define D_I_WHEEL 30 //mm
+#define RPM_TO_VO (0.26) //cm/s
+#define RPM_TO_VI (0.16) //cm/s
+
+/* LEDs */
 #define STD_LED 13
+
 /* Motors */
 #define M_STDBY 4  // Standby (pull high to use motors)
 
