@@ -20,12 +20,19 @@ public:
     float get_yaw();
     float get_roll();
 
+    float get_pitch_abs();
+    float get_yaw_abs();
+    float get_roll_abs();
+
 private:
     static MPU9250_DMP* imu;
 
-    float pitch;
-    float yaw;
-    float roll;
+    static float pitch;
+    static float pitch_prev;
+    static float yaw;
+    static float yaw_prev;
+    static float roll;
+    static float roll_prev;
 
     static void updateIMU();
 };

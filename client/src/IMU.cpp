@@ -12,6 +12,13 @@
 
 // Init MPU9250
 MPU9250_DMP* IMU::imu = nullptr;
+float IMU::pitch = 0;
+float IMU::yaw = 0;
+float IMU::roll = 0;
+
+float IMU::pitch_prev = 0;
+float IMU::yaw_prev = 0;
+float IMU::roll_prev = 0;
 
 IMU::IMU() {
     imu = new MPU9250_DMP();
@@ -39,6 +46,7 @@ IMU::IMU() {
     pinMode(IMU_INT, INPUT);
     digitalWrite(IMU_INT, LOW);
     attachInterrupt(IMU_INT, updateIMU, RISING);
+
 }
 
 IMU::~IMU() {
@@ -46,7 +54,12 @@ IMU::~IMU() {
 }
 
 float IMU::get_pitch() {
+    
+    return imu->pitch;
+}
 
+float IMU::get_pitch_abs() {
+    
     return imu->pitch;
 }
 
@@ -55,7 +68,17 @@ float IMU::get_yaw() {
     return imu->yaw;
 }
 
+float IMU::get_yaw_abs() {
+
+    return imu->yaw;
+}
+
 float IMU::get_roll() {
+
+    return imu->roll;
+}
+
+float IMU::get_roll_abs() {
 
     return imu->roll;
 }
@@ -71,6 +94,25 @@ void IMU::updateIMU()
       // computeEulerAngles can be used -- after updating the
       // quaternion values -- to estimate roll, pitch, and yaw
       imu->computeEulerAngles();
+
+      if ((imu->yaw - yaw_prev) < - 20){
+        yaw += imu->yaw - yaw_prev + 360;
+      }
+      else if (imu->yaw - yaw_prev > 20){
+        yaw += imu->yaw - yaw_prev - 360;
+      }
+      else{
+        yaw += imu->yaw - yaw_prev;
+      }
+
+      yaw_prev = imu->yaw;
+      
+        Serial.print("Absolute Yaw: ");
+        Serial.print(yaw);
+        Serial.print("  Yaw Previous: ");
+        Serial.print(yaw_prev);
+        Serial.print("  IMU yaw: ");
+        Serial.println(imu->yaw);
     }
   }
 }
