@@ -44,18 +44,21 @@ public:
     Golay();
     ~Golay();
 
-    void filter(float new_point, float& next_point, float& next_deriv);
+    void filter(float new_point, float* next_point, float* next_deriv = nullptr);
 
 private:
     const static int32_t window = 5;
     const static int32_t order = 2;
 
     // (T'T)^(-1) T' CHANGES WITH SAMPLE_FREQ
-    std::array<std::array<float, window>, order + 1> T_star = {{{{1, 1, 1}}, {{1, 1, 1}}, {{1, 1, 1}}}};
-
+    std::array<std::array<float, window>, order + 1> T_star = { {
+		{ { (float)5714.285714,  (float)-2857.142857,  (float)-5714.285714,  (float)-2857.142857,  (float)5714.285714, } },
+		{ { (float)-74.285714,  (float)77.142857,  (float)114.285714,  (float)37.142857,  (float)-154.285714, } },
+		{ { (float)0.085714,  (float)-0.142857,  (float)-0.085714,  (float)0.257143,  (float)0.885714, } },
+		} };
     std::array<float, order + 1> c = {{0}};
-    std::array<float, order + 1> t = {{1, 1, 1}};
-    std::array<float, order + 1> t_prime = {{1, 1, 1}};
+    std::array<float, order + 1> t = t = { { (float)0.000625,  (float)0.025000,  (float)1.000000, } };;
+	std::array<float, order + 1> t_prime = { { (float)0.050000,  (float)1.000000,  (float)0.000000, } };
 
     uint32_t y_idx;
     std::array<float, window> y = {{0}};
