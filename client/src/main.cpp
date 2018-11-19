@@ -43,12 +43,17 @@ void setup() {
 
     /* Setup state machine */
     state_machine machine;
+
     //IMU myIMU;
 
-	machine.start();
+    //DemoInterface demo;
 
+	machine.start();
+    int8_t c;
     while (1) {
         //myIMU.print_values();
+        //c = demo.get_char();
+        //demo.run_command(c);
     }
 }
 

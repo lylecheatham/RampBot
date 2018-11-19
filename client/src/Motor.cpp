@@ -6,8 +6,8 @@ std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 int32_t Motor::freq = 40;
 IntervalTimer Motor::intTime = IntervalTimer();
 
-float Motor::k_term = 0.122;  // 0.12215 // was 0.09 for old motors
-float Motor::d_term = 0.001;  // 0.001;
+float Motor::k_term = 0.2;  // 0.12215 // was 0.09 for old motors
+float Motor::d_term = 0.003;  // 0.001;
 float Motor::i_term = 2.774;  // 10;
 int32_t Motor::i_max = 10;
 
@@ -173,9 +173,9 @@ void Motor::PID_control() {
  *	 None
  */
 void Motor::control_interrupt() {
-    static bool LED_state = false;
-    digitalWrite(13, LED_state);
-    LED_state = !LED_state;
+    //static bool LED_state = false;
+    //digitalWrite(13, LED_state);
+    //LED_state = !LED_state;
 
     for (Motor* motor : interrupt_list) {
         motor->PID_control();

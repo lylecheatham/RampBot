@@ -37,7 +37,7 @@ IMU::IMU() {
 
     imu->dmpBegin(DMP_FEATURE_6X_LP_QUAT | // Enable 6-axis quat
                DMP_FEATURE_GYRO_CAL, // Use gyro calibration
-              200); // Set DMP FIFO rate to 10 Hz
+              FIFO_RATE); // Set DMP FIFO rate to 10 Hz
     // DMP_FEATURE_LP_QUAT can also be used. It uses the
     // accelerometer in low-power mode to estimate quat's.
     // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive
@@ -46,7 +46,7 @@ IMU::IMU() {
     pinMode(IMU_INT, INPUT);
     digitalWrite(IMU_INT, LOW);
     attachInterrupt(IMU_INT, updateIMU, RISING);
-
+    
 }
 
 IMU::~IMU() {
@@ -55,7 +55,7 @@ IMU::~IMU() {
 
 float IMU::get_pitch() {
     
-    return imu->pitch;
+    return pitch;
 }
 
 float IMU::get_pitch_abs() {
@@ -65,7 +65,7 @@ float IMU::get_pitch_abs() {
 
 float IMU::get_yaw() {
 
-    return imu->yaw;
+    return yaw;
 }
 
 float IMU::get_yaw_abs() {
@@ -75,7 +75,7 @@ float IMU::get_yaw_abs() {
 
 float IMU::get_roll() {
 
-    return imu->roll;
+    return roll;
 }
 
 float IMU::get_roll_abs() {
@@ -85,6 +85,9 @@ float IMU::get_roll_abs() {
 
 void IMU::updateIMU()
 {
+    static bool LED_state = false;
+    digitalWrite(13, LED_state);
+    LED_state = !LED_state;
   // Check for new data in the FIFO
   if ( imu->fifoAvailable() )
   {
@@ -106,13 +109,7 @@ void IMU::updateIMU()
       }
 
       yaw_prev = imu->yaw;
-      
-        Serial.print("Absolute Yaw: ");
-        Serial.print(yaw);
-        Serial.print("  Yaw Previous: ");
-        Serial.print(yaw_prev);
-        Serial.print("  IMU yaw: ");
-        Serial.println(imu->yaw);
+    
     }
   }
 }

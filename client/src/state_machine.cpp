@@ -88,8 +88,8 @@ void state_machine::start() {
         //    Serial.println(sonar->ping_cm());
         }
 				//Serial.println(execute(turnL));
-		TurnAngle turnL(-90, mA, mB, imu);
-		TurnAngle turnR(90, mA, mB, imu);
+		TurnAngle turnL(-90, mA, mB, imu, 60);
+		TurnAngle turnR(90, mA, mB, imu, 60);
 
 		if(character == 'r')
 			Serial.println(execute(turnR));

@@ -189,36 +189,29 @@ Status TurnAngle::update()
 	float enc_ang = encoder_angle();
 	float imu_ang = imu_angle();
 
-	prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
+	//prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
+
+	prev_angle = imu_ang;
 
 	prev_t = curr_t;
 
 
-	Serial.print("Enc angle: ");
-	Serial.print(enc_ang);
-	Serial.print("  IMU angle: ");
-	Serial.print(imu_ang);
-	Serial.print("  Angle: ");
+	Serial.print(" Turn Angle: ");
 	Serial.println(prev_angle);
+	Serial.print(" Enc Angle: ");
+	Serial.println(enc_ang);
 
-	if(curr_t > timeout)
-	{
-		last_status = FAILURE;
-
-		// Reset original state
-		mDrive->set_speed(prev_speedD);
-		mPivot->set_speed(prev_speedP);
-	}
-	else if(( right_turn && (angle - prev_angle) > TOL) ||
-					( !right_turn && (prev_angle - angle) > TOL))
+	if(abs(angle-prev_angle) > TOL)
 		last_status = ONGOING;
 	else
 	{
 		last_status = SUCCESS;
 
 		// Reset original state
+		Serial.println(millis());
 		mDrive->set_speed(prev_speedD);
 		mPivot->set_speed(prev_speedP);
+		Serial.println(millis());
 	}
 	
 	return last_status;

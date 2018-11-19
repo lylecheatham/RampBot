@@ -26,8 +26,8 @@
  * 			hit_post_reorient
  */
 
-#define TIMEOUT_TOL 3000 // timeout tolerance in ms
-#define TOL 10 // distance tolerance in cm
+#define TIMEOUT_TOL 10000 // timeout tolerance in ms
+#define TOL 20 // distance tolerance in cm
 
 /* Drive Distance - (drive in a straight line a set distance) */
 class DriveDistance : public Movement {
