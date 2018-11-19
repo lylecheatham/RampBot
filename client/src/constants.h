@@ -12,7 +12,7 @@ enum MotorNum { MotorA, MotorB };
 //#define DEG_TO_RAD 0.0175
 
 /* Mechanical Values */
-#define D_O_WHEEL 50 //mm
+#define D_O_WHEEL 60 //mm
 #define D_I_WHEEL 30 //mm
 #define RPM_TO_VO (0.26) //cm/s
 #define RPM_TO_VI (0.16) //cm/s
@@ -21,6 +21,7 @@ enum MotorNum { MotorA, MotorB };
 
 /* LEDs */
 #define STD_LED 13
+#define GRN_LED 0
 
 /* Motors */
 #define M_STDBY 4  // Standby (pull high to use motors)

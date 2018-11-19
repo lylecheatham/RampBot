@@ -31,7 +31,7 @@ private:
     static int servo_pos;
     static std::string error_string;
     static IMU *imu;
-    static NewPing *sonar;
+    static NewPingWrap *sonar;
 
     // State tracking variables
     static int32_t start_pos[2];

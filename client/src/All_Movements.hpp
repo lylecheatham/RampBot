@@ -26,24 +26,31 @@
  * 			hit_post_reorient
  */
 
-#define TIMEOUT_TOL 30000// timeout tolerance in ms
-#define TOL 1 // distance tolerance in cm
+#define TIMEOUT_TOL 30000 // timeout tolerance in us
+#define TOL 5 // distance tolerance in cm
 
 /* Drive Distance - (drive in a straight line a set distance) */
 class DriveDistance : public Movement {
 	public:
-		DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPing* sonar_, int32_t speed_ = STD_SPEED);
+		DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap* sonar_, IMU* imu_, int32_t speed_ = STD_SPEED);
 		~DriveDistance() {};
 
 		Status update();
 
 	private:
-		uint32_t timeout, prev_t;
+		float k_p = 0.2;
+		float start_ang;
+		
+		uint32_t timeout, prev_t, curr_t;
 		int32_t encA_start, encB_start;
 		int32_t dist;
-	    int32_t	speed, prev_speedA, prev_speedB;
+	    int32_t	speedA, speedB, prev_speedA, prev_speedB;
 		Motor *mA, *mB;
-		NewPing *sonar;
+		NewPingWrap *sonar;
+		IMU *imu;
+
+		float encoder_delta();
+		//float imu_delta();
 
 		void correct();
 };

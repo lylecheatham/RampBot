@@ -21,15 +21,17 @@
  * 	Outputs:
  * 		none
  */
-DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPing* sonar_, int32_t speed_) :
+DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap* sonar_, IMU* imu_, int32_t speed_) :
 		dist(dist_),
 		mA(mA_),
 		mB(mB_),
 		sonar(sonar_),
-		speed(speed_) 
+		imu(imu_)
 {
-	timeout = dist_/(speed*RPM_TO_VO)*1000 + TIMEOUT_TOL + millis(); // Get timeout criteria
-	speed = dist*speed < 0 ? -speed : speed;                         // Account for direction
+	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
+	speed_ = dist*speed_ < 0 ? -speed_ : speed_;                     // Account for direction
+	speedA = speed_;
+	speedB = speed_;
 	last_status = FAILURE;
 }
 
@@ -41,43 +43,106 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPing* son
  */
 Status DriveDistance::update()
 {
-	if(last_status == FAILURE) // check if not started
+/*
+ *    if(last_status == FAILURE) // check if not started
+ *    {
+ *        // Save previous speeds
+ *        prev_speedA = 0;
+ *        prev_speedB = 0;
+ *
+ *        // Set new speed
+ *        mA->set_speed(speedA);
+ *        mB->set_speed(speedB);
+ *
+ *        // Initial Conditions
+ *        dist += sonar->ping_cm(); // add current distance to our travel offset
+ *    }
+ *
+ *    int32_t curr_t = micros();
+ *    int32_t curr_d = sonar->ping_cm();
+ *
+ *    // Correct orientation
+ *    correct();
+ *
+ *    if(curr_t > timeout)
+ *        last_status = FAILURE;
+ *
+ *    else if((speed > 0 && dist - curr_d > TOL) || 
+ *                    (speed < 0 && curr_d - dist > TOL))
+ *        last_status = ONGOING;
+ *
+ *    else
+ *    {
+ *        last_status = SUCCESS;
+ *
+ *        // return to original state
+ *        mA->set_speed(prev_speedA);
+ *        mB->set_speed(prev_speedB);
+ *    }
+ *
+ *    return last_status;
+ */
+
+	if(last_status == FAILURE)
 	{
 		// Save previous speeds
-		prev_speedA = 0;
-		prev_speedB = 0;
-
-		// Set new speed
-		mA->set_speed(speed);
-		mB->set_speed(speed);
+		prev_speedA = 0;// mDrive->get_speed();
+		prev_speedB = 0;//mPivot->get_speed();
+		
+		// Set standard speed
+		mA->set_speed(speedA);
+		mB->set_speed(speedB);
 
 		// Initial Conditions
-		dist += sonar->ping_cm(); // add current distance to our travel offset
+		encA_start  = mA->get_count();
+		encB_start  = mB->get_count();
+		dist = sonar->ping_cm() - dist;
+		dist = dist < 5 ? 5 : dist;		
+		start_ang = imu->get_yaw();
 	}
 
-	int32_t curr_t = millis();
-	int32_t curr_d = sonar->ping_cm();
-
-	// Correct orientation
-	correct();
-
-	if(curr_t > timeout)
-		last_status = FAILURE;
-
-	else if((speed > 0 && dist - curr_d > TOL) || 
-					(speed < 0 && curr_d - dist > TOL))
-		last_status = ONGOING;
-
-	else
-	{
-		last_status = SUCCESS;
-
-		// return to original state
-		mA->set_speed(prev_speedA);
-		mB->set_speed(prev_speedB);
+	// Using combination of speed and error to represent stabilizing on the correct point
+	prev_t = micros();
+	int32_t curr_dist = sonar->ping_cm();
+	timeout = millis() + 10000;
+	while(millis() < timeout){ 
+		//delayMicroseconds(1);
+		//curr_t = micros();
+		correct();
+		prev_t = micros();	
+		curr_dist = sonar->ping_cm();
+		Serial.print("Curr: ");
+		Serial.print(curr_dist);
+		Serial.print("   Target: ");
+		Serial.println(dist);
+		mA->set_speed(speedA);
+		mB->set_speed(speedB);
+/*
+		if(speedA > 0 && speedA*speedB > 0 && curr_dist < dist)
+			break;
+		else if(speedA < 0 && speedA*speedB > 0 && curr_dist > dist)
+			break;
+*/
 	}
 
-	return last_status;
+	mA->set_speed(0); // ensure motor stopped at this point
+	mB->set_speed(0);
+
+	prev_t = millis();
+
+	return prev_t > timeout ? FAILURE : SUCCESS;
+
+}
+
+/* encoder_delta
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Difference between left and right encoders
+ */
+float DriveDistance::encoder_delta()
+{
+	return mB->get_count() -encB_start - mA->get_count() + encA_start;
 }
 
 /* correct
@@ -101,26 +166,29 @@ void DriveDistance::correct()
 	// calculate error as a combination of encoder and yaw
 	
 
+	//float freq = 1000000/(curr_t - prev_t); //Hz
 
-	// basic PID control to compensate for the error
+    // Add error
+    float error = imu->get_yaw() - start_ang; // encoder_delta();
+
     // Proportional Value
-/*
- *    float p_out = kp * error;
- *
- *    // Integral Value=
- *    integration += error;
- *    float i_out = ki * integration * dt;
- *
- *    // Derivative Value
- *    float d_out = kd * (error - previous_error) / dt;
- *
- *    previous_error = error;
- *    float delta = p_out + i_out _ d_out;
- *
- *    // Set new speeds
- *    mB->set_speed(speed + delta/2);
- *    mA->set_speed(speed - delta/2);
- */
+    float p_out = k_p * error;
+
+    // Integral Value=
+    //integration += error;
+    //float i_out = k_i * integration / freq;
+
+    // Derivative Value
+    //float d_out = k_d * (error - prev_error) * freq;
+
+	// Get speed
+    int32_t speed = static_cast<int32_t>(p_out /*+ i_out + d_out*/);
+	speed *= 0.5; //TODO just make part of K_p
+
+    //prev_error = error;
+
+	speedA += speed;
+	speedB -= speed;
 }
 
 /********************* Turn Angle ***************************/
@@ -184,32 +252,34 @@ Status TurnAngle::update()
 		start_enc  = mDrive->get_count();
 	}
 
-	curr_t = micros();
-	prev_t = curr_t;
+	//curr_t = micros();
+	//prev_t = curr_t;
 
 	// Complementary filter of encoder and imu values for current angle
-	float enc_ang = encoder_angle();
-	float imu_ang = imu_angle();
+	//float enc_ang = encoder_angle();
+	//float imu_ang = imu_angle();
 
 	//prev_angle = 0.98 * (prev_angle + imu_ang*(curr_t - prev_t)) + 0.02*enc_ang;
 
-	prev_angle = imu_ang;
 
-	//if(curr_t - prev_t > 0)
-	while(1){
+	// Using combination of speed and error to represent stabilizing on the correct point
+	curr_t = micros();
+	prev_t = curr_t;
+	while(abs(speed+prev_error) > TOL && millis() < timeout){ 
 		delayMicroseconds(1);
 		prev_angle = imu_angle();
+		Serial.print("enc_angle: ");
+		Serial.println(encoder_angle());
 		curr_t = micros();
 		pid_update();
 		prev_t = curr_t;	
 		mDrive->set_speed(speed);
-		
 	}
 
-	mDrive->set_speed(0);
+	mDrive->set_speed(0); // ensure motor stopped at this point
 
-	Serial.print(" Turn Angle: ");
-	Serial.println(prev_angle);
+	//Serial.print(" Turn Angle: ");
+	//Serial.println(prev_angle);
 	//Serial.print(" Enc Angle: ");
 	//Serial.println(enc_ang);
 	/*
@@ -230,7 +300,7 @@ Status TurnAngle::update()
 	// }
 	
 	//return last_status;
-	return SUCCESS;
+	return curr_t > timeout ? FAILURE : SUCCESS;
 }
 
 /* encoder_angle
@@ -239,19 +309,19 @@ Status TurnAngle::update()
  * 	Outputs:
  * 		current angle calculated based on encoder values
  */
-
 float TurnAngle::encoder_angle()
 {
 	float	dx = mDrive->get_count() - start_enc; // get encoder count so far
 	dx *= (2*PI*D_O_WHEEL/2); // translate to linear distance
 
-	dx *= 1000; //Try to avoid truncation
+	//dx *= 1000; //Try to avoid truncation
 
 	dx /= COUNTS_REV;			
 	
 	float angle = dx/WHEELBASE*RAD_TO_DEG;
+	angle *= 1.4; // account for ~30% undershoot in the encoder angle for some reason
 
-	return right_turn ? angle/1000 : -angle/1000; // Reset truncation fix
+	return right_turn ? angle : -angle; 
 }
 
 /* imu_angle
@@ -263,7 +333,7 @@ float TurnAngle::encoder_angle()
 float TurnAngle::imu_angle() 
 {
 	Serial.println(imu->get_yaw()-start_angle);
-	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
+	return imu->get_yaw() - start_angle; 
 }
 
 /* pid_update
@@ -274,33 +344,24 @@ float TurnAngle::imu_angle()
  */
 void TurnAngle::pid_update()
 {
-	float dt = 1000000/(curr_t - prev_t);
+	float freq = 1000000/(curr_t - prev_t); //Hz
 
     // Add error
-    float error = angle - prev_angle;
+    float error = angle < 0 ? prev_angle - angle : angle - prev_angle; // since we switch drive wheels
 
     // Proportional Value
     float p_out = k_p * error;
 
     // Integral Value=
     integration += error;
-    float i_out = k_i * integration / dt;
+    float i_out = k_i * integration / freq;
 
     // Derivative Value
-    float d_out = k_d * (error - prev_error) * dt;
+    float d_out = k_d * (error - prev_error) * freq;
 
-	// Get pwm val
+	// Get speed
     speed = static_cast<int32_t>(p_out + i_out + d_out);
-	speed *= 0.5;
+	speed *= 0.5; //TODO just make part of K_p
     prev_error = error;
-	
-	// Serial.print(" dt: ");
-	// Serial.println(dt);
-	// Serial.print(" New Speed: ");
-	// Serial.println(speed);
-	// Serial.print(" i_out: ");
-	// Serial.println(i_out);
-	// Serial.print(" p_out: ");
-	// Serial.println(p_out);
 }
 

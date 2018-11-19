@@ -24,6 +24,8 @@ public:
     float get_yaw_abs();
     float get_roll_abs();
 
+	void stabilize();
+
 private:
     static MPU9250_DMP* imu;
 

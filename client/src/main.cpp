@@ -16,6 +16,7 @@
 #include "sensor_packet.h"
 #include "state_machine.hpp"
 #include "IMU.hpp"
+#include "ultraSonicSwivel.h"
 
 // Hacky stuff, don't remove
 extern "C" {
@@ -45,12 +46,22 @@ void setup() {
     state_machine machine;
 
     //IMU myIMU;
+	//Serial.println(myIMU.get_yaw());
+	//myIMU.stabilize();
+	//Serial.println(myIMU.get_yaw());
+	//delayMicroseconds(5000000);
+	//Serial.println(myIMU.get_yaw());
+	//delayMicroseconds(5000000);
+	//Serial.println(myIMU.get_yaw());
+	
+	//NewPingWrap sonar(U_PING, U_PING);
 
     //DemoInterface demo;
 
 	machine.start();
     int8_t c;
     while (1) {
+		//	Serial.println(sonar.ping_cm());
         //myIMU.print_values();
         //c = demo.get_char();
         //demo.run_command(c);

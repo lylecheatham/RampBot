@@ -30,7 +30,7 @@ UltraSonicSwivel* state_machine::servo = nullptr;
 IMU* state_machine::imu = nullptr;
 
 // Initialize the Ultrasonic Sensor - (pin,pin,max)
-NewPing* state_machine::sonar = nullptr;
+NewPingWrap* state_machine::sonar = nullptr;
 
 /* function: state_machine()
  *
@@ -41,7 +41,7 @@ state_machine::state_machine() {
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
-    sonar = new NewPing(U_PING, U_PING, 300);
+    sonar = new NewPingWrap(U_PING, U_PING, 300);
     imu = new IMU();
 
     pinMode(M_STDBY, OUTPUT);
@@ -50,6 +50,8 @@ state_machine::state_machine() {
         error_string.append("interrupt init fail;");
     }
     stop();
+
+	imu->stabilize(); // wait for the imu value to stabilize
 }
 
 
@@ -81,20 +83,25 @@ void state_machine::start() {
         // First wait for keypress
         Serial.print("Waiting for keypress");
 		int8_t character = get_char();
-        while (character != 'e' && character != 'r') {
+        while (character != 'a' && character != 'd' && character != 'w' && character != 's') {
             delayMicroseconds(100000);
             Serial.print(".");
 			character = get_char();
-        //    Serial.println(sonar->ping_cm());
         }
-				//Serial.println(execute(turnL));
-		TurnAngle turnL(-90, mA, mB, imu, 60);
-		TurnAngle turnR(90, mA, mB, imu, 60);
+		
+		TurnAngle turnL(-90, mA, mB, imu);
+		TurnAngle turnR(90, mA, mB, imu);
+		DriveDistance fwd(40, mA, mB, sonar, imu, 25);
+		DriveDistance bwd(-40, mA, mB, sonar, imu, -25);
 
-		if(character == 'r')
+		if(character == 'd')
 			Serial.println(execute(turnR));
-		else
+		else if(character == 'a')
 			Serial.println(execute(turnL));
+		else if(character == 'w')
+			Serial.println(execute(fwd));
+		else
+			Serial.println(execute(bwd));
 
 
 /*
