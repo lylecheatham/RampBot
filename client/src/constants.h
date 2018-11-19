@@ -3,7 +3,7 @@
 
 enum MotorNum { MotorA, MotorB };
 #define STD_SPEED 50 // RPM
-#define FIFO_RATE 50 //Sample Rate for IMU
+#define FIFO_RATE 100 //Sample Rate for IMU
 
 /* Useful Ratios */
 //#define PI 3.1415

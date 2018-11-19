@@ -156,6 +156,7 @@ TurnAngle::TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_, int32_t 
 	timeout = angle_ < 0 ? TIMEOUT_TOL*(-angle_)/45 : TIMEOUT_TOL*(angle_)/45;
    	timeout += millis(); // get timeout criteria
 	speed = speed < 0 ? -speed : speed;   		// only work for forward turns currently
+	speed = 0;
 	last_status = FAILURE;
 }
 
@@ -174,7 +175,7 @@ Status TurnAngle::update()
 		prev_speedP = 0;//mPivot->get_speed();
 		
 		// Set turning speed
-		mDrive->set_speed(speed);
+		mDrive->set_speed(0);
 		mPivot->set_speed(0);
 
 		// Initial Conditions
@@ -193,14 +194,18 @@ Status TurnAngle::update()
 
 	prev_angle = imu_ang;
 
-	prev_t = curr_t;
-
+	if(curr_t - prev_t > 0)
+		pid_update();
+	prev_t = curr_t;	
+	mDrive->set_speed(speed);
 
 	Serial.print(" Turn Angle: ");
 	Serial.println(prev_angle);
 	Serial.print(" Enc Angle: ");
 	Serial.println(enc_ang);
 
+	if(curr_t > timeout)
+		last_status = FAILURE;
 	if(abs(angle-prev_angle) > TOL)
 		last_status = ONGOING;
 	else
@@ -208,10 +213,8 @@ Status TurnAngle::update()
 		last_status = SUCCESS;
 
 		// Reset original state
-		Serial.println(millis());
 		mDrive->set_speed(prev_speedD);
 		mPivot->set_speed(prev_speedP);
-		Serial.println(millis());
 	}
 	
 	return last_status;
@@ -246,5 +249,36 @@ float TurnAngle::encoder_angle()
  */
 float TurnAngle::imu_angle() 
 {
+		Serial.println(imu->get_yaw());
 	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
 }
+
+/* pid_update
+ *	Inputs:
+ *		none
+ *	Outputs:
+ *		none
+ */
+void TurnAngle::pid_update()
+{
+	float dt = (millis() - prev_t);
+
+    // Add error
+    float error = angle - prev_angle;
+
+    // Proportional Value
+    float p_out = k_p * error;
+
+    // Integral Value=
+    integration += error;
+    float i_out = k_i * integration * dt;
+
+    // Derivative Value
+    float d_out = k_d * (error - prev_error) / dt;
+
+	// Get pwm val
+    speed = static_cast<int32_t>(p_out + i_out + d_out);
+    prev_error = error;
+
+}
+

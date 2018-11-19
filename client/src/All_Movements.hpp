@@ -58,6 +58,13 @@ class TurnAngle : public Movement {
 		Status update();
 
 	private:
+		// PID value
+		float k_i = 0.001;
+		float k_p = 0.5;
+		float k_d = 0;
+		float integration = 0;
+		float prev_error = 0;
+
 		uint32_t timeout, prev_t;
 		int32_t start_enc;
 		float angle, start_angle, prev_angle;
@@ -68,6 +75,8 @@ class TurnAngle : public Movement {
 
 		float encoder_angle();
 		float imu_angle();
+
+		void pid_update();
 };
 
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
