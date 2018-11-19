@@ -26,8 +26,8 @@
  * 			hit_post_reorient
  */
 
-#define TIMEOUT_TOL 10000 // timeout tolerance in ms
-#define TOL 20 // distance tolerance in cm
+#define TIMEOUT_TOL 30000// timeout tolerance in ms
+#define TOL 1 // distance tolerance in cm
 
 /* Drive Distance - (drive in a straight line a set distance) */
 class DriveDistance : public Movement {
@@ -59,13 +59,13 @@ class TurnAngle : public Movement {
 
 	private:
 		// PID value
-		float k_i = 0.001;
-		float k_p = 0.5;
+		float k_i = 0;
+		float k_p = 1;
 		float k_d = 0;
 		float integration = 0;
-		float prev_error = 0;
+		float prev_error = 1000000000;
 
-		uint32_t timeout, prev_t;
+		uint32_t timeout, prev_t, curr_t;
 		int32_t start_enc;
 		float angle, start_angle, prev_angle;
 		int32_t speed, prev_speedD, prev_speedP;

@@ -184,7 +184,8 @@ Status TurnAngle::update()
 		start_enc  = mDrive->get_count();
 	}
 
-	int32_t curr_t = millis();
+	curr_t = micros();
+	prev_t = curr_t;
 
 	// Complementary filter of encoder and imu values for current angle
 	float enc_ang = encoder_angle();
@@ -194,30 +195,42 @@ Status TurnAngle::update()
 
 	prev_angle = imu_ang;
 
-	if(curr_t - prev_t > 0)
+	//if(curr_t - prev_t > 0)
+	while(1){
+		delayMicroseconds(1);
+		prev_angle = imu_angle();
+		curr_t = micros();
 		pid_update();
-	prev_t = curr_t;	
-	mDrive->set_speed(speed);
+		prev_t = curr_t;	
+		mDrive->set_speed(speed);
+		
+	}
+
+	mDrive->set_speed(0);
 
 	Serial.print(" Turn Angle: ");
 	Serial.println(prev_angle);
-	Serial.print(" Enc Angle: ");
-	Serial.println(enc_ang);
-
-	if(curr_t > timeout)
+	//Serial.print(" Enc Angle: ");
+	//Serial.println(enc_ang);
+	/*
+	if(curr_t/1000 > timeout)
 		last_status = FAILURE;
-	if(abs(angle-prev_angle) > TOL)
+	else{
 		last_status = ONGOING;
-	else
-	{
-		last_status = SUCCESS;
+	}*/
+	// else if(abs(angle-prev_angle) > TOL)
+	// 	last_status = ONGOING;
+	// else
+	// {
+	// 	last_status = SUCCESS;
 
-		// Reset original state
-		mDrive->set_speed(prev_speedD);
-		mPivot->set_speed(prev_speedP);
-	}
+	// 	// Reset original state
+	// 	mDrive->set_speed(prev_speedD);
+	// 	mPivot->set_speed(prev_speedP);
+	// }
 	
-	return last_status;
+	//return last_status;
+	return SUCCESS;
 }
 
 /* encoder_angle
@@ -249,7 +262,7 @@ float TurnAngle::encoder_angle()
  */
 float TurnAngle::imu_angle() 
 {
-		Serial.println(imu->get_yaw());
+	Serial.println(imu->get_yaw()-start_angle);
 	return imu->get_yaw() - start_angle; //TODO account for degrees popping back over
 }
 
@@ -261,7 +274,7 @@ float TurnAngle::imu_angle()
  */
 void TurnAngle::pid_update()
 {
-	float dt = (millis() - prev_t);
+	float dt = 1000000/(curr_t - prev_t);
 
     // Add error
     float error = angle - prev_angle;
@@ -271,14 +284,23 @@ void TurnAngle::pid_update()
 
     // Integral Value=
     integration += error;
-    float i_out = k_i * integration * dt;
+    float i_out = k_i * integration / dt;
 
     // Derivative Value
-    float d_out = k_d * (error - prev_error) / dt;
+    float d_out = k_d * (error - prev_error) * dt;
 
 	// Get pwm val
     speed = static_cast<int32_t>(p_out + i_out + d_out);
+	speed *= 0.5;
     prev_error = error;
-
+	
+	// Serial.print(" dt: ");
+	// Serial.println(dt);
+	// Serial.print(" New Speed: ");
+	// Serial.println(speed);
+	// Serial.print(" i_out: ");
+	// Serial.println(i_out);
+	// Serial.print(" p_out: ");
+	// Serial.println(p_out);
 }
 
