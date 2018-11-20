@@ -38,13 +38,13 @@ class DriveDistance : public Movement {
 		Status update();
 
 	private:
-		float k_p = 0.2;
+		float k_p = 1.5;
 		float start_ang;
 		
 		uint32_t timeout, prev_t, curr_t;
 		int32_t encA_start, encB_start;
 		int32_t dist;
-	    int32_t	speedA, speedB, prev_speedA, prev_speedB;
+	    int32_t	speedA, speedB, prev_speedA, prev_speedB, base_speed;
 		Motor *mA, *mB;
 		NewPingWrap *sonar;
 		IMU *imu;

@@ -26,7 +26,8 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap*
 		mA(mA_),
 		mB(mB_),
 		sonar(sonar_),
-		imu(imu_)
+		imu(imu_),
+		base_speed(speed_)
 {
 	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
 	speed_ = dist*speed_ < 0 ? -speed_ : speed_;                     // Account for direction
@@ -104,17 +105,17 @@ Status DriveDistance::update()
 	// Using combination of speed and error to represent stabilizing on the correct point
 	prev_t = micros();
 	int32_t curr_dist = sonar->ping_cm();
-	timeout = millis() + 10000;
+	timeout = millis() + 30000;
 	while(millis() < timeout){ 
 		//delayMicroseconds(1);
 		//curr_t = micros();
 		correct();
-		prev_t = micros();	
-		curr_dist = sonar->ping_cm();
-		Serial.print("Curr: ");
-		Serial.print(curr_dist);
-		Serial.print("   Target: ");
-		Serial.println(dist);
+		//prev_t = micros();	
+		//curr_dist = sonar->ping_cm();
+		//Serial.print("Curr: ");
+		//Serial.print(curr_dist);
+		//Serial.print("   Target: ");
+		//Serial.println(dist);
 		mA->set_speed(speedA);
 		mB->set_speed(speedB);
 /*
@@ -171,6 +172,7 @@ void DriveDistance::correct()
     // Add error
     float error = imu->get_yaw() - start_ang; // encoder_delta();
 
+	Serial.println(error);
     // Proportional Value
     float p_out = k_p * error;
 
@@ -187,8 +189,8 @@ void DriveDistance::correct()
 
     //prev_error = error;
 
-	speedA += speed;
-	speedB -= speed;
+	speedA = base_speed + speed;
+	speedB = base_speed - speed;
 }
 
 /********************* Turn Angle ***************************/
