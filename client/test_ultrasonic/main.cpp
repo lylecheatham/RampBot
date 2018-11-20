@@ -19,6 +19,7 @@ void setup()
 
   while(1){
       Serial.println(us.total_time_us);
+      delay(20);
   }
   
 }
