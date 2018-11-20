@@ -41,8 +41,9 @@ class Movement {
 	protected:
 		// Members --
 		// P Control
-		float k_p;
-		int32_t  error, base_speed; 
+		float k_p, k_i, k_d;
+		float error, prev_error, freq, integration;
+		int32_t base_speed; 
 
 		// Timeout 
 		uint32_t timeout;
@@ -51,12 +52,18 @@ class Movement {
 		float target_angle, curr_angle;
 
 		// Functions --
-		// P-control for bearing
-		int32_t p_control() 
+		// PID-control for bearing
+		int32_t pid_control() 
 		{ 
 			error = curr_angle-target_angle;
-			return static_cast<int32_t>(k_p*error); 
+			float k_term = k_p * error;
+			float d_term = k_d * (error-prev_error) * freq;
+			integration += error;
+			float i_term = k_i * integration / freq;
+			prev_error = error;
+			return static_cast<int32_t>(k_term+i_term+d_term); 
 		}	
+
 };
 
 #endif 

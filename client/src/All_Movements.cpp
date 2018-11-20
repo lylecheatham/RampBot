@@ -29,6 +29,11 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap*
 		imu(imu_)
 {
 	k_p = 1.5;
+	k_i = 0.001;
+	k_d = 0.001;
+	freq = 1000;
+	integration = 0;
+
 
 	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
 	base_speed = dist*speed_ < 0 ? -speed_ : speed_;                  // Account for direction
@@ -59,7 +64,7 @@ Status DriveDistance::run()
 
 	// Using combination of speed and error to represent stabilizing on the correct point
 	int32_t curr_dist = sonar->ping_cm();
-	timeout = millis() + 30000;
+	timeout = millis() + 10000;
 
 	// Speed adjustment
 	int32_t speed_adj = 0;
@@ -68,7 +73,9 @@ Status DriveDistance::run()
 	// Loop until timed out
 	while(curr_t < timeout){ 
 		curr_angle = imu->get_yaw();
-		speed_adj = p_control();
+		while(millis()-curr_t < 1); // only update at 1KHz
+		speed_adj = pid_control(); 		
+		curr_t = millis();
 		speedA = base_speed + speed_adj;
 		speedB = base_speed - speed_adj;
 
@@ -82,7 +89,6 @@ Status DriveDistance::run()
 		else if(speedA < 0 && speedA*speedB > 0 && curr_dist > dist)
 			break;
 		*/
-		curr_t = millis();
 	}
 
 	mA->set_speed(0); // ensure motor stopped at this point
@@ -118,6 +124,10 @@ TurnAngle::TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_) :
 		imu(imu_)
 {
 	k_p = 0.75;
+	k_i = 1.5;
+	k_d = 0.01;
+	freq = 1000;
+	integration = 0;
 	target_angle = angle_;
 
 	// Set driving and pivot motor: mA is right, mB is left
@@ -162,10 +172,11 @@ Status TurnAngle::run()
 	error = 10*TOL;
 	while(abs(error) > TOL && curr_t < timeout){ 
 		curr_angle = imu_angle();
-		speed_adj = p_control(); 
+		while(millis()-curr_t < 1); // only update at 1KHz
+		speed_adj = pid_control(); 
+		curr_t = millis();
 		base_speed = right_turn ? -speed_adj : speed_adj;
 		mDrive->set_speed(base_speed);
-		curr_t = millis();
 	}
 
 	mDrive->set_speed(0); // ensure motor stopped at this point
