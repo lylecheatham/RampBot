@@ -6,10 +6,9 @@ std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 int32_t Motor::freq = 40;
 IntervalTimer Motor::intTime = IntervalTimer();
 
-float Motor::k_term = 0.122;  // 0.12215 // was 0.09 for old motors
-float Motor::d_term = 0.001;  // 0.001;
-float Motor::i_term = 2.774;  // 10;
-int32_t Motor::i_max = 10;
+int32_t Motor::fix_k_term = to_fix_pt(0.122);
+int32_t Motor::fix_d_term = to_fix_pt(0.001);
+int32_t Motor::fix_i_term = to_fix_pt(2.774);
 
 /* Function: Motor()
  * 		constructor - setup the pins and encoder
@@ -19,8 +18,11 @@ int32_t Motor::i_max = 10;
  */
 
 Motor::Motor(MotorNum m, bool PID_enable) {
-    integration = 0;
 
+    fix_integration_c__s = 0;
+    pwm_val = 0;
+
+    fix_integration_c__s = 0;
     if (m == MotorA) {
         pwm_pin = M_PWMA;
         in1_pin = M_AIN1;
@@ -35,8 +37,11 @@ Motor::Motor(MotorNum m, bool PID_enable) {
 
     enc->write(0);
     previous_encoder_value = 0;
-    previous_speed = 0;
 
+    fix_previous_speed_c__s = 0;
+    fix_previous_error_c__s = 0;
+
+    fix_previous_speed_c__s = 0;
     pinMode(pwm_pin, OUTPUT);
     pinMode(in1_pin, OUTPUT);
     pinMode(in2_pin, OUTPUT);
@@ -65,9 +70,9 @@ Motor::~Motor() {
  * Outputs:
  * 		None
  */
-void Motor::set_speed(int32_t speed) {
+void Motor::set_speed(float speed) {
     if (speed < max_speed && speed > -max_speed) {
-        target_speed = speed * CPR_S;  // translate to counts per second
+        fix_target_speed_c__s = to_fix_pt(RPM_to_CPS(speed));
     }
 }
 
@@ -77,8 +82,8 @@ void Motor::set_speed(int32_t speed) {
  * Outputs:
  * 	 speed [rpm]
  */
-int32_t Motor::get_speed() {
-    return (int32_t)(previous_speed / CPR_S);
+float Motor::get_speed() {
+    return CPS_to_RPM(to_float_pt(fix_previous_speed_c__s));
 }
 
 /* Function: get_count
@@ -133,35 +138,47 @@ void Motor::update_pwm() {
  *	 None
  */
 void Motor::PID_control() {
-    float current_speed = (get_count() - previous_encoder_value) * freq;
-    previous_encoder_value = get_count();
+    // get the current encoder count
+    int32_t current_encoder_count = get_count();
 
-    // Add error
-    float error = target_speed - current_speed;
+    // calculate our current speed in fixed point
+    int32_t fix_current_speed_c__s = to_fix_pt((current_encoder_count - previous_encoder_value) * freq);
+
+    // store the encoder value for next loop
+    previous_encoder_value = current_encoder_count;
+
+    // calculate the error
+    int32_t fix_error_c__s = fix_target_speed_c__s - fix_current_speed_c__s;
 
     // Proportional Value
-    float p_out = k_term * error;
+    int32_t fix_p_out_pwm = fix_k_term * fix_error_c__s / to_fix_pt(1.0);
 
     // Integral Value=
-    integration += error;
-    float i_out = i_term * integration / freq;
+    fix_integration_c__s += fix_error_c__s;
+    int32_t fix_i_out_pwm = fix_i_term * fix_integration_c__s / to_fix_pt(1.0) / freq;
 
     // Derivative Value
-    float d_out = d_term * (error - previous_error) * freq;
+    int32_t fix_d_out_pwm = fix_d_term * (fix_error_c__s - fix_previous_error_c__s) / to_fix_pt(1.0) * freq;
 
     // Get pwm val
-    pwm_val = p_out + i_out + d_out;
+    pwm_val = to_int_pt(fix_i_out_pwm + fix_p_out_pwm + fix_d_out_pwm);
     pwm_val *= PWM_CONV;
 
-	pwm_val = pwm_val + FEED_FWD*target_speed;
+	pwm_val = pwm_val + to_int_pt(to_fix_pt(CPS_to_RPM(FEED_FWD_REAL)) * fix_target_speed_c__s / to_fix_pt(1.0));
 
-    previous_speed = current_speed;  // TODO: delete maybe?
-    previous_error = error;
+    fix_previous_error_c__s = fix_error_c__s;
 
-    // Uncomment for debug info
-    // char buff [200];
-    // snprintf(buff, 200, "Target Speed: %f   Current Speed: %f   Error:  %f  Integration:  %f   Direction: %d  Encoder Count: %ld", target_speed,
-    // current_speed, error, integration, direction, get_count()); Serial.println(buff);
+    char buff [200];
+    snprintf(buff, 200, "Target Speed:%+5f, Current Speed:%+5f, Error:%+5f, Integration:%+5f, Direction:%d, Encoder Count:%-5ld, PWM:%+5d",
+             to_float_pt(fix_target_speed_c__s),
+             to_float_pt(fix_current_speed_c__s),
+             to_float_pt(fix_error_c__s),
+             to_float_pt(fix_integration_c__s),
+             direction,
+             get_count(),
+             pwm_val
+             );
+    Serial.println(buff);
 
 
     update_pwm();
