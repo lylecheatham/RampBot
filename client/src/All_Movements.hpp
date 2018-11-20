@@ -46,7 +46,9 @@ class DriveDistance : public Movement {
 		NewPingWrap *sonar;
 		IMU *imu;
 		
+		int32_t get_dist();
 		float encoder_delta(); // Get difference between encoder values (in case unable to use imu)
+		float encoder_dist_cm();
 };
 
 

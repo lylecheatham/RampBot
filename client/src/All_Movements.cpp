@@ -57,13 +57,13 @@ Status DriveDistance::run()
 	// Initial Conditions
 	encA_start  = mA->get_count();
 	encB_start  = mB->get_count();
-	dist = sonar->ping_cm() - dist;
+	dist = get_dist() - dist;
 	dist = dist < 5 ? 5 : dist;	    //Ensure no negative distances	
 	target_angle = imu->get_yaw();
 	
 
 	// Using combination of speed and error to represent stabilizing on the correct point
-	int32_t curr_dist = sonar->ping_cm();
+	int32_t curr_dist = get_dist();
 	timeout = millis() + 10000;
 
 	// Speed adjustment
@@ -82,6 +82,8 @@ Status DriveDistance::run()
 		mA->set_speed(speedA);
 		mB->set_speed(speedB);
 
+		curr_dist = get_dist();
+		Serial.println(curr_dist);
 		// Success condition
 		/*
 		if(speedA > 0 && speedA*speedB > 0 && curr_dist < dist)
@@ -108,6 +110,38 @@ float DriveDistance::encoder_delta()
 	return mB->get_count() -encB_start - mA->get_count() + encA_start;
 }
 
+/* encoder_dist_cm
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Distance travelled so far as measured by encoders
+ */
+float DriveDistance::encoder_dist_cm()
+{
+/*
+ *    float ret_dist_a = mA->get_count() - encA_start;
+ *    ret_dist_a *= (2*PI*D_O_WHEEL/2); // translate to linear distance
+ *    ret_dist_a /= COUNTS_REV*10;	
+ *
+ *    float ret_dist_b = mB->get_count() - encB_start;
+ *    ret_dist_b *= (2*PI*D_O_WHEEL/2); // translate to linear distance
+ *    ret_dist_b /= COUNTS_REV*10;	
+ */
+
+	return (mA->get_count() - encA_start + mB->get_count() - encB_start) * (2*PI*D_O_WHEEL) 
+			/ (2*COUNTS_REV*10) /2;
+}
+
+/* get_dist
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Gets the currently read distance
+ */
+int32_t DriveDistance::get_dist()
+{
+	return static_cast<int32_t>(encoder_dist_cm());
+}
 
 /********************* Turn Angle ***************************/
 /* TurnAngle
