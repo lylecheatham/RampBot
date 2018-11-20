@@ -179,8 +179,7 @@ void state_machine::start() {
  */
 Status state_machine::execute(Movement &m)
 {
-	while((m.update() == ONGOING));
-	return m.last_status;
+	return m.run();
 }
 
 /* function: get_char()

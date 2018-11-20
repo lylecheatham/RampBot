@@ -153,6 +153,8 @@ void Motor::PID_control() {
     pwm_val = p_out + i_out + d_out;
     pwm_val *= PWM_CONV;
 
+	pwm_val = pwm_val + FEED_FWD*target_speed;
+
     previous_speed = current_speed;  // TODO: delete maybe?
     previous_error = error;
 

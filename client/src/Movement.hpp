@@ -21,10 +21,12 @@
 #ifndef MOVEMENT_HPP
 #define MOVEMENT_HPP
 
+#include <cstdint>
+
 enum Status {
-	FAILURE = 0,
+	TIMEOUT = 0,
 	SUCCESS,
-	ONGOING
+	INIT
 };
 
 class Movement {
@@ -34,7 +36,27 @@ class Movement {
 		Movement() {};
 		~Movement() {};
 
-		virtual Status update() = 0;	
+		virtual Status run() = 0;
+
+	protected:
+		// Members --
+		// P Control
+		float k_p;
+		int32_t  error, base_speed; 
+
+		// Timeout 
+		uint32_t timeout;
+
+		// For maintaining bearing
+		float target_angle, curr_angle;
+
+		// Functions --
+		// P-control for bearing
+		int32_t p_control() 
+		{ 
+			error = curr_angle-target_angle;
+			return static_cast<int32_t>(k_p*error); 
+		}	
 };
 
 #endif 
