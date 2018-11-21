@@ -35,9 +35,6 @@ private:
     // TUNINGS
     static constexpr int32_t freq = 40;  // Frequency of updates
 
-    static constexpr float p_term = 0.122;  // P term
-    static constexpr float i_term = 2.774;  // I term
-    static constexpr float d_term = 0.001;  // D term
     static constexpr int32_t fix_p_term = to_fix_pt(0.122);  // P term
     static constexpr int32_t fix_i_term = to_fix_pt(2.774);  // I term
     static constexpr int32_t fix_d_term = to_fix_pt(0.001);  // D term
