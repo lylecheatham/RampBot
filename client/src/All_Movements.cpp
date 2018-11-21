@@ -315,11 +315,11 @@ Status FindPost::run()
 	// Initial Conditions
 	encA_start  = mA->get_count();
 	encB_start  = mB->get_count();
-	cm_start = servo->sensor.ping_cm();
 	servo_start = servo->get_position();
 	servo->set_position(servo_set);
 	delay(1000);
-	Serial.println(servo->get_position());
+	cm_start = servo->sensor.ping_cm();
+	Serial.println(cm_start);
 	//dist = get_dist() - dist;
 	dist = dist < 5 ? 5 : dist;	    //Ensure no negative distances	
 	target_angle = imu->get_yaw();
@@ -344,9 +344,10 @@ Status FindPost::run()
 
 		mA->set_speed(speedA);
 		mB->set_speed(speedB);
-
+ 
 		curr_dist = encoder_dist_cm();
-		Serial.println(curr_dist);
+		//Serial.println(curr_dist);
+		Serial.println(servo->sensor.ping_cm());
 		// Success condition
 		if(servo->sensor.ping_cm() < cm_start - 10)
 			break;
