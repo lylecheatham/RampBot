@@ -21,11 +21,11 @@
  * 	Outputs:
  * 		none
  */
-DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap* sonar_, IMU* imu_, int32_t speed_) :
+DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_) :
 		dist(dist_),
 		mA(mA_),
 		mB(mB_),
-		sonar(sonar_),
+		servo(servo_),
 		imu(imu_)
 {
 	k_p = 1.5;
@@ -33,7 +33,6 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap*
 	k_d = 0.001;
 	freq = 1000;
 	integration = 0;
-
 
 	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
 	base_speed = dist*speed_ < 0 ? -speed_ : speed_;                  // Account for direction
@@ -246,4 +245,25 @@ float TurnAngle::encoder_angle()
 float TurnAngle::imu_angle() 
 {
 	return imu->get_yaw() - start_angle; 
+}
+
+/********************* Ramp Movement ***************************/
+/* Ramp Movement
+ * 	Inputs:
+ *		mA_    : pointer to the right motor (A)
+ *		mb_    : pointer to the left motor (B)
+ *		imu_   : pointer to the imu object
+ * 	Outputs:
+ * 		none
+ */
+RampMovement::RampMovement(Motor* mA_, Motor* mB_, IMU* imu_) :
+		imu(imu_),
+		mA(mA_),
+		mB(mB_)
+{
+	
+}
+
+Status RampMovement::run(){
+	
 }

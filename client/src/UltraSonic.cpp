@@ -16,7 +16,7 @@ bool UltraSonic::init() {
 
     digitalWrite(pin, LOW);
     pinMode(pin, INPUT);
-
+    
     pulse_start();
     
     Serial.println("Initialized");
@@ -95,7 +95,7 @@ void UltraSonic::input_end() {
     }
     
     // Begin the delay before next measurement timer
-    timer.begin(s_pulse_start, 200);
+    timer.begin(s_pulse_start, 10000);
 }
 
 uint32_t UltraSonic::ping_cm(){
@@ -135,7 +135,6 @@ uint32_t UltraSonic::ping_cm(){
     
     // avg /= count;
     // avg /= 29*2;
-
     while(!success){
         if (abs(dist_array[index] - dist_array[(index + 1)%length]) < threshold ||
             abs(dist_array[index] - dist_array[(index + 2)%length]) < threshold){

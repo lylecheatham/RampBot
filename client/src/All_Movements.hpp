@@ -32,7 +32,7 @@
 /* Drive Distance - (drive in a straight line a set distance) */
 class DriveDistance : public Movement {
 	public:
-		DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, NewPingWrap* sonar_, IMU* imu_, int32_t speed_ = STD_SPEED);
+		DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
 		~DriveDistance() {};
 		
 		Status run();
@@ -43,7 +43,7 @@ class DriveDistance : public Movement {
 	    int32_t	speedA, speedB;
 
 		Motor *mA, *mB;
-		NewPingWrap *sonar;
+		UltraSonicSwivel *servo;
 		IMU *imu;
 		
 		int32_t get_dist();
@@ -75,17 +75,19 @@ class TurnAngle : public Movement {
 };
 
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
-//class DriveOntoRamp : public Movement {
-	//public:
-		//DriveOntoRamp();
-		//~DriveOntoRamp() {};
-
-		//Status update();
+class RampMovement : public Movement {
+	public:
+		RampMovement(Motor* mA_, Motor* mB_, IMU* imu_);
+		~RampMovement() {};
+		
+		Status run();
 	
-	//private:
-		//uint32_t timeout;
+	private:
+		Motor *mA, *mB;
+		IMU *imu;
+		uint32_t timeout;
 
-//};
+};
 
 
 

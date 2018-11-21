@@ -1,7 +1,7 @@
 #include "Motor.hpp"
 #include "InterruptDisable.h"
 
-#define MOTOR_DEBUG_PRINT
+//#define MOTOR_DEBUG_PRINT
 
 std::set<Motor*> Motor::interrupt_list = std::set<Motor*>();
 IntervalTimer Motor::intTime = IntervalTimer();

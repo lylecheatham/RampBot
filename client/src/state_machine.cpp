@@ -23,14 +23,11 @@ Motor* state_machine::mB = nullptr;
 
 std::string state_machine::error_string = "";
 
-// Initialize swivel Variable
+// Initialize US and Servo Variable
 UltraSonicSwivel* state_machine::servo = nullptr;
 
 // Initialize IMU
 IMU* state_machine::imu = nullptr;
-
-// Initialize the Ultrasonic Sensor - (pin,pin,max)
-NewPingWrap* state_machine::sonar = nullptr;
 
 /* function: state_machine()
  *
@@ -40,8 +37,9 @@ NewPingWrap* state_machine::sonar = nullptr;
 state_machine::state_machine() {
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
+
+    //Initialize Servo/US
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
-    sonar = new NewPingWrap(U_PING, U_PING, 300);
     imu = new IMU();
 
     pinMode(M_STDBY, OUTPUT);
@@ -67,7 +65,7 @@ state_machine::~state_machine() {
 }
 
 inline void state_machine::get_dist(int32_t& dist) {
-    dist = sonar->ping_cm();
+    dist = servo->sensor.ping_cm();
     dist = dist == 0 ? 300 : dist;
 }
 
@@ -82,6 +80,7 @@ void state_machine::start() {
     while (1) {
         // First wait for keypress
         Serial.print("Waiting for keypress");
+        
 		int8_t character = get_char();
         while (character != 'a' && character != 'd' && character != 'w' && character != 's') {
             delayMicroseconds(100000);
@@ -91,8 +90,8 @@ void state_machine::start() {
 		
 		TurnAngle turnL(-90, mA, mB, imu);
 		TurnAngle turnR(90, mA, mB, imu);
-		DriveDistance fwd(40, mA, mB, sonar, imu, 25);
-		DriveDistance bwd(-40, mA, mB, sonar, imu, -25);
+		DriveDistance fwd(40, mA, mB, servo, imu, 25);
+		DriveDistance bwd(-40, mA, mB, servo, imu, -25);
 
 		if(character == 'd')
 			Serial.println(execute(turnR));

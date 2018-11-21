@@ -1,6 +1,6 @@
 #include "ultraSonicSwivel.h"
 
-UltraSonicSwivel::UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t millis_per_deg) : servo(), sensor(us_pin, us_pin, 200) {
+UltraSonicSwivel::UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t millis_per_deg) : servo(), sensor(U_PING, 300) {
     servo.attach(servo_pin);
 
     servo_set_pos = 90;
@@ -8,6 +8,8 @@ UltraSonicSwivel::UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t m
 
     servo_set_timestamp = millis();
     servo_prev_pos = 0;
+    //Initialize sensor
+    sensor.init();
 }
 
 UltraSonicSwivel::~UltraSonicSwivel() {}
