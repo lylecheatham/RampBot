@@ -52,7 +52,7 @@ void UltraSonic::pulse_start() {
     pinMode(pin, INPUT);
 
     // Wait for reading to go high
-    attachInterrupt(pin, s_input_start, RISING);
+    attachInterrupt(pin, s_input_start, HIGH);
 
     // Also set a timer for 100 ms from now in case we get lost
     timer.begin(s_pulse_start, 100000);
@@ -66,7 +66,7 @@ void UltraSonic::input_start() {
     start_time_us = micros();
 
     // Attach the end of input interrupt
-    attachInterrupt(pin, s_input_end, FALLING);
+    attachInterrupt(pin, s_input_end, LOW);
 }
 
 void UltraSonic::input_end() {
