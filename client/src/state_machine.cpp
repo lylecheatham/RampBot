@@ -42,12 +42,14 @@ state_machine::state_machine() {
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     imu = new IMU();
 
+	
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
     if (!Motor::init()) {
         error_string.append("interrupt init fail;");
     }
     stop();
+
 
 	imu->stabilize(); // wait for the imu value to stabilize
 }
@@ -85,13 +87,15 @@ void state_machine::start() {
         while (character != 'a' && character != 'd' && character != 'w' && character != 's') {
             delayMicroseconds(100000);
             Serial.print(".");
+			//Serial.println(servo->sensor.ping_cm());
+			//imu->get_yaw();
 			character = get_char();
         }
 		
 		TurnAngle turnL(-90, mA, mB, imu);
 		TurnAngle turnR(90, mA, mB, imu);
-		DriveDistance fwd(40, mA, mB, servo, imu, 25);
-		DriveDistance bwd(-40, mA, mB, servo, imu, -25);
+		DriveDistance fwd(40, mA, mB, servo, imu, 10);
+		DriveDistance bwd(-40, mA, mB, servo, imu, -10);
 
 		if(character == 'd')
 			Serial.println(execute(turnR));

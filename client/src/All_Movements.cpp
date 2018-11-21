@@ -31,7 +31,7 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSw
 	k_p = 1.5;
 	k_i = 0.001;
 	k_d = 0.001;
-	freq = 1000;
+	freq = 10;
 	integration = 0;
 
 	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
@@ -56,14 +56,14 @@ Status DriveDistance::run()
 	// Initial Conditions
 	encA_start  = mA->get_count();
 	encB_start  = mB->get_count();
-	dist = get_dist() - dist;
+	//dist = get_dist() - dist;
 	dist = dist < 5 ? 5 : dist;	    //Ensure no negative distances	
 	target_angle = imu->get_yaw();
 	
 
 	// Using combination of speed and error to represent stabilizing on the correct point
 	int32_t curr_dist = get_dist();
-	timeout = millis() + 10000;
+	timeout = millis() + 1000000;
 
 	// Speed adjustment
 	int32_t speed_adj = 0;
@@ -72,7 +72,7 @@ Status DriveDistance::run()
 	// Loop until timed out
 	while(curr_t < timeout){ 
 		curr_angle = imu->get_yaw();
-		while(millis()-curr_t < 1); // only update at 1KHz
+		while(millis()-curr_t < 100); // only update at 10Hz
 		speed_adj = pid_control(); 		
 		curr_t = millis();
 		speedA = base_speed + speed_adj;
@@ -84,12 +84,10 @@ Status DriveDistance::run()
 		curr_dist = get_dist();
 		Serial.println(curr_dist);
 		// Success condition
-		/*
-		if(speedA > 0 && speedA*speedB > 0 && curr_dist < dist)
+		if(speedA > 0 && speedA*speedB > 0 && curr_dist > dist) //switch signs for ultrasonic
 			break;
-		else if(speedA < 0 && speedA*speedB > 0 && curr_dist > dist)
+		else if(speedA < 0 && speedA*speedB > 0 && curr_dist < dist) // switch signs for ultrasonic
 			break;
-		*/
 	}
 
 	mA->set_speed(0); // ensure motor stopped at this point
@@ -139,6 +137,7 @@ float DriveDistance::encoder_dist_cm()
  */
 int32_t DriveDistance::get_dist()
 {
+//	return servo->sensor.ping_cm();
 	return static_cast<int32_t>(encoder_dist_cm());
 }
 

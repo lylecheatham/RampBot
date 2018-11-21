@@ -22,6 +22,7 @@ enum MotorNum { MotorA, MotorB };
 /* LEDs */
 #define STD_LED 13
 #define GRN_LED 0
+#define RED_LED 1
 
 /* Motors */
 #define M_STDBY 4  // Standby (pull high to use motors)

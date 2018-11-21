@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include <NewPing.h>
 #include <PWMServo.h>
+//#include <kinesis.h>
 
 #include "DemoInterface.hpp"
 #include "constants.h"
@@ -33,11 +34,18 @@ int _write() {
 
 
 void setup() {
-    /* Await serial connection */
+	Wire.setClock(400000);
+	NVIC_SET_PRIORITY(IRQ_PORTB, 240);
+	NVIC_SET_PRIORITY(IRQ_PORTC, 32);
+	NVIC_SET_PRIORITY(IRQ_PORTD, 32); 
+	
+	 /* Await serial connection */
     // TWBR = 12;
     Serial.begin(38400);  // 400 kbit/sec I2C speed
     while (!Serial) {
     };
+
+	
 
     pinMode(STD_LED, OUTPUT);
     digitalWrite(STD_LED, HIGH);
