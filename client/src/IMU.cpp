@@ -49,7 +49,9 @@ IMU::~IMU() {
 }
 
 float IMU::get_pitch() {
-    updateIMU();
+    if( abs(millis() - last_data_time) > 100){
+        updateIMU();
+    }
     return pitch;
 }
 
@@ -59,7 +61,9 @@ float IMU::get_pitch_abs() {
 }
 
 float IMU::get_yaw() {
-    updateIMU();
+    if( abs(millis() - last_data_time) > 100){
+        updateIMU();
+    }
     return yaw;
 }
 
@@ -69,7 +73,9 @@ float IMU::get_yaw_abs() {
 }
 
 float IMU::get_roll() {
-    updateIMU();
+    if( abs(millis() - last_data_time) > 100){
+        updateIMU();
+    }
     return roll;
 }
 
@@ -104,7 +110,10 @@ void IMU::updateIMU()
     imu->resetFifo();
     while(!imu->fifoAvailable()){};
     imu->updateFifo();
-    
+
+    //Get the time at which data was sampled
+    last_data_time = millis();
+
     //Calculate euler angles from new data
     imu->computeEulerAngles();
 
