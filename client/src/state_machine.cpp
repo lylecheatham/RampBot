@@ -46,7 +46,7 @@ state_machine::state_machine() {
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
-    if (!Motor::intTime.begin(Motor::control_interrupt, 1000000 / Motor::freq)) {
+    if (!Motor::init()) {
         error_string.append("interrupt init fail;");
     }
     stop();
