@@ -5,10 +5,10 @@ UltraSonic* UltraSonic::singleton = nullptr;
 UltraSonic::UltraSonic(int32_t pin, uint32_t max_distance) {
     this->pin = pin;
     this->max_distance = max_distance;
+    this->valid_reading = false;
 }
 
 bool UltraSonic::init() {
-    
     if (singleton != nullptr) return false;
     singleton = this;
 
@@ -16,9 +16,9 @@ bool UltraSonic::init() {
 
     digitalWrite(pin, LOW);
     pinMode(pin, INPUT);
-    
+
     pulse_start();
-    
+
     Serial.println("Initialized");
 
     return true;
@@ -26,10 +26,6 @@ bool UltraSonic::init() {
 
 void UltraSonic::s_pulse_start() {
     singleton->pulse_start();
-}
-
-void UltraSonic::s_pulse_end() {
-    singleton->pulse_end();
 }
 
 void UltraSonic::s_input_start() {
@@ -57,18 +53,9 @@ void UltraSonic::pulse_start() {
 
     // Wait for reading to go high
     attachInterrupt(pin, s_input_start, RISING);
-}
 
-void UltraSonic::pulse_end() {
-    // Turn of the pulse timer
-    timer.end();
-
-    // Set pin low and set to input
-    digitalWrite(pin, LOW);
-    pinMode(pin, INPUT);
-
-    // Wait for reading to go high
-    attachInterrupt(pin, s_input_start, RISING);
+    // Also set a timer for 100 ms from now in case we get lost
+    timer.begin(s_pulse_start, 100000);
 }
 
 void UltraSonic::input_start() {
@@ -88,17 +75,24 @@ void UltraSonic::input_end() {
 
     // Record total time
     total_time_us = micros() - start_time_us;
-    if(total_time_us != 0){
+    if (total_time_us != 0) {
         dist_array[curr_index] = total_time_us;
-        if(curr_index == 0)curr_index = length;
-        else curr_index -= 1;
+        if (curr_index == 0)
+            curr_index = length;
+        else
+            curr_index -= 1;
     }
-    
+
+    valid_reading = true;
+
+    // End the "in case we get lost" timer
+    timer.end();
+
     // Begin the delay before next measurement timer
     timer.begin(s_pulse_start, 10000);
 }
 
-uint32_t UltraSonic::ping_cm(){
+uint32_t UltraSonic::ping_cm() {
     int32_t threshold = 10;
     bool success = false;
     uint32_t avg = 0;
@@ -107,7 +101,7 @@ uint32_t UltraSonic::ping_cm(){
 
     int32_t index = curr_index;
 
-    //Fancy Robust Code Do Not Touch
+    // Fancy Robust Code Do Not Touch
 
     // if(dist_array[index] <= 0){
     //     time_us -= dist_array[index];
@@ -119,7 +113,7 @@ uint32_t UltraSonic::ping_cm(){
     //     }
     // }
     // index = (index + 1) % length;
-    
+
     // while(time_us < 100000){
     //     if(dist_array[index] <= 0){
     //         time_us -= dist_array[index] - 966;
@@ -132,18 +126,20 @@ uint32_t UltraSonic::ping_cm(){
     //     }
     //     index = (index + 1) % length;
     // }
-    
+
     // avg /= count;
     // avg /= 29*2;
-    while(!success){
-        if (abs(dist_array[index] - dist_array[(index + 1)%length]) < threshold ||
-            abs(dist_array[index] - dist_array[(index + 2)%length]) < threshold){
+    while (!success) {
+        if (abs(dist_array[index] - dist_array[(index + 1) % length]) < threshold || abs(dist_array[index] - dist_array[(index + 2) % length]) < threshold) {
             success = true;
-        }
-        else{
+        } else {
             index = (index + 1) % length;
         }
     }
 
-    return dist_array[index]/(29*2);
+    return dist_array[index] / (29 * 2);
+}
+
+bool UltraSonic::valid_readings() {
+    return valid_reading;
 }
