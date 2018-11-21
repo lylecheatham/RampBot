@@ -17,7 +17,7 @@ enum MotorNum { MotorA, MotorB };
 #define RPM_TO_VO (0.26) //cm/s
 #define RPM_TO_VI (0.16) //cm/s
 #define WHEELBASE 180 //mm
-#define COUNTS_REV 1203 //encoder counts per revolution
+#define COUNTS_REV 1204 //encoder counts per revolution
 
 /* LEDs */
 #define STD_LED 13
