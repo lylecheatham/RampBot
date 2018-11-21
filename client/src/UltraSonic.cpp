@@ -13,7 +13,7 @@ bool UltraSonic::init() {
     if (singleton != nullptr) return false;
     singleton = this;
 
-    curr_index = length;
+    curr_index = length-1;
 
     digitalWrite(pin, LOW);
     pinMode(pin, INPUT);
@@ -93,7 +93,7 @@ void UltraSonic::input_end() {
     if (total_time_us != 0) {
         dist_array[curr_index] = total_time_us;
         if (curr_index == 0)
-            curr_index = length;
+            curr_index = length-1;
         else
             curr_index -= 1;
     }
