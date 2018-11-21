@@ -164,7 +164,7 @@ void Motor::PID_control() {
     // Proportional Value
     int32_t fix_p_out_pwm = fix_p_term * fix_error_c__s / to_fix_pt(1.0);
 
-    // Integral Value=
+    // Integral Value
     // Saturate the integral if the PWM is already saturating
     if (!saturation) fix_integration_c__s += fix_error_c__s;
     int32_t fix_i_out_pwm = fix_i_term * fix_integration_c__s / to_fix_pt(1.0) / freq;
@@ -174,7 +174,6 @@ void Motor::PID_control() {
 
     // Calculate PID term
     pwm_val = to_int_pt(fix_i_out_pwm + fix_p_out_pwm + fix_d_out_pwm);
-    pwm_val *= PWM_CONV;
 
     // Add feed forward term
     pwm_val += to_int_pt(CPS_to_RPM(fix_FF_term) * fix_target_speed_c__s / to_fix_pt(1.0));

@@ -7,10 +7,6 @@
 #include <set>
 #include "constants.h"
 
-
-
-#define PWM_CONV 0.65            // converts pid output to pwm val
-
 // FIXED POINT FUNCTIONS
 static constexpr uint32_t frac_bits = 6;  // 26.6 signed fixed point numbers
 
@@ -82,7 +78,6 @@ private:
     void PID_control();               // PID control loop
     void update_pwm();                // Update the value of the PWM pin
     static void control_interrupt();  // Static function to handle the control
-
 
     int32_t fix_target_speed_c__s;  // Fixed point target speed in counts/second
     int32_t fix_integration_c__s;   // Fixed point integration in counts/second
