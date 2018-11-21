@@ -41,11 +41,6 @@ IMU::IMU() {
     // DMP_FEATURE_LP_QUAT can also be used. It uses the
     // accelerometer in low-power mode to estimate quat's.
     // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive
-
-    // Set up interrupt
-    pinMode(IMU_INT, INPUT);
-    digitalWrite(IMU_INT, LOW);
-    attachInterrupt(IMU_INT, updateIMU, RISING);
     
 }
 
@@ -54,7 +49,7 @@ IMU::~IMU() {
 }
 
 float IMU::get_pitch() {
-    
+    updateIMU();
     return pitch;
 }
 
@@ -64,7 +59,7 @@ float IMU::get_pitch_abs() {
 }
 
 float IMU::get_yaw() {
-
+    updateIMU();
     return yaw;
 }
 
@@ -74,7 +69,7 @@ float IMU::get_yaw_abs() {
 }
 
 float IMU::get_roll() {
-
+    updateIMU();
     return roll;
 }
 
@@ -104,28 +99,45 @@ void IMU::updateIMU()
     static bool LED_state = false;
     digitalWrite(13, LED_state);
     LED_state = !LED_state;
-  	// Check for new data in the FIFO
-  	if ( imu->fifoAvailable() )
-  	{
-  	  	// Use dmpUpdateFifo to update the ax, gx, mx, etc. values
-  	  	if ( imu->dmpUpdateFifo() == INV_SUCCESS)
-  	  	{
-  	  	  	// computeEulerAngles can be used -- after updating the
-  	  	  	// quaternion values -- to estimate roll, pitch, and yaw
-  	  	  	imu->computeEulerAngles();
 
-  	  	  	if ((imu->yaw - yaw_prev) < - 20){
-  	  	  	  	yaw += imu->yaw - yaw_prev + 360;
-  	  	  	}
-  	  	  	else if (imu->yaw - yaw_prev > 20){
-  	  	  	  	yaw += imu->yaw - yaw_prev - 360;
-  	  	  	}
-  	  	  	else{
-  	  	  	  	yaw += imu->yaw - yaw_prev;
-  	  	  	}
+    //Get latest data reading
+    imu->resetFifo();
+    while(!imu->fifoAvailable()){};
+    imu->updateFifo();
+    
+    //Calculate euler angles from new data
+    imu->computeEulerAngles();
 
-  	  	  	yaw_prev = imu->yaw;
-  	  	
-  	  	}
-  	}
+    //For exceeding 360 yaw
+    if ((imu->yaw - yaw_prev) < - 20){
+        yaw += imu->yaw - yaw_prev + 360;
+    }
+    else if (imu->yaw - yaw_prev > 20){
+        yaw += imu->yaw - yaw_prev - 360;
+    }
+    else{
+        yaw += imu->yaw - yaw_prev;
+    }
+
+    //For exceeding 360 pitch
+    if ((imu->pitch - pitch_prev) < - 20){
+        pitch += imu->pitch - pitch_prev + 360;
+    }
+    else if (imu->pitch - pitch_prev > 20){
+        pitch += imu->pitch - pitch_prev - 360;
+    }
+    else{
+        pitch += imu->pitch - pitch_prev;
+    }
+
+    //For exceeding 360 roll
+    if ((imu->roll - roll_prev) < - 20){
+        pitch += imu->roll - roll_prev + 360;
+    }
+    else if (imu->roll - roll_prev > 20){
+        pitch += imu->roll - roll_prev - 360;
+    }
+    else{
+        pitch += imu->roll - roll_prev;
+    }
 }
