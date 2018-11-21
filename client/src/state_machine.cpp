@@ -94,17 +94,31 @@ void state_machine::start() {
 		
 		TurnAngle turnL(-90, mA, mB, imu);
 		TurnAngle turnR(90, mA, mB, imu);
-		DriveDistance fwd(40, mA, mB, servo, imu, 10);
+		DriveDistance fwd(40, mA, mB, servo, imu, 20);
 		DriveDistance bwd(-40, mA, mB, servo, imu, -10);
 
-		if(character == 'd')
-			Serial.println(execute(turnR));
-		else if(character == 'a')
-			Serial.println(execute(turnL));
-		else if(character == 'w')
-			Serial.println(execute(fwd));
-		else
-			Serial.println(execute(bwd));
+		FindPost post(175, mA, mB, servo, imu, 30);
+		execute(post);
+
+		/*
+		 *for(int32_t i = 0; i < 8; i++)
+		 *{
+		 *execute(fwd);
+		 *execute(turnR);
+		 *}
+		 */
+		
+
+		/*
+		 *if(character == 'd')
+		 *    Serial.println(execute(turnR));
+		 *else if(character == 'a')
+		 *    Serial.println(execute(turnL));
+		 *else if(character == 'w')
+		 *    Serial.println(execute(fwd));
+		 *else
+		 *    Serial.println(execute(bwd));
+		 */
 
 
 /*

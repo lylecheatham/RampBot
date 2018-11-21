@@ -89,7 +89,28 @@ class RampMovement : public Movement {
 
 };
 
+/* Find Post */
+class FindPost : public Movement {
+	public:
+		FindPost(int32_t servo_angle, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+		~FindPost() {};
 
+		Status run();
+
+	private:
+		int32_t encA_start, encB_start, servo_start, servo_set, cm_start;
+		int32_t dist;
+	    int32_t	speedA, speedB;
+
+		Motor *mA, *mB;
+		UltraSonicSwivel *servo;
+		IMU *imu;
+
+
+
+		float encoder_dist_cm();
+
+};
 
 
 #endif

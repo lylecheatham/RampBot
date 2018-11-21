@@ -34,7 +34,6 @@ int _write() {
 
 
 void setup() {
-	Wire.setClock(400000);
 	NVIC_SET_PRIORITY(IRQ_PORTB, 240);
 	NVIC_SET_PRIORITY(IRQ_PORTC, 32);
 	NVIC_SET_PRIORITY(IRQ_PORTD, 32); 
@@ -51,7 +50,7 @@ void setup() {
     digitalWrite(STD_LED, HIGH);
 
     /* Setup state machine */
-    state_machine machine;
+    //state_machine machine;
 
     //IMU myIMU;
 	//Serial.println(myIMU.get_yaw());
@@ -64,15 +63,15 @@ void setup() {
 	
 	//NewPingWrap sonar(U_PING, U_PING);
 
-    //DemoInterface demo;
+    DemoInterface demo;
 
-	machine.start();
+	//machine.start();
     int8_t c;
     while (1) {
 		//	Serial.println(sonar.ping_cm());
         //myIMU.print_values();
-        //c = demo.get_char();
-        //demo.run_command(c);
+        c = demo.get_char();
+        demo.run_command(c);
     }
 }
 
