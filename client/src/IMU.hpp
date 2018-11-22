@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include "constants.h"
 #include <SparkFunMPU9250-DMP.h>
+#include "Angle.hpp"
 
 class IMU {
 public:
@@ -20,9 +21,9 @@ public:
     float get_yaw();
     float get_roll();
 
-    float get_pitch_abs();
-    float get_yaw_abs();
-    float get_roll_abs();
+    Angle get_pitch_abs();
+    Angle get_yaw_abs();
+    Angle get_roll_abs();
 
 	void stabilize();
 

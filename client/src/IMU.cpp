@@ -55,33 +55,27 @@ IMU::~IMU() {
 }
 
 float IMU::get_pitch() {
-    
     return pitch;
 }
 
-float IMU::get_pitch_abs() {
-    
-    return imu->pitch;
+Angle IMU::get_pitch_abs() {
+    return Angle(imu->pitch);
 }
 
 float IMU::get_yaw() {
-
     return yaw;
 }
 
-float IMU::get_yaw_abs() {
-
-    return imu->yaw;
+Angle IMU::get_yaw_abs() {
+    return Angle(imu->yaw);
 }
 
 float IMU::get_roll() {
-
     return roll;
 }
 
-float IMU::get_roll_abs() {
-
-    return imu->roll;
+Angle IMU::get_roll_abs() {
+    return Angle(imu->roll);
 }
 
 void IMU::stabilize() {
