@@ -72,5 +72,6 @@ void IMU::updateIMU()
       // quaternion values -- to estimate roll, pitch, and yaw
       imu->computeEulerAngles();
     }
+    imu->updateCompass();
   }
 }

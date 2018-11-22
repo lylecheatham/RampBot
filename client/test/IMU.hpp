@@ -19,9 +19,9 @@ public:
     float get_pitch();
     float get_yaw();
     float get_roll();
+    static MPU9250_DMP* imu;
 
 private:
-    static MPU9250_DMP* imu;
 
     float pitch;
     float yaw;

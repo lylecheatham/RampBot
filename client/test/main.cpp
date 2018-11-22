@@ -23,22 +23,22 @@ Supported Platforms:
 
 #define SerialPort SerialUSB
 
-void setup()
-{
-  SerialPort.begin(115200);
-  while(!Serial);
-  pinMode(STD_LED, OUTPUT);
-  digitalWrite(STD_LED, 1);
+void setup() {
+    SerialPort.begin(115200);
+    while (!Serial)
+        ;
+    pinMode(STD_LED, OUTPUT);
+    digitalWrite(STD_LED, 1);
 
-  IMU imu;
+    IMU imu;
 
-  while(1){
-    Serial.println(imu.get_yaw());
-  }
-  
+    imu.imu->setCompassSampleRate(100);
+
+    while (1) {
+        imu.imu->computeCompassHeading();
+        Serial.println(imu.imu->heading);
+        delay(10);
+    }
 }
 
-void loop()
-{
-  
-}
+void loop() {}
