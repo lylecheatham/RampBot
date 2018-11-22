@@ -376,8 +376,8 @@ void FindPost::clean(Robot& robot) {
  * 	Outputs:
  * 		none
  */
-DriveToPost::DriveToPost(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
-    : DriveDistance(dist_, mA_, mB_, servo_, imu_, speed_) {}
+DriveToPost::DriveToPost(int32_t dist_, int32_t speed_)
+    : DriveDistance(dist_, speed_) {}
 
 
 /* success
@@ -386,10 +386,10 @@ DriveToPost::DriveToPost(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel
  * 	Outputs:
  * 		Whether success criteria met (true/false)
  */
-bool DriveToPost::success() {
+bool DriveToPost::success(Robot &robot) {
 	Angle zero;
-	Angle curr_pitch = imu->get_pitch_abs();
-	Angle curr_roll = imu->get_roll_abs();
+	Angle curr_pitch = robot.imu.get_pitch_abs();
+	Angle curr_roll = robot.imu.get_roll_abs();
 
 	float pitch_dist = abs(curr_pitch.distance(zero));
 	float roll_dist = abs(curr_roll.distance(zero));
@@ -407,8 +407,8 @@ bool DriveToPost::success() {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
-bool DriveToPost::continue_run() {
-    return millis() < timeout && encoder_dist_cm() < travel_distance;
+bool DriveToPost::continue_run(Robot &robot) {
+    return millis() < timeout && encoder_dist_cm(robot) < travel_distance;
 }
 
 

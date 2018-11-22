@@ -101,12 +101,12 @@ private:
 /* Run to Post */
 class DriveToPost : public DriveDistance {
 	public:
-		DriveToPost(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+		DriveToPost(int32_t dist_, int32_t speed_ = STD_SPEED);
 		~DriveToPost() {};
 
 	protected:
-		bool success();
-		bool continue_run();
+		bool success(Robot& robot);
+		bool continue_run(Robot& robot);
 
 	private:
 		const float tol = 3;
