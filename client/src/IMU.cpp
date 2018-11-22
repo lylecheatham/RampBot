@@ -110,7 +110,7 @@ void IMU::stabilize() {
     do {
         prev_yaw = get_yaw_abs();
         Serial.println(prev_yaw.as_float());
-        delayMicroseconds(4000000);  // delay two seconds
+        delayMicroseconds(8000000);  // delay two seconds
     } while (abs(prev_yaw.distance(get_yaw_abs())) > 0.05);
     Serial.println(get_yaw_abs().as_float());
 
@@ -141,7 +141,7 @@ void IMU::updateIMU() {
             imu->computeEulerAngles();
             imu->updateCompass();
 
-            singleton->complementary_compass_filter();
+            //singleton->complementary_compass_filter();
 
             if ((imu->pitch - singleton->pitch_prev) < -20) {
                 singleton->pitch += imu->pitch - singleton->pitch_prev + 360;

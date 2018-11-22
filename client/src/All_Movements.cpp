@@ -356,3 +356,114 @@ void FindPost::clean() {
     mA->set_speed(0);  // ensure motor stopped at this point
     mB->set_speed(0);
 }
+
+/********************* DriveToPost ***************************/
+/* DriveToPost
+ * 	Inputs:
+ *		dist_  : desired distance to travel (+ for forwards, - for backwards)
+ *		mA_    : pointer to the right motor (A)
+ *		mb_    : pointer to the left motor (B)
+ *		sonar_ : pointer to the ultrasonic sensor object
+ *		speed_ : (optional) desired motor speed for the action
+ * 	Outputs:
+ * 		none
+ */
+DriveToPost::DriveToPost(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
+    : DriveDistance(dist_, mA_, mB_, servo_, imu_, speed_) {}
+
+
+/* success
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Whether success criteria met (true/false)
+ */
+bool DriveToPost::success() {
+	Angle zero;
+	Angle curr_pitch = imu->get_pitch_abs();
+	Angle curr_roll = imu->get_roll_abs();
+
+	float pitch_dist = abs(curr_pitch.distance(zero));
+	float roll_dist = abs(curr_roll.distance(zero));
+
+	Serial.print("Pitch: ");
+	Serial.print(pitch_dist);
+	Serial.print("   Roll: ");
+	Serial.println(roll_dist);
+    return pitch_dist + roll_dist > tol;
+}
+
+/* continue_run
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Whether should continue running (checks timeout) (true/false)
+ */
+bool DriveToPost::continue_run() {
+    return millis() < timeout && encoder_dist_cm() < travel_distance;
+}
+
+
+/********************* Lateral Shift ***************************/
+/* LateralShift
+ * 	Inputs:
+ *		shift_  : desired lateral distance to travel (+ for right, - for left)
+ *		mA_    : pointer to the right motor (A)
+ *		mb_    : pointer to the left motor (B)
+ *		sonar_ : pointer to the ultrasonic sensor object
+ *		speed_ : (optional) desired motor speed for the action
+ * 	Outputs:
+ * 		none
+ */
+/*
+ *LateralShift::LateralShift(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
+ *    : shift(shift_), mA(mA_), mB(mB_), servo(servo_), imu(imu_) {
+ *    k_p = 1.5;
+ *    k_i = 0.001;
+ *    k_d = 0.001;
+ *    freq = 100;
+ *    integration = 0;
+ *
+ *    // timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
+ *    base_speed = travel_distance * speed_ < 0 ? -speed_ : speed_;  // Account for direction
+ *    speedA = 0;
+ *    speedB = 0;
+ *    last_status = INIT;
+ *}
+ */
+
+/* run
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		current execution status (SUCCESS / FAILURE / ONGOING)
+ */
+/*
+ *Status LateralShift::run() {
+ *    init();
+ *
+ *    // Speed adjustment
+ *    int32_t speed_adj = 0;
+ *    uint32_t curr_t = 0;
+ *
+ *    // Loop until timed out
+ *    while (continue_run()) {
+ *        current_angle = imu->get_yaw_abs();
+ *        while (millis() - curr_t < 10) {}  // only update at 100Hz
+ *        speed_adj = pid_control();
+ *        curr_t = millis();
+ *        speedA = base_speed + speed_adj;
+ *        speedB = base_speed - speed_adj;
+ *
+ *        mA->set_speed(speedA);
+ *        mB->set_speed(speedB);
+ *
+ *        if (success()) break;
+ *    }
+ *
+ *    clean();
+ *
+ *    return curr_t > timeout ? TIMEOUT : SUCCESS;
+ *}
+ */
+

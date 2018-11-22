@@ -108,20 +108,43 @@ private:
     int32_t servo_start, search_distance, cm_start;
 };
 
+/* Run to Post */
+class DriveToPost : public DriveDistance {
+	public:
+		DriveToPost(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+		~DriveToPost() {};
+
+	protected:
+		bool success();
+		bool continue_run();
+
+	private:
+		const float tol = 3;
+};
+
+
 /* Correct Ramp */
+
+/* Lateral Shift */
 /*
- *class RampCorrect : public Movement {
+ *class LateralShift : public Movement {
  *    public:
- *        RampCorrect();
- *        ~RampCorrect() {};
+ *        LateralShift(int32_t shift_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+ *        ~LateralShift() {};
  *
  *        Status run();
  *
  *    private:
+ *   	 	int32_t encA_start, encB_start;
+ *   	 	int32_t shift;
+ *   	 	int32_t speedA, speedB;
  *
- *
- *
+ *   	 	Motor *mA, *mB;
+ *   	 	UltraSonicSwivel* servo;
+ *   	 	IMU* imu;
  *};
  */
+
+
 
 #endif
