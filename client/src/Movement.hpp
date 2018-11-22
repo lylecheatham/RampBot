@@ -45,12 +45,12 @@ protected:
     uint32_t timeout;
 
     // For maintaining bearing
-    float target_angle, curr_angle;
+    Angle target_angle, current_angle;
 
     // Functions --
     // PID-control for bearing
     int32_t pid_control() {
-        error = curr_angle - target_angle;
+        error = target_angle.distance(current_angle);
         float k_term = k_p * error;
         float d_term = k_d * (error - prev_error) * freq;
         integration += error;

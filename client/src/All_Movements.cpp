@@ -51,9 +51,8 @@ Status DriveDistance::run() {
 
     // Loop until timed out
     while (continue_run()) {
-        curr_angle = imu->get_yaw();
-        while (millis() - curr_t < 10)
-            ;  // only update at 100Hz
+        current_angle = imu->get_yaw_abs();
+        while (millis() - curr_t < 10) {}  // only update at 100Hz
         speed_adj = pid_control();
         curr_t = millis();
         speedA = base_speed + speed_adj;
@@ -87,7 +86,7 @@ void DriveDistance::init() {
     encB_start = mB->get_count();
 
     // travel_distance = abs(travel_distance) < 5 ? 5 : travel_distance;	    //Ensure no negative distances
-    target_angle = imu->get_yaw();
+    target_angle = imu->get_yaw_abs();
 
     timeout = millis() + 1000000;  // TODO maybe improve
 }
@@ -183,16 +182,16 @@ int32_t DriveDistance::get_dist() {
  * 	Outputs:
  * 		none
  */
-TurnAngle::TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_) {
+TurnAngle::TurnAngle(float angle_, Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_) {
     k_p = 0.75;
     k_i = 1.5;
     k_d = 0.01;
     freq = 1000;
     integration = 0;
-    target_angle = angle_;
+    turn_angle = angle_;
 
     // Set driving and pivot motor: mA is right, mB is left
-    if (target_angle > 0)  // right turn
+    if (turn_angle > 0)  // right turn
     {
         mDrive = mB_;
         mPivot = mA_;
@@ -204,7 +203,7 @@ TurnAngle::TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_) : imu(im
         right_turn = false;
     }
 
-    timeout = angle_ < 0 ? TIMEOUT_TOL * (-angle_) / 45 : TIMEOUT_TOL * (angle_) / 45;
+    timeout = turn_angle < 0 ? TIMEOUT_TOL * (-turn_angle) / 45 : TIMEOUT_TOL * (turn_angle) / 45;
     timeout += millis();  // get timeout criteria
     base_speed = 0;
     last_status = INIT;
@@ -223,16 +222,16 @@ Status TurnAngle::run() {
 
     // Initial Conditions
     start_enc = mDrive->get_count();
-    start_angle = imu->get_yaw();
+    current_angle = imu->get_yaw_abs();
+    target_angle = current_angle + turn_angle;
 
     // Using combination of speed and error to represent stabilizing on the correct point
     uint32_t curr_t = 0;
     int32_t speed_adj = 0;
     error = 10 * TOL;
     while (abs(error) > TOL && curr_t < timeout) {
-        curr_angle = imu_angle();
-        while (millis() - curr_t < 1)
-            ;  // only update at 100Hz
+        current_angle = imu->get_yaw_abs();
+        while (millis() - curr_t < 1) {}  // only update at 100Hz
         speed_adj = pid_control();
         curr_t = millis();
         base_speed = right_turn ? -speed_adj : speed_adj;
@@ -242,34 +241,6 @@ Status TurnAngle::run() {
     mDrive->set_speed(0);  // ensure motor stopped at this point
 
     return curr_t > timeout ? TIMEOUT : SUCCESS;
-}
-
-/* encoder_angle
- * 	Inputs:
- * 		none
- * 	Outputs:
- * 		current angle calculated based on encoder values
- */
-float TurnAngle::encoder_angle() {
-    float dx = mDrive->get_count() - start_enc;  // get encoder count so far
-    dx *= (2 * PI * D_O_WHEEL / 2);              // translate to linear distance
-
-    dx /= COUNTS_REV;
-
-    float angle = dx / WHEELBASE * RAD_TO_DEG;
-    angle *= 1.4;  // account for ~30% undershoot in the encoder angle for some reason
-
-    return right_turn ? angle : -angle;
-}
-
-/* imu_angle
- * 	Inputs:
- * 		none
- * 	Outputs:
- * 		current angle based on imu
- */
-float TurnAngle::imu_angle() {
-    return imu->get_yaw() - start_angle;
 }
 
 /********************* Ramp Movement ***************************/
@@ -341,7 +312,7 @@ void FindPost::init() {
     mB->set_speed(speedB);
 
     // Set heading
-    target_angle = imu->get_yaw();
+    target_angle = imu->get_yaw_abs();
 
     // Initial Conditions
     encA_start = mA->get_count();

@@ -61,22 +61,19 @@ private:
 /* Turn Angle - (Turn to a specified angle off of current orientation / pivot turning) */
 class TurnAngle : public Movement {
 public:
-    TurnAngle(int32_t angle_, Motor* mA_, Motor* mB_, IMU* imu_);
+    TurnAngle(float angle_, Motor* mA_, Motor* mB_, IMU* imu_);
     ~TurnAngle(){};
 
     Status run();
 
 private:
     int32_t start_enc;
-    float start_angle;
+    float turn_angle;
 
     Motor *mDrive, *mPivot;
     IMU* imu;
 
     bool right_turn;
-
-    float encoder_angle();
-    float imu_angle();
 };
 
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
