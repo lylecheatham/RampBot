@@ -126,6 +126,18 @@ void IMU::updateIMU()
   	  	  	}
 
   	  	  	yaw_prev = imu->yaw;
+
+			if ((imu->pitch - pitch_prev) < - 20){
+  	  	  	  	pitch += imu->pitch - pitch_prev + 360;
+  	  	  	}
+  	  	  	else if (imu->pitch - pitch_prev > 20){
+  	  	  	  	pitch += imu->pitch - pitch_prev - 360;
+  	  	  	}
+  	  	  	else{
+  	  	  	  	pitch += imu->pitch - pitch_prev;
+  	  	  	}
+
+  	  	  	pitch_prev = imu->pitch;
   	  	
   	  	}
   	}

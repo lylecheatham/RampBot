@@ -98,7 +98,9 @@ void state_machine::start() {
 		DriveDistance bwd(-40, mA, mB, servo, imu, -10);
 
 		FindPost post(175, mA, mB, servo, imu, 30);
-		execute(post);
+
+        RampMovement ramp(mA, mB, imu);
+		execute(ramp);
 
 		/*
 		 *for(int32_t i = 0; i < 8; i++)
