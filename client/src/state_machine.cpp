@@ -41,6 +41,7 @@ state_machine::state_machine() {
     // Initialize Servo/US
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     imu = new IMU();
+    imu->init();
 
 
     pinMode(M_STDBY, OUTPUT);

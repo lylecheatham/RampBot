@@ -15,28 +15,32 @@
 class IMU {
 public:
     IMU();
-    ~IMU();
+
+    bool init();
 
     float get_pitch();
-    float get_yaw();
-    float get_roll();
 
     Angle get_pitch_abs();
     Angle get_yaw_abs();
     Angle get_roll_abs();
 
+    void compensate_pitch(float coefficient, Angle angle);
+    void compensate_yaw(float coefficient, Angle angle);
+    void compensate_roll(float coefficient, Angle angle);
+
     void stabilize();
 
 private:
+    float pitch_compensation;
+    float yaw_compensation;
+    float roll_compensation;
+
+
+    float pitch;
+    float pitch_prev;
+
+    static IMU* singleton;
     static MPU9250_DMP* imu;
-
-    static float pitch;
-    static float pitch_prev;
-    static float yaw;
-    static float yaw_prev;
-    static float roll;
-    static float roll_prev;
-
     static void updateIMU();
 };
 

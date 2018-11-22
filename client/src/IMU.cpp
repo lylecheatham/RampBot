@@ -12,15 +12,22 @@
 
 // Init MPU9250
 MPU9250_DMP* IMU::imu = nullptr;
-float IMU::pitch = 0;
-float IMU::yaw = 0;
-float IMU::roll = 0;
+IMU* IMU::singleton = nullptr;
 
-float IMU::pitch_prev = 0;
-float IMU::yaw_prev = 0;
-float IMU::roll_prev = 0;
 
 IMU::IMU() {
+    pitch_compensation = 0;
+    yaw_compensation = 0;
+    roll_compensation = 0;
+
+    pitch = 0;
+    pitch_prev = 0;
+}
+
+bool IMU::init() {
+    if (singleton != nullptr) return false;
+    singleton = this;
+
     imu = new MPU9250_DMP();
 
     // Call imu.begin() to verify communication and initialize
@@ -36,19 +43,13 @@ IMU::IMU() {
     imu->dmpBegin(DMP_FEATURE_6X_LP_QUAT |   // Enable 6-axis quat
                       DMP_FEATURE_GYRO_CAL,  // Use gyro calibration
                   FIFO_RATE);                // Set DMP FIFO rate to 10 Hz
-    // DMP_FEATURE_LP_QUAT can also be used. It uses the
-    // accelerometer in low-power mode to estimate quat's.
-    // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive
 
     // Set up interrupt
     pinMode(IMU_INT, INPUT);
     digitalWrite(IMU_INT, LOW);
     attachInterrupt(IMU_INT, updateIMU, RISING);
     Wire.setClock(400000);
-}
-
-IMU::~IMU() {
-    delete imu;
+    return true;
 }
 
 float IMU::get_pitch() {
@@ -56,37 +57,47 @@ float IMU::get_pitch() {
 }
 
 Angle IMU::get_pitch_abs() {
-    return Angle(imu->pitch);
-}
-
-float IMU::get_yaw() {
-    return yaw;
+    return Angle(imu->pitch + pitch_compensation);
 }
 
 Angle IMU::get_yaw_abs() {
-    return Angle(imu->yaw);
-}
-
-float IMU::get_roll() {
-    return roll;
+    return Angle(imu->yaw + yaw_compensation);
 }
 
 Angle IMU::get_roll_abs() {
-    return Angle(imu->roll);
+    return Angle(imu->roll + roll_compensation);
+}
+
+void IMU::compensate_pitch(float coefficient, Angle angle) {
+    if (coefficient < 0) return;
+    if (coefficient > 1) coefficient = 1;
+    pitch_compensation += angle.distance(get_pitch_abs()) * coefficient;
+}
+
+void IMU::compensate_yaw(float coefficient, Angle angle) {
+    if (coefficient < 0) return;
+    if (coefficient > 1) coefficient = 1;
+    yaw_compensation += angle.distance(get_yaw_abs()) * coefficient;
+}
+
+void IMU::compensate_roll(float coefficient, Angle angle) {
+    if (coefficient < 0) return;
+    if (coefficient > 1) coefficient = 1;
+    roll_compensation += angle.distance(get_roll_abs()) * coefficient;
 }
 
 void IMU::stabilize() {
-    float prev_val;
+    Angle prev_yaw;
     pinMode(GRN_LED, OUTPUT);
     digitalWrite(GRN_LED, 0);  // Make sure LED off
 
     // Loop while it is drifting
     do {
-        prev_val = yaw;
-        Serial.println(prev_val);
+        prev_yaw = get_yaw_abs();
+        Serial.println(prev_yaw.as_float());
         delayMicroseconds(4000000);  // delay two seconds
-    } while (abs(prev_val - yaw) > 0.05);
-    Serial.println(yaw);
+    } while (abs(prev_yaw.distance(get_yaw_abs())) > 0.05);
+    Serial.println(get_yaw_abs().as_float());
 
     digitalWrite(GRN_LED, 1);  // signal value is good
 }
@@ -103,25 +114,15 @@ void IMU::updateIMU() {
             // quaternion values -- to estimate roll, pitch, and yaw
             imu->computeEulerAngles();
 
-            if ((imu->yaw - yaw_prev) < -20) {
-                yaw += imu->yaw - yaw_prev + 360;
-            } else if (imu->yaw - yaw_prev > 20) {
-                yaw += imu->yaw - yaw_prev - 360;
+            if ((imu->pitch - singleton->pitch_prev) < -20) {
+                singleton->pitch += imu->pitch - singleton->pitch_prev + 360;
+            } else if (imu->pitch - singleton->pitch_prev > 20) {
+                singleton->pitch += imu->pitch - singleton->pitch_prev - 360;
             } else {
-                yaw += imu->yaw - yaw_prev;
+                singleton->pitch += imu->pitch - singleton->pitch_prev;
             }
 
-            yaw_prev = imu->yaw;
-
-            if ((imu->pitch - pitch_prev) < -20) {
-                pitch += imu->pitch - pitch_prev + 360;
-            } else if (imu->pitch - pitch_prev > 20) {
-                pitch += imu->pitch - pitch_prev - 360;
-            } else {
-                pitch += imu->pitch - pitch_prev;
-            }
-
-            pitch_prev = imu->pitch;
+            singleton->pitch_prev = imu->pitch;
         }
     }
 }
