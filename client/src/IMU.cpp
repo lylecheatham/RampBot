@@ -117,6 +117,9 @@ void IMU::stabilize() {
     compensate_yaw(1, Angle(0));
     compensate_compass(1, Angle(0));
 
+    compensate_pitch(1, Angle(0));
+    compensate_roll(1, Angle(0));
+
     digitalWrite(GRN_LED, 1);  // signal value is good
 }
 
