@@ -41,7 +41,7 @@ void setup() {
     pinMode(STD_LED, OUTPUT);
     digitalWrite(STD_LED, HIGH);
 
-    while (!(Serial || digitalRead(20))) {};
+    //while (!(Serial || digitalRead(20))) {};
 
     /* Setup state machine */
     state_machine machine;

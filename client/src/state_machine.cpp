@@ -46,13 +46,27 @@ inline void state_machine::get_dist(int32_t& dist) {
 void state_machine::start() {
     while (1) {
         // First wait for keypress
-        get_pushbutton();
-        Serial.print("Press Spacebar or pushbutton to continue");
+        // get_pushbutton();
+        // Serial.print("Press Spacebar or pushbutton to continue");
 
-        while (!(get_char() == ' ' || get_pushbutton())) {
-            delay(100);
-            Serial.print(".");
+        // while (!(get_char() == ' ' || get_pushbutton())) {
+        //     delay(100);
+        //     Serial.print(".");
+        // }
+
+        //Starting Logic
+        //Serial.print("Wave hand in front of sensor to continue");
+        while(1){
+            //Serial.print(".");
+            //delay(100);
+            if (robot.swivel.sensor.ping_cm() < 5){
+                break;
+            }
         }
+        //Give time to remove hand
+        delay(2000);
+        
+        //Serial.print("Made it");
 
         // Initialize left and right turns
         TurnAngle turnL(-90);
@@ -105,34 +119,34 @@ void state_machine::start() {
 
         // Find post
         // FIND SEARCH DISTANCE EXPERIMENTALLY
-        Status result;
-        int attempt = 0;
-        while (1) {
-            FindPost search(0, 150 - attempt * 10, 40);
+        // Status result;
+        // int attempt = 0;
+        // while (1) {
+        //     FindPost search(0, 150 - attempt * 10, 40);
 
-            result = execute(search);
+        //     result = execute(search);
 
-            if (result == SUCCESS) {
-                break;
-            }
+        //     if (result == SUCCESS) {
+        //         break;
+        //     }
 
-            else if (result == TIMEOUT) {
-                attempt += 1;
-                execute(turnL);
-            }
-        }
+        //     else if (result == TIMEOUT) {
+        //         attempt += 1;
+        //         execute(turnL);
+        //     }
+        // }
 
-        // Face post
-        TurnAngle post_turn(-75);
-        execute(post_turn);
+        // // Face post
+        // TurnAngle post_turn(-75);
+        // execute(post_turn);
 
-        robot.imu.compensate_pitch(1,0);
-        robot.imu.compensate_roll(1,0);
+        // robot.imu.compensate_pitch(1,0);
+        // robot.imu.compensate_roll(1,0);
 
 
-        // // Touch the post
-        DriveToPost drive_post(200);
-        execute(drive_post);
+        // // // Touch the post
+        // DriveToPost drive_post(200);
+        // execute(drive_post);
 
         // // To be implemented by Eric
 
