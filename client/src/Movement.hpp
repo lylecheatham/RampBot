@@ -22,6 +22,7 @@
 #define MOVEMENT_HPP
 
 #include <cstdint>
+#include "Robot.hpp"
 
 enum Status { TIMEOUT = 0, SUCCESS, INIT };
 
@@ -32,7 +33,7 @@ public:
     Movement(){};
     ~Movement(){};
 
-    virtual Status run() = 0;
+    virtual Status run(Robot &robot) = 0;
 
 protected:
     // Members --

@@ -10,12 +10,10 @@
 #define STATE_MACHINE_H
 
 #include "Arduino.h"
-#include "IMU.hpp"
 #include "IntervalTimer.h"
-#include "Motor.hpp"
 #include "Movement.hpp"
 #include "constants.h"
-#include "ultraSonicSwivel.h"
+#include "Robot.hpp"
 
 
 #include <list>
@@ -24,13 +22,7 @@
 
 class state_machine {
 private:
-    // Static objects
-    static Motor *mA;
-    static Motor *mB;
-    static UltraSonicSwivel *servo;
-    static int servo_pos;
-    static std::string error_string;
-    static IMU *imu;
+    Robot robot;
 
     // State tracking variables
     static int32_t start_pos[2];

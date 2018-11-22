@@ -21,8 +21,8 @@
  * 	Outputs:
  * 		none
  */
-DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
-    : travel_distance(dist_), mA(mA_), mB(mB_), servo(servo_), imu(imu_) {
+DriveDistance::DriveDistance(int32_t dist_, int32_t speed_)
+    : travel_distance(dist_) {
     k_p = 1.5;
     k_i = 0.001;
     k_d = 0.001;
@@ -42,29 +42,29 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSw
  * 	Outputs:
  * 		current execution status (SUCCESS / FAILURE / ONGOING)
  */
-Status DriveDistance::run() {
-    init();
+Status DriveDistance::run(Robot &robot) {
+    init(robot);
 
     // Speed adjustment
     int32_t speed_adj = 0;
     uint32_t curr_t = 0;
 
     // Loop until timed out
-    while (continue_run()) {
-        current_angle = imu->get_yaw_abs();
+    while (continue_run(robot)) {
+        current_angle = robot.imu.get_yaw_abs();
         while (millis() - curr_t < 10) {}  // only update at 100Hz
         speed_adj = pid_control();
         curr_t = millis();
         speedA = base_speed + speed_adj;
         speedB = base_speed - speed_adj;
 
-        mA->set_speed(speedA);
-        mB->set_speed(speedB);
+        robot.mA.set_speed(speedA);
+        robot.mB.set_speed(speedB);
 
-        if (success()) break;
+        if (success(robot)) break;
     }
 
-    clean();
+    clean(robot);
 
     return curr_t > timeout ? TIMEOUT : SUCCESS;
 }
@@ -76,17 +76,17 @@ Status DriveDistance::run() {
  * 	Outputs:
  * 		none
  */
-void DriveDistance::init() {
+void DriveDistance::init(Robot &robot) {
     // Ensure motors stopped to begin with
-    mA->set_speed(speedA);
-    mB->set_speed(speedB);
+    robot.mA.set_speed(speedA);
+    robot.mB.set_speed(speedB);
 
     // Initial Conditions
-    encA_start = mA->get_count();
-    encB_start = mB->get_count();
+    encA_start = robot.mA.get_count();
+    encB_start = robot.mB.get_count();
 
     // travel_distance = abs(travel_distance) < 5 ? 5 : travel_distance;	    //Ensure no negative distances
-    target_angle = imu->get_yaw_abs();
+    target_angle = robot.imu.get_yaw_abs();
 
     timeout = millis() + 1000000;  // TODO maybe improve
 }
@@ -98,8 +98,8 @@ void DriveDistance::init() {
  * 	Outputs:
  * 		Whether success criteria met (true/false)
  */
-bool DriveDistance::success() {
-    int32_t curr_dist = get_dist();
+bool DriveDistance::success(Robot &robot) {
+    int32_t curr_dist = get_dist(robot);
     Serial.println(speedA);
     Serial.println(speedB);
     Serial.println(travel_distance);
@@ -115,7 +115,7 @@ bool DriveDistance::success() {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
-bool DriveDistance::continue_run() {
+bool DriveDistance::continue_run(Robot& robot) {
     return millis() < timeout;
 }
 
@@ -125,9 +125,9 @@ bool DriveDistance::continue_run() {
  * 	Outputs:
  * 		none
  */
-void DriveDistance::clean() {
-    mA->set_speed(0);  // ensure motor stopped at this point
-    mB->set_speed(0);
+void DriveDistance::clean(Robot &robot) {
+    robot.mA.set_speed(0);  // ensure motor stopped at this point
+    robot.mB.set_speed(0);
 }
 
 /* encoder_delta
@@ -136,8 +136,8 @@ void DriveDistance::clean() {
  * 	Outputs:
  * 		Difference between left and right encoders
  */
-float DriveDistance::encoder_delta() {
-    return mB->get_count() - encB_start - mA->get_count() + encA_start;
+float DriveDistance::encoder_delta(Robot &robot) {
+    return robot.mB.get_count() - encB_start - robot.mA.get_count() + encA_start;
 }
 
 /* encoder_dist_cm
@@ -146,7 +146,7 @@ float DriveDistance::encoder_delta() {
  * 	Outputs:
  * 		Distance travelled so far as measured by encoders
  */
-float DriveDistance::encoder_dist_cm() {
+float DriveDistance::encoder_dist_cm(Robot &robot) {
     /*
      *    float ret_dist_a = mA->get_count() - encA_start;
      *    ret_dist_a *= (2*PI*D_O_WHEEL/2); // translate to linear distance
@@ -157,7 +157,7 @@ float DriveDistance::encoder_dist_cm() {
      *    ret_dist_b /= COUNTS_REV*10;
      */
 
-    return (mA->get_count() - encA_start + mB->get_count() - encB_start) * (2 * PI * D_O_WHEEL) / (2 * COUNTS_REV * 10) / 2;
+    return (robot.mA.get_count() - encA_start + robot.mB.get_count() - encB_start) * (2 * PI * D_O_WHEEL) / (2 * COUNTS_REV * 10) / 2;
 }
 
 /* get_dist
@@ -166,9 +166,9 @@ float DriveDistance::encoder_dist_cm() {
  * 	Outputs:
  * 		Gets the currently read distance
  */
-int32_t DriveDistance::get_dist() {
+int32_t DriveDistance::get_dist(Robot &robot) {
     //	return servo->sensor.ping_cm();
-    return static_cast<int32_t>(encoder_dist_cm());
+    return static_cast<int32_t>(encoder_dist_cm(robot));
 }
 
 /********************* Turn Angle ***************************/
@@ -182,26 +182,13 @@ int32_t DriveDistance::get_dist() {
  * 	Outputs:
  * 		none
  */
-TurnAngle::TurnAngle(float angle_, Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_) {
+TurnAngle::TurnAngle(float angle_) {
     k_p = 0.75;
     k_i = 1.5;
     k_d = 0.01;
     freq = 1000;
     integration = 0;
     turn_angle = angle_;
-
-    // Set driving and pivot motor: mA is right, mB is left
-    if (turn_angle > 0)  // right turn
-    {
-        mDrive = mB_;
-        mPivot = mA_;
-        right_turn = true;
-    } else  // left turn
-    {
-        mDrive = mA_;
-        mPivot = mB_;
-        right_turn = false;
-    }
 
     timeout = turn_angle < 0 ? TIMEOUT_TOL * (-turn_angle) / 45 : TIMEOUT_TOL * (turn_angle) / 45;
     timeout += millis();  // get timeout criteria
@@ -215,14 +202,28 @@ TurnAngle::TurnAngle(float angle_, Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_
  * 	Outputs:
  * 		current execution status (SUCCESS / FAILURE / ONGOING)
  */
-Status TurnAngle::run() {
+Status TurnAngle::run(Robot &robot) {
+
+    // Set driving and pivot motor: mA is right, mB is left
+    if (turn_angle > 0)  // right turn
+    {
+        mDrive = &robot.mB;
+        mPivot = &robot.mA;
+        right_turn = true;
+    } else  // left turn
+    {
+        mDrive = &robot.mA;
+        mPivot = &robot.mB;
+        right_turn = false;
+    }
+
     // Ensure motors stopped
     mDrive->set_speed(0);
     mPivot->set_speed(0);
 
     // Initial Conditions
     start_enc = mDrive->get_count();
-    current_angle = imu->get_yaw_abs();
+    current_angle = robot.imu.get_yaw_abs();
     target_angle = current_angle + turn_angle;
 
     // Using combination of speed and error to represent stabilizing on the correct point
@@ -230,7 +231,7 @@ Status TurnAngle::run() {
     int32_t speed_adj = 0;
     error = 10 * TOL;
     while (abs(error) > TOL && curr_t < timeout) {
-        current_angle = imu->get_yaw_abs();
+        current_angle = robot.imu.get_yaw_abs();
         while (millis() - curr_t < 1) {}  // only update at 100Hz
         speed_adj = pid_control();
         curr_t = millis();
@@ -252,9 +253,9 @@ Status TurnAngle::run() {
  * 	Outputs:
  * 		none
  */
-RampMovement::RampMovement(Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_), mA(mA_), mB(mB_) {}
+RampMovement::RampMovement() {}
 
-Status RampMovement::run() {
+Status RampMovement::run(Robot &robot) {
     // Initialize variables
     float ramp_speed[4] = {20, 20, 20, 20};
     float imu_state[4] = {-30, 0, 30, 0};
@@ -263,15 +264,15 @@ Status RampMovement::run() {
     uint32_t curr_t = 0;
 
     // Set initial speed
-    mA->set_speed(-ramp_speed[ramp_state]);
-    mB->set_speed(-ramp_speed[ramp_state]);
+    robot.mA.set_speed(-ramp_speed[ramp_state]);
+    robot.mB.set_speed(-ramp_speed[ramp_state]);
 
     // Carry out ramp movement
     while (ramp_state < 4) {
-        if (abs(imu->get_pitch() - imu_state[ramp_state]) < tolerance) {
-            Serial.println(imu->get_pitch());
-            mA->set_speed(-ramp_speed[ramp_state]);
-            mB->set_speed(-ramp_speed[ramp_state]);
+        if (abs(robot.imu.get_pitch() - imu_state[ramp_state]) < tolerance) {
+            Serial.println(robot.imu.get_pitch());
+            robot.mA.set_speed(-ramp_speed[ramp_state]);
+            robot.mB.set_speed(-ramp_speed[ramp_state]);
 
             // Get time:
             curr_t = millis();
@@ -297,8 +298,8 @@ Status RampMovement::run() {
  * 	Outputs:
  * 		none
  */
-FindPost::FindPost(int32_t search_dist, int32_t travel_dist, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
-    : search_distance(search_dist), DriveDistance(travel_dist, mA_, mB_, servo_, imu_, speed_) {}
+FindPost::FindPost(int32_t search_dist, int32_t travel_dist, int32_t speed_)
+    : search_distance(search_dist), DriveDistance(travel_dist, speed_) {}
 
 /* init
  * 	Inputs:
@@ -306,22 +307,22 @@ FindPost::FindPost(int32_t search_dist, int32_t travel_dist, Motor* mA_, Motor* 
  * 	Outputs:
  * 		none
  */
-void FindPost::init() {
+void FindPost::init(Robot& robot) {
     // Ensure motors stopped to begin with
-    mA->set_speed(speedA);
-    mB->set_speed(speedB);
+    robot.mA.set_speed(speedA);
+    robot.mB.set_speed(speedB);
 
     // Set heading
-    target_angle = imu->get_yaw_abs();
+    target_angle = robot.imu.get_yaw_abs();
 
     // Initial Conditions
-    encA_start = mA->get_count();
-    encB_start = mB->get_count();
-    servo_start = servo->get_position();
-    servo->set_position(servo_angle);
+    encA_start = robot.mA.get_count();
+    encB_start = robot.mB.get_count();
+    servo_start = robot.swivel.get_position();
+    robot.swivel.set_position(servo_angle);
     delay(500);
 
-    cm_start = servo->sensor.ping_cm();
+    cm_start = robot.swivel.sensor.ping_cm();
 }
 
 
@@ -331,8 +332,8 @@ void FindPost::init() {
  * 	Outputs:
  * 		Whether success criteria met (true/false)
  */
-bool FindPost::success() {
-    return search_distance > 0 ? servo->sensor.ping_cm() < search_distance - post_tol : servo->sensor.ping_cm() < cm_start - post_tol;
+bool FindPost::success(Robot &robot) {
+    return search_distance > 0 ? robot.swivel.sensor.ping_cm() < search_distance - post_tol : robot.swivel.sensor.ping_cm() < cm_start - post_tol;
 }
 
 /* continue_run
@@ -341,8 +342,8 @@ bool FindPost::success() {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
-bool FindPost::continue_run() {
-    return millis() < timeout && encoder_dist_cm() < travel_distance;
+bool FindPost::continue_run(Robot& robot) {
+    return millis() < timeout && encoder_dist_cm(robot) < travel_distance;
 }
 
 /* clean
@@ -351,8 +352,8 @@ bool FindPost::continue_run() {
  * 	Outputs:
  * 		none
  */
-void FindPost::clean() {
-    servo->set_position(servo_start);
-    mA->set_speed(0);  // ensure motor stopped at this point
-    mB->set_speed(0);
+void FindPost::clean(Robot& robot) {
+    robot.swivel.set_position(servo_start);
+    robot.mA.set_speed(0);  // ensure motor stopped at this point
+    robot.mB.set_speed(0);
 }

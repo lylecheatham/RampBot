@@ -10,11 +10,8 @@
 #ifndef ALL_MOVEMENTS_HPP
 #define ALL_MOVEMENTS_HPP
 
-#include "IMU.hpp"
-#include "Motor.hpp"
 #include "Movement.hpp"  // Abstract parent class
 #include "constants.h"
-#include "ultraSonicSwivel.h"
 
 /* 		Movements:
  * 			drive_sideways_scan
@@ -32,46 +29,41 @@
 /* Drive Distance - (drive in a straight line a set distance) */
 class DriveDistance : public Movement {
 public:
-    DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+    DriveDistance(int32_t dist_, int32_t speed_ = STD_SPEED);
     ~DriveDistance(){};
 
-    Status run();
+    Status run(Robot &robot);
 
 protected:
     int32_t encA_start, encB_start;
     int32_t travel_distance;
     int32_t speedA, speedB;
 
-    Motor *mA, *mB;
-    UltraSonicSwivel* servo;
-    IMU* imu;
-
-    virtual void init();
-    virtual bool success();
-    virtual bool continue_run();
-    virtual void clean();
-    float encoder_dist_cm();
+    virtual void init(Robot& robot);
+    virtual bool success(Robot& robot);
+    virtual bool continue_run(Robot& robot);
+    virtual void clean(Robot& robot);
+    float encoder_dist_cm(Robot &robot);
 
 private:
-    int32_t get_dist();
-    float encoder_delta();  // Get difference between encoder values (in case unable to use imu)
+    int32_t get_dist(Robot &robot);
+    float encoder_delta(Robot &robot);  // Get difference between encoder values (in case unable to use imu)
 };
 
 
 /* Turn Angle - (Turn to a specified angle off of current orientation / pivot turning) */
 class TurnAngle : public Movement {
 public:
-    TurnAngle(float angle_, Motor* mA_, Motor* mB_, IMU* imu_);
+    TurnAngle(float angle_);
     ~TurnAngle(){};
 
-    Status run();
+    Status run(Robot &robot);
 
 private:
     int32_t start_enc;
     float turn_angle;
 
     Motor *mDrive, *mPivot;
-    IMU* imu;
 
     bool right_turn;
 };
@@ -79,28 +71,26 @@ private:
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
 class RampMovement : public Movement {
 public:
-    RampMovement(Motor* mA_, Motor* mB_, IMU* imu_);
+    RampMovement();
     ~RampMovement(){};
 
-    Status run();
+    Status run(Robot &robot);
 
 private:
-    Motor *mA, *mB;
-    IMU* imu;
     uint32_t timeout;
 };
 
 /* Find Post */
 class FindPost : public DriveDistance {
 public:
-    FindPost(int32_t search_dist, int32_t travel_dist, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+    FindPost(int32_t search_dist, int32_t travel_dist, int32_t speed_ = STD_SPEED);
     ~FindPost(){};
 
 protected:
-    void init();
-    bool success();
-    bool continue_run();
-    void clean();
+    void init(Robot &robot);
+    bool success(Robot &robot);
+    bool continue_run(Robot &robot);
+    void clean(Robot &robot);
 
 private:
     const int32_t servo_angle = 175;
