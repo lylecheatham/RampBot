@@ -13,41 +13,40 @@ bool UltraSonic::init() {
     if (singleton != nullptr) return false;
     singleton = this;
 
-    curr_index = length-1;
+    curr_index = length - 1;
 
     digitalWrite(pin, LOW);
     pinMode(pin, INPUT);
 
     pulse_start();
-	delay(100);
-	if(!valid_readings())
-		Serial.println("Failed init");
+    delay(100);
+    if (!valid_readings()) Serial.println("Failed init");
 
     Serial.println("Initialized");
 
-	pinMode(GRN_LED, OUTPUT);
-	pinMode(RED_LED, OUTPUT);
-	pinMode(16, OUTPUT);
+    pinMode(GRN_LED, OUTPUT);
+    pinMode(RED_LED, OUTPUT);
+    pinMode(16, OUTPUT);
 
     return true;
 }
 
 void UltraSonic::s_pulse_start() {
-	digitalWrite(GRN_LED, 1);	
+    digitalWrite(GRN_LED, 1);
     singleton->pulse_start();
-	digitalWrite(GRN_LED,0);	
+    digitalWrite(GRN_LED, 0);
 }
 
 void UltraSonic::s_input_start() {
-	digitalWrite(RED_LED, 1);	
+    digitalWrite(RED_LED, 1);
     singleton->input_start();
-	digitalWrite(RED_LED,0);	
+    digitalWrite(RED_LED, 0);
 }
 
 void UltraSonic::s_input_end() {
-	digitalWrite(16,1);	
+    digitalWrite(16, 1);
     singleton->input_end();
-	digitalWrite(16,0);	
+    digitalWrite(16, 0);
 }
 
 void UltraSonic::pulse_start() {
@@ -81,7 +80,6 @@ void UltraSonic::input_start() {
 
     // Attach the end of input interrupt
     attachInterrupt(pin, s_input_end, LOW);
-
 }
 
 void UltraSonic::input_end() {
@@ -93,7 +91,7 @@ void UltraSonic::input_end() {
     if (total_time_us != 0) {
         dist_array[curr_index] = total_time_us;
         if (curr_index == 0)
-            curr_index = length-1;
+            curr_index = length - 1;
         else
             curr_index -= 1;
     }
@@ -105,7 +103,6 @@ void UltraSonic::input_end() {
 
     // Begin the delay before next measurement timer
     timer.begin(s_pulse_start, 10000);
-
 }
 
 uint32_t UltraSonic::ping_cm() {

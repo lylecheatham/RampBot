@@ -49,9 +49,7 @@ void Golay::filter(float new_point, float *next_point, float *next_deriv) {
     // Get the new coefficient vector
     for (int32_t i = 0; i < order + 1; i++) {
         c[i] = 0;
-        for (int32_t j = 0; j < window; j++) {
-            c[i] += T_star[i][window - j - 1] * y[(y_idx + j) % window];
-        }
+        for (int32_t j = 0; j < window; j++) { c[i] += T_star[i][window - j - 1] * y[(y_idx + j) % window]; }
     }
 
     // Get the next point
@@ -59,8 +57,8 @@ void Golay::filter(float new_point, float *next_point, float *next_deriv) {
     for (int32_t i = 0; i < order + 1; i++) *next_point += t[i] * c[i];
 
     // Get the next derivative
-	if(next_deriv) {
-    	*next_deriv = 0;
-    	for (int32_t i = 0; i < order + 1; i++) *next_deriv += t_prime[i] * c[i];
-	}
+    if (next_deriv) {
+        *next_deriv = 0;
+        for (int32_t i = 0; i < order + 1; i++) *next_deriv += t_prime[i] * c[i];
+    }
 }

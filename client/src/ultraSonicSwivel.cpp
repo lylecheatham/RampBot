@@ -8,7 +8,7 @@ UltraSonicSwivel::UltraSonicSwivel(uint8_t servo_pin, uint8_t us_pin, uint32_t m
 
     servo_set_timestamp = millis();
     servo_prev_pos = 0;
-    //Initialize sensor
+    // Initialize sensor
     sensor.init();
 }
 

@@ -50,7 +50,7 @@ Motor::Motor(MotorNum m, bool PID_enable) {
     digitalWrite(in2_pin, 0);
     direction = false;
 
-	pinMode(21, OUTPUT);
+    pinMode(21, OUTPUT);
 
     // Disable interrupts before adding this motor to the interrupt list
     InterruptDisable d();
@@ -209,14 +209,13 @@ void Motor::PID_control() {
  *	 None
  */
 void Motor::control_interrupt() {
-	digitalWrite(21, 1);
-	
+    digitalWrite(21, 1);
+
     static bool LED_state = false;
     digitalWrite(13, LED_state);
     LED_state = !LED_state;
 
     for (Motor* motor : interrupt_list) { motor->PID_control(); }
 
-	digitalWrite(21, 0);
-	
+    digitalWrite(21, 0);
 }

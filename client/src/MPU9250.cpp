@@ -221,7 +221,7 @@ void MPU9250::initMPU9250() {
     // Use a 200 Hz rate; a rate consistent with the filter update rate
     // determined inset in CONFIG above.
     writeByte(_I2Caddr, SMPLRT_DIV, 0x04);
-    //writeByte(_I2Caddr, SMPLRT_DIV, 0x13);
+    // writeByte(_I2Caddr, SMPLRT_DIV, 0x13);
 
     // Set gyroscope full scale range
     // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are
@@ -430,9 +430,7 @@ void MPU9250::calibrateMPU9250(float *gyroBias, float *accelBias) {
 
     for (ii = 0; ii < 3; ii++) {
         // If temperature compensation bit is set, record that fact in mask_bit
-        if ((accel_bias_reg[ii] & mask)) {
-            mask_bit[ii] = 0x01;
-        }
+        if ((accel_bias_reg[ii] & mask)) { mask_bit[ii] = 0x01; }
     }
 
     // Construct total accelerometer bias, including calculated average
@@ -602,24 +600,16 @@ void MPU9250::magCalMPU9250(float *bias_dest, float *scale_dest) {
 
     // shoot for ~fifteen seconds of mag data
     // at 8 Hz ODR, new mag data is available every 125 ms
-    if (Mmode == M_8HZ) {
-        sample_count = 128;
-    }
+    if (Mmode == M_8HZ) { sample_count = 128; }
     // at 100 Hz ODR, new mag data is available every 10 ms
-    if (Mmode == M_100HZ) {
-        sample_count = 1500;
-    }
+    if (Mmode == M_100HZ) { sample_count = 1500; }
 
     for (ii = 0; ii < sample_count; ii++) {
         readMagData(mag_temp);  // Read the mag data
 
         for (int jj = 0; jj < 3; jj++) {
-            if (mag_temp[jj] > mag_max[jj]) {
-                mag_max[jj] = mag_temp[jj];
-            }
-            if (mag_temp[jj] < mag_min[jj]) {
-                mag_min[jj] = mag_temp[jj];
-            }
+            if (mag_temp[jj] > mag_max[jj]) { mag_max[jj] = mag_temp[jj]; }
+            if (mag_temp[jj] < mag_min[jj]) { mag_min[jj] = mag_temp[jj]; }
         }
 
         if (Mmode == M_8HZ) {
@@ -732,9 +722,7 @@ uint8_t MPU9250::readMagByteSPI(uint8_t registerAddress) {
     {
         I2C_MASTER_STATUS = readByteSPI(54);
     }
-    if (count > 10000) {
-        Serial.println(F("Timed out"));
-    }
+    if (count > 10000) { Serial.println(F("Timed out")); }
 
 
     return readByteSPI(53);  // Read the data that is in the SLV4_DI register
@@ -754,9 +742,7 @@ uint8_t MPU9250::writeMagByteSPI(uint8_t registerAddress, uint8_t data) {
     {
         I2C_MASTER_STATUS = readByteSPI(54);
     }
-    if (count > 10000) {
-        Serial.println(F("Timed out"));
-    }
+    if (count > 10000) { Serial.println(F("Timed out")); }
     return 0x00;
 }
 

@@ -33,9 +33,7 @@ DemoInterface::DemoInterface() {
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
 
     pinMode(M_STDBY, OUTPUT);
-    if (!Motor::init()) {
-        error_string.append("interrupt init fail;");
-    }
+    if (!Motor::init()) { error_string.append("interrupt init fail;"); }
     stop();
 }
 

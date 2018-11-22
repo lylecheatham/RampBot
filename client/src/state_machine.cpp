@@ -7,9 +7,9 @@
  */
 
 #include "state_machine.hpp"
+#include "All_Movements.hpp"
 #include "DemoInterface.hpp"
 #include "ultraSonicSwivel.h"
-#include "All_Movements.hpp"
 
 
 elapsedMillis time;
@@ -38,20 +38,18 @@ state_machine::state_machine() {
     mA = new Motor(MotorA, true);
     mB = new Motor(MotorB, true);
 
-    //Initialize Servo/US
+    // Initialize Servo/US
     servo = new UltraSonicSwivel(S_PULSE, U_PING, 1);
     imu = new IMU();
 
-	
+
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
-    if (!Motor::init()) {
-        error_string.append("interrupt init fail;");
-    }
+    if (!Motor::init()) { error_string.append("interrupt init fail;"); }
     stop();
 
 
-	imu->stabilize(); // wait for the imu value to stabilize
+    imu->stabilize();  // wait for the imu value to stabilize
 }
 
 
@@ -82,99 +80,99 @@ void state_machine::start() {
     while (1) {
         // First wait for keypress
         Serial.print("Waiting for keypress");
-        
-		int8_t character = get_char();
+
+        int8_t character = get_char();
         while (character != 'a' && character != 'd' && character != 'w' && character != 's') {
             delayMicroseconds(100000);
             Serial.print(".");
-			//Serial.println(servo->sensor.ping_cm());
-			//imu->get_yaw();
-			character = get_char();
+            // Serial.println(servo->sensor.ping_cm());
+            // imu->get_yaw();
+            character = get_char();
         }
 
-        //Initialize left and right turns
+        // Initialize left and right turns
         TurnAngle turnL(-90, mA, mB, imu);
-		TurnAngle turnR(90, mA, mB, imu);
+        TurnAngle turnR(90, mA, mB, imu);
 
         //#########################################################################
-		//PHASE 1 - ASSUME ROBOT IS FACING THE BACK BOUNDARY WALL
+        // PHASE 1 - ASSUME ROBOT IS FACING THE BACK BOUNDARY WALL
         //#########################################################################
 
-        //Get distance to the back wall and feed that into DriveDistance
-        //Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        // Get distance to the back wall and feed that into DriveDistance
+        // Note - subtract the length of the robot from this (18cm plus 5cm tol)
         DriveDistance fwd_1(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_1);
 
-        //Take a right turn 
+        // Take a right turn
         execute(turnR);
 
-        //Get distance to the side wall and feed that into DriveDistance
-        //Note - subtract the distance to the ramp from this (FIND VALUE)
+        // Get distance to the side wall and feed that into DriveDistance
+        // Note - subtract the distance to the ramp from this (FIND VALUE)
         DriveDistance fwd_2(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_2);
 
-        //Take a left turn
+        // Take a left turn
         execute(turnL);
 
-        //Carry out ramp movement
+        // Carry out ramp movement
         RampMovement ramp(mA, mB, imu);
-		execute(ramp);
+        execute(ramp);
 
-        //Take a left turn
+        // Take a left turn
         execute(turnL);
 
-        //Move past the ramp to avoid pinging it
-        //Assumed 20cm - FIND THIS LATER
+        // Move past the ramp to avoid pinging it
+        // Assumed 20cm - FIND THIS LATER
         DriveDistance fwd_3(20, mA, mB, servo, imu, 20);
         execute(fwd_3);
 
-        //Carry out post detection algorithm - first attempt:
+        // Carry out post detection algorithm - first attempt:
 
-        //NOT IMPLEMENTED YET
-        //FindPost first_pass();
+        // NOT IMPLEMENTED YET
+        // FindPost first_pass();
 
-        //Touch  the post
+        // Touch  the post
         DriveDistance fwd_4(20, mA, mB, servo, imu, 20);
         execute(fwd_4);
 
         //#########################################################################
-		//PHASE 2 - THE RETURN
+        // PHASE 2 - THE RETURN
         //#########################################################################
 
-        //Turn to face the back
-        //Take a left turn
+        // Turn to face the back
+        // Take a left turn
         execute(turnL);
-        //Take a left turn
+        // Take a left turn
         execute(turnL);
 
-        //Get distance to the back wall and feed that into DriveDistance
-        //Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        // Get distance to the back wall and feed that into DriveDistance
+        // Note - subtract the length of the robot from this (18cm plus 5cm tol)
         DriveDistance fwd_5(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_5);
 
-        //Take a left turn 
+        // Take a left turn
         execute(turnL);
 
-        //Get distance to the side wall and feed that into DriveDistance
-        //Note - subtract the distance to the ramp from this (FIND VALUE)
+        // Get distance to the side wall and feed that into DriveDistance
+        // Note - subtract the distance to the ramp from this (FIND VALUE)
         DriveDistance fwd_6(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_6);
 
-        //Take a right turn
+        // Take a right turn
         execute(turnR);
 
-        //Carry out ramp movement
-		execute(ramp);
+        // Carry out ramp movement
+        execute(ramp);
 
-        //Take a right turn
+        // Take a right turn
         execute(turnR);
 
-        //Carry out first distances in inverted order
+        // Carry out first distances in inverted order
         execute(fwd_2);
         execute(turnL);
         execute(fwd_1);
 
-        //Finish
+        // Finish
     }
 }
 
@@ -182,9 +180,8 @@ void state_machine::start() {
 /* function: execute
  * 		Executes a given movement
  */
-Status state_machine::execute(Movement &m)
-{
-	return m.run();
+Status state_machine::execute(Movement& m) {
+    return m.run();
 }
 
 /* function: get_char()

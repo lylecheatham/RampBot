@@ -8,9 +8,9 @@
 #define IMU_HPP
 
 #include <Arduino.h>
-#include "constants.h"
 #include <SparkFunMPU9250-DMP.h>
 #include "Angle.hpp"
+#include "constants.h"
 
 class IMU {
 public:
@@ -25,7 +25,7 @@ public:
     Angle get_yaw_abs();
     Angle get_roll_abs();
 
-	void stabilize();
+    void stabilize();
 
 private:
     static MPU9250_DMP* imu;

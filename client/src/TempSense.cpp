@@ -11,9 +11,7 @@ TempSense::TempSense(int pin, bool continuous) {
 
     // Try to set up continuous read
     this->continuous = false;
-    if (continuous) {
-        this->continuous = adc.startContinuous(pin);
-    }
+    if (continuous) { this->continuous = adc.startContinuous(pin); }
 
     // Set to defaults
     this->B = default_B;
@@ -36,9 +34,7 @@ float TempSense::get_temp() {
         adc_val = adc.analogRead(pin);
     }
 
-    if (config == low_side) {
-        adc_val = 4095 - adc_val;
-    }
+    if (config == low_side) { adc_val = 4095 - adc_val; }
 
     float voltage = adc_val / 4095.0;
 

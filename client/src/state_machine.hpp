@@ -10,12 +10,12 @@
 #define STATE_MACHINE_H
 
 #include "Arduino.h"
+#include "IMU.hpp"
 #include "IntervalTimer.h"
 #include "Motor.hpp"
+#include "Movement.hpp"
 #include "constants.h"
 #include "ultraSonicSwivel.h"
-#include "IMU.hpp"
-#include "Movement.hpp"
 
 
 #include <list>
@@ -48,7 +48,7 @@ public:
     void start();
 
 private:
-	Status execute(Movement &m);
+    Status execute(Movement &m);
     int8_t get_char();
     void standby();
     void turn_left();

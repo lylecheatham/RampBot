@@ -3,10 +3,10 @@
 #include "constants.h"
 
 #include <Arduino.h>
-#include "UltraSonic.hpp"
 #include <PWMServo.h>
-#include <cstdint>
 #include <array>
+#include <cstdint>
+#include "UltraSonic.hpp"
 
 /* Class to handle controlling the servo for the ultrasonic sensor */
 class UltraSonicSwivel {
@@ -18,7 +18,7 @@ public:
     int32_t get_position();
     bool get_settled();
 
-	UltraSonic sensor;
+    UltraSonic sensor;
 
     int32_t get_distance();
 

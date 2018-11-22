@@ -14,7 +14,7 @@
 #include <Arduino.h>
 #include <array>
 
-class QuaternionFilter{
+class QuaternionFilter {
 public:
     QuaternionFilter();
 

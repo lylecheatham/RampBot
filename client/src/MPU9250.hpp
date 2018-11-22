@@ -251,9 +251,9 @@ public:
     int16_t tempCount;    // Temperature raw count output
     uint32_t delt_t = 0;  // Used to control display output rate
 
-    float deltat = 0.005f;           // integration interval for both filter schemes
-  
-  	int16_t gyroCount[3];  // Stores the 16-bit signed gyro sensor output
+    float deltat = 0.005f;  // integration interval for both filter schemes
+
+    int16_t gyroCount[3];  // Stores the 16-bit signed gyro sensor output
     int16_t magCount[3];   // Stores the 16-bit signed magnetometer sensor output
     // Scale resolutions per LSB for the sensors
     float aRes, gRes, mRes;
@@ -288,7 +288,9 @@ public:
     // TODO: make SPI/Wire private
     uint8_t readBytesSPI(uint8_t, uint8_t, uint8_t *);
     uint8_t readBytesWire(uint8_t, uint8_t, uint8_t, uint8_t *);
-    bool isInI2cMode() { return _csPin == -1; }
+    bool isInI2cMode() {
+        return _csPin == -1;
+    }
     bool begin();
 };  // class MPU9250
 

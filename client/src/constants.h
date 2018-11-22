@@ -2,8 +2,8 @@
 #define CONST_H
 
 enum MotorNum { MotorA, MotorB };
-#define STD_SPEED 50 // RPM
-#define FIFO_RATE 100 //Sample Rate for IMU
+#define STD_SPEED 50   // RPM
+#define FIFO_RATE 100  // Sample Rate for IMU
 
 /* Useful Ratios */
 //#define PI 3.1415
@@ -12,12 +12,12 @@ enum MotorNum { MotorA, MotorB };
 //#define DEG_TO_RAD 0.0175
 
 /* Mechanical Values */
-#define D_O_WHEEL 60 //mm
-#define D_I_WHEEL 30 //mm
-#define RPM_TO_VO (0.26) //cm/s
-#define RPM_TO_VI (0.16) //cm/s
-#define WHEELBASE 180 //mm
-#define COUNTS_REV 1204 //encoder counts per revolution
+#define D_O_WHEEL 60      // mm
+#define D_I_WHEEL 30      // mm
+#define RPM_TO_VO (0.26)  // cm/s
+#define RPM_TO_VI (0.16)  // cm/s
+#define WHEELBASE 180     // mm
+#define COUNTS_REV 1204   // encoder counts per revolution
 
 /* LEDs */
 #define STD_LED 13

@@ -22,7 +22,7 @@
 
 // These are the free parameters in the Mahony filter and fusion scheme, Kp
 // for proportional feedback, Ki for integral
-constexpr float Kp  = 2.0 * 5.0;
+constexpr float Kp = 2.0 * 5.0;
 constexpr float Ki = 0.0;
 
 constexpr float GyroMeasError = PI * (40.0f / 180.0f);
@@ -47,7 +47,7 @@ constexpr float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // Compute beta
 constexpr float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;
 
 
-QuaternionFilter::QuaternionFilter(){
+QuaternionFilter::QuaternionFilter() {
     eInt = {{0.0f, 0.0f, 0.0f}};
     q = {{1.0f, 0.0f, 0.0f, 0.0f}};
 }
