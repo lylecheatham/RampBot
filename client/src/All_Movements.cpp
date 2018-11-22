@@ -256,11 +256,15 @@ RampMovement::RampMovement(Motor* mA_, Motor* mB_, IMU* imu_) : imu(imu_), mA(mA
 
 Status RampMovement::run() {
     // Initialize variables
-    float ramp_speed[4] = {20, 20, 20, 20};
-    float imu_state[4] = {-30, 0, 30, 0};
+    float ramp_speed[4] = {80, 120, 40, -10};
+    float imu_state[4] = {30, 0, -30, 0};
     int ramp_state = 0;
     int tolerance = 3;
     uint32_t curr_t = 0;
+
+    Serial.println(imu->get_pitch_abs().as_float());
+    imu->compensate_pitch(1, Angle(0));
+    Serial.println(imu->get_pitch_abs().as_float());
 
     // Set initial speed
     mA->set_speed(-ramp_speed[ramp_state]);
@@ -270,17 +274,20 @@ Status RampMovement::run() {
     while (ramp_state < 4) {
         if (abs(imu->get_pitch() - imu_state[ramp_state]) < tolerance) {
             Serial.println(imu->get_pitch());
+            ramp_state += 1;
+
             mA->set_speed(-ramp_speed[ramp_state]);
             mB->set_speed(-ramp_speed[ramp_state]);
 
             // Get time:
             curr_t = millis();
             Serial.println("State Transition");
-            ramp_state += 1;
+            
         }
     }
     Serial.println("End of Ramp");
-
+    mA->set_speed(0);
+    mB->set_speed(0);
     return curr_t > timeout ? TIMEOUT : SUCCESS;
 }
 

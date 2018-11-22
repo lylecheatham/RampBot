@@ -104,8 +104,8 @@ void state_machine::start() {
         DriveDistance fwd_1(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_1);
 
-        // Take a right turn
-        execute(turnR);
+        // Take a left turn
+        execute(turnL);
 
         // Get distance to the side wall and feed that into DriveDistance
         // Note - subtract the distance to the ramp from this (FIND VALUE)
@@ -113,14 +113,14 @@ void state_machine::start() {
         execute(fwd_2);
 
         // Take a left turn
-        execute(turnL);
+        execute(turnR);
 
         // Carry out ramp movement
         RampMovement ramp(mA, mB, imu);
         execute(ramp);
 
-        // Take a left turn
-        execute(turnL);
+        // Take a right turn
+        execute(turnR);
 
         // Move past the ramp to avoid pinging it
         // Assumed 20cm - FIND THIS LATER
@@ -129,12 +129,31 @@ void state_machine::start() {
 
         // Carry out post detection algorithm - first attempt:
 
-        // NOT IMPLEMENTED YET
-        // FindPost first_pass();
+        // Find post
+        //FIND SEARCH DISTANCE EXPERIMENTALLY
+        Status result;
+        int attempt = 0;
+        while(1){
+            FindPost search(0, 200 - attempt*10, mA, mB, servo, imu, 40);
 
-        // Touch  the post
-        DriveDistance fwd_4(20, mA, mB, servo, imu, 20);
-        execute(fwd_4);
+            result = execute(search);
+
+            if (result == SUCCESS){
+                break;
+            }
+
+            else if(result == TIMEOUT){
+                attempt += 1;
+                execute(turnL);
+            }
+        }
+
+        //Face post
+        TurnAngle post_turn(-83, mA, mB, imu);
+        execute(post_turn);
+
+        // Touch the post
+        //To be implemented by Eric
 
         //#########################################################################
         // PHASE 2 - THE RETURN
@@ -151,29 +170,29 @@ void state_machine::start() {
         DriveDistance fwd_5(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_5);
 
-        // Take a left turn
-        execute(turnL);
+        // Take a right turn
+        execute(turnR);
 
         // Get distance to the side wall and feed that into DriveDistance
         // Note - subtract the distance to the ramp from this (FIND VALUE)
         DriveDistance fwd_6(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
         execute(fwd_6);
 
-        // Take a right turn
-        execute(turnR);
+        // Take a left turn
+        execute(turnL);
 
         // Carry out ramp movement
         execute(ramp);
 
         // Take a right turn
-        execute(turnR);
+        execute(turnL);
 
         // Carry out first distances in inverted order
         execute(fwd_2);
-        execute(turnL);
+        execute(turnR);
         execute(fwd_1);
 
-        // Finish
+        //Finish
     }
 }
 
