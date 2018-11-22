@@ -105,20 +105,26 @@ void IMU::stabilize() {
     Angle prev_yaw;
     pinMode(GRN_LED, OUTPUT);
     digitalWrite(GRN_LED, 0);  // Make sure LED off
+    char buf[200];
 
     // Loop while it is drifting
     do {
         prev_yaw = get_yaw_abs();
-        Serial.println(prev_yaw.as_float());
+        snprintf(buf, 200, "Calibrating... Yaw value: %f", prev_yaw.as_float());
+        Serial.println(buf);
         delayMicroseconds(8000000);  // delay two seconds
     } while (abs(prev_yaw.distance(get_yaw_abs())) > 0.05);
-    Serial.println(get_yaw_abs().as_float());
+    snprintf(buf, 200, "Done!    Final Yaw value: %f", get_yaw_abs().as_float());
+    Serial.println(buf);
 
     compensate_yaw(1, Angle(0));
     compensate_compass(1, Angle(0));
 
     compensate_pitch(1, Angle(0));
     compensate_roll(1, Angle(0));
+
+    snprintf(buf, 200, "yaw: %f\ncompass: %f\npitch: %f\nroll: %f\n", get_yaw_abs().as_float(), get_compass_abs().as_float(), get_pitch_abs().as_float(), get_roll_abs().as_float());
+    Serial.println(buf);
 
     digitalWrite(GRN_LED, 1);  // signal value is good
 }

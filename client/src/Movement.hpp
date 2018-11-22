@@ -45,13 +45,10 @@ protected:
     // Timeout
     uint32_t timeout;
 
-    // For maintaining bearing
-    Angle target_angle, current_angle;
-
     // Functions --
     // PID-control for bearing
-    int32_t pid_control() {
-        error = target_angle.distance(current_angle);
+    int32_t pid_control(Robot &robot) {
+        error = robot.target_angle.distance(robot.imu.get_yaw_abs());
         float k_term = k_p * error;
         float d_term = k_d * (error - prev_error) * freq;
         integration += error;

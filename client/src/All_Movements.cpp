@@ -51,9 +51,8 @@ Status DriveDistance::run(Robot &robot) {
 
     // Loop until timed out
     while (continue_run(robot)) {
-        current_angle = robot.imu.get_yaw_abs();
         while (millis() - curr_t < 10) {}  // only update at 100Hz
-        speed_adj = pid_control();
+        speed_adj = pid_control(robot);
         curr_t = millis();
         speedA = base_speed + speed_adj;
         speedB = base_speed - speed_adj;
@@ -86,7 +85,6 @@ void DriveDistance::init(Robot &robot) {
     encB_start = robot.mB.get_count();
 
     // travel_distance = abs(travel_distance) < 5 ? 5 : travel_distance;	    //Ensure no negative distances
-    target_angle = robot.imu.get_yaw_abs();
 
     timeout = millis() + 1000000;  // TODO maybe improve
 }
@@ -223,17 +221,15 @@ Status TurnAngle::run(Robot &robot) {
 
     // Initial Conditions
     start_enc = mDrive->get_count();
-    current_angle = robot.imu.get_yaw_abs();
-    target_angle = current_angle + turn_angle;
+    robot.target_angle = robot.target_angle + turn_angle;
 
     // Using combination of speed and error to represent stabilizing on the correct point
     uint32_t curr_t = 0;
     int32_t speed_adj = 0;
     error = 10 * TOL;
     while (abs(error) > TOL && curr_t < timeout) {
-        current_angle = robot.imu.get_yaw_abs();
-        while (millis() - curr_t < 1) {}  // only update at 100Hz
-        speed_adj = pid_control();
+        while (millis() - curr_t < 10) {}  // only update at 100Hz
+        speed_adj = pid_control(robot);
         curr_t = millis();
         base_speed = right_turn ? -speed_adj : speed_adj;
         mDrive->set_speed(base_speed);
@@ -263,10 +259,6 @@ Status RampMovement::run(Robot &robot) {
     int tolerance = 3;
     uint32_t curr_t = 0;
 
-    Serial.println(robot.imu.get_pitch_abs().as_float());
-    robot.imu.compensate_pitch(1, Angle(0));
-    Serial.println(robot.imu.get_pitch_abs().as_float());
-
     // Set initial speed
     robot.mA.set_speed(-ramp_speed[ramp_state]);
     robot.mB.set_speed(-ramp_speed[ramp_state]);
@@ -283,7 +275,7 @@ Status RampMovement::run(Robot &robot) {
             // Get time:
             curr_t = millis();
             Serial.println("State Transition");
-            
+
         }
     }
     Serial.println("End of Ramp");
@@ -318,9 +310,6 @@ void FindPost::init(Robot& robot) {
     // Ensure motors stopped to begin with
     robot.mA.set_speed(speedA);
     robot.mB.set_speed(speedB);
-
-    // Set heading
-    target_angle = robot.imu.get_yaw_abs();
 
     // Initial Conditions
     encA_start = robot.mA.get_count();
