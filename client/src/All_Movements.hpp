@@ -39,10 +39,10 @@ protected:
     int32_t travel_distance;
     int32_t speedA, speedB;
 
-    virtual void init(Robot& robot);
-    virtual bool success(Robot& robot);
-    virtual bool continue_run(Robot& robot);
-    virtual void clean(Robot& robot);
+    virtual void init(Robot &robot);
+    virtual bool success(Robot &robot);
+    virtual bool continue_run(Robot &robot);
+    virtual void clean(Robot &robot);
     float encoder_dist_cm(Robot &robot);
 
 private:
@@ -100,16 +100,16 @@ private:
 
 /* Run to Post */
 class DriveToPost : public DriveDistance {
-	public:
-		DriveToPost(int32_t dist_, int32_t speed_ = STD_SPEED);
-		~DriveToPost() {};
+public:
+    DriveToPost(int32_t dist_, int32_t speed_ = STD_SPEED);
+    ~DriveToPost(){};
 
-	protected:
-		bool success(Robot& robot);
-		bool continue_run(Robot& robot);
+protected:
+    bool success(Robot &robot);
+    bool continue_run(Robot &robot);
 
-	private:
-		const float tol = 3;
+private:
+    const float tol = 3;
 };
 
 
@@ -134,7 +134,6 @@ class DriveToPost : public DriveDistance {
  *   	 	IMU* imu;
  *};
  */
-
 
 
 #endif

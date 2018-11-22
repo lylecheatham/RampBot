@@ -12,8 +12,8 @@
 #include "Arduino.h"
 #include "IntervalTimer.h"
 #include "Movement.hpp"
-#include "constants.h"
 #include "Robot.hpp"
+#include "constants.h"
 
 
 #include <list>

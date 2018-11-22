@@ -22,20 +22,19 @@ bool UltraSonic::init() {
 
     pulse_start();
     delay(100);
-	
-	pinMode(GRN_LED, OUTPUT);
+
+    pinMode(GRN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
     pinMode(DBG_1, OUTPUT);
 
-    if (!valid_readings()) 
-	{
+    if (!valid_readings()) {
 #ifndef INT_SIGS
-		digitalWrite(RED_LED, 1);
+        digitalWrite(RED_LED, 1);
 #endif
-		Serial.println("Ultrasonic Failed init");
-		return false;
-	}
-	
+        Serial.println("Ultrasonic Failed init");
+        return false;
+    }
+
     Serial.println("Ultrasonic Initialized");
     return true;
 }

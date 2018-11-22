@@ -29,8 +29,7 @@ state_machine::state_machine() {
  *
  *
  */
-state_machine::~state_machine() {
-}
+state_machine::~state_machine() {}
 
 inline void state_machine::get_dist(int32_t& dist) {
     dist = robot.swivel.sensor.ping_cm();
@@ -94,30 +93,30 @@ void state_machine::start() {
         // Carry out post detection algorithm - first attempt:
 
         // Find post
-        //FIND SEARCH DISTANCE EXPERIMENTALLY
+        // FIND SEARCH DISTANCE EXPERIMENTALLY
         Status result;
         int attempt = 0;
-        while(1){
-            FindPost search(0, 200 - attempt*10, 40);
+        while (1) {
+            FindPost search(0, 200 - attempt * 10, 40);
 
             result = execute(search);
 
-            if (result == SUCCESS){
+            if (result == SUCCESS) {
                 break;
             }
 
-            else if(result == TIMEOUT){
+            else if (result == TIMEOUT) {
                 attempt += 1;
                 execute(turnL);
             }
         }
 
-        //Face post
+        // Face post
         TurnAngle post_turn(-83);
         execute(post_turn);
 
         // Touch the post
-        //To be implemented by Eric
+        // To be implemented by Eric
 
         //#########################################################################
         // PHASE 2 - THE RETURN
@@ -156,7 +155,7 @@ void state_machine::start() {
         execute(turnR);
         execute(fwd_1);
 
-        //Finish
+        // Finish
     }
 }
 
@@ -165,7 +164,7 @@ void state_machine::start() {
  * 		Executes a given movement
  */
 Status state_machine::execute(Movement& m) {
-    if(get_pushbutton()){
+    if (get_pushbutton()) {
         robot.imu.compensate_yaw(1, Angle(0));
         robot.target_angle = Angle(0);
     }
@@ -189,12 +188,12 @@ void state_machine::stop() {
     robot.mB.set_speed(0);
 }
 
-void state_machine::button_interrupt(){
+void state_machine::button_interrupt() {
     button_flag = true;
 }
 
-bool state_machine::get_pushbutton(){
-    if(button_flag){
+bool state_machine::get_pushbutton() {
+    if (button_flag) {
         button_flag = false;
         return true;
     }

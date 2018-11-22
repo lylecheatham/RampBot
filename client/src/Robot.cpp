@@ -1,12 +1,12 @@
 #include "Robot.hpp"
 #include "constants.h"
 
-Robot::Robot() : mA(MotorA, true), mB(MotorB, true), swivel(S_PULSE, U_PING, 1), imu(){
+Robot::Robot() : mA(MotorA, true), mB(MotorB, true), swivel(S_PULSE, U_PING, 1), imu() {
     motors[0] = &mA;
     motors[1] = &mB;
 }
 
-bool Robot::init(){
+bool Robot::init() {
     imu.init();
 
     pinMode(M_STDBY, OUTPUT);

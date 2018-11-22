@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Angle.hpp"
 #include "IMU.hpp"
 #include "Motor.hpp"
 #include "ultrasonicSwivel.h"
-#include "Angle.hpp"
 
-class Robot{
+class Robot {
 public:
     Robot();
 
@@ -20,4 +20,3 @@ public:
 
     Angle target_angle;
 };
-

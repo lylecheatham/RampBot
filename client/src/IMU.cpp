@@ -123,7 +123,13 @@ void IMU::stabilize() {
     compensate_pitch(1, Angle(0));
     compensate_roll(1, Angle(0));
 
-    snprintf(buf, 200, "yaw: %f\ncompass: %f\npitch: %f\nroll: %f\n", get_yaw_abs().as_float(), get_compass_abs().as_float(), get_pitch_abs().as_float(), get_roll_abs().as_float());
+    snprintf(buf,
+             200,
+             "yaw: %f\ncompass: %f\npitch: %f\nroll: %f\n",
+             get_yaw_abs().as_float(),
+             get_compass_abs().as_float(),
+             get_pitch_abs().as_float(),
+             get_roll_abs().as_float());
     Serial.println(buf);
 
     digitalWrite(GRN_LED, 1);  // signal value is good
@@ -147,7 +153,7 @@ void IMU::updateIMU() {
             imu->computeEulerAngles();
             imu->updateCompass();
 
-            //singleton->complementary_compass_filter();
+            // singleton->complementary_compass_filter();
 
             if ((imu->pitch - singleton->pitch_prev) < -20) {
                 singleton->pitch += imu->pitch - singleton->pitch_prev + 360;

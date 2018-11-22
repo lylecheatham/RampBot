@@ -21,8 +21,7 @@
  * 	Outputs:
  * 		none
  */
-DriveDistance::DriveDistance(int32_t dist_, int32_t speed_)
-    : travel_distance(dist_) {
+DriveDistance::DriveDistance(int32_t dist_, int32_t speed_) : travel_distance(dist_) {
     k_p = 1.5;
     k_i = 0.001;
     k_d = 0.001;
@@ -113,7 +112,7 @@ bool DriveDistance::success(Robot &robot) {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
-bool DriveDistance::continue_run(Robot& robot) {
+bool DriveDistance::continue_run(Robot &robot) {
     return millis() < timeout;
 }
 
@@ -201,7 +200,6 @@ TurnAngle::TurnAngle(float angle_) {
  * 		current execution status (SUCCESS / FAILURE / ONGOING)
  */
 Status TurnAngle::run(Robot &robot) {
-
     // Set driving and pivot motor: mA is right, mB is left
     if (turn_angle > 0)  // right turn
     {
@@ -275,7 +273,6 @@ Status RampMovement::run(Robot &robot) {
             // Get time:
             curr_t = millis();
             Serial.println("State Transition");
-
         }
     }
     Serial.println("End of Ramp");
@@ -297,8 +294,7 @@ Status RampMovement::run(Robot &robot) {
  * 	Outputs:
  * 		none
  */
-FindPost::FindPost(int32_t search_dist, int32_t travel_dist, int32_t speed_)
-    : search_distance(search_dist), DriveDistance(travel_dist, speed_) {}
+FindPost::FindPost(int32_t search_dist, int32_t travel_dist, int32_t speed_) : search_distance(search_dist), DriveDistance(travel_dist, speed_) {}
 
 /* init
  * 	Inputs:
@@ -306,7 +302,7 @@ FindPost::FindPost(int32_t search_dist, int32_t travel_dist, int32_t speed_)
  * 	Outputs:
  * 		none
  */
-void FindPost::init(Robot& robot) {
+void FindPost::init(Robot &robot) {
     // Ensure motors stopped to begin with
     robot.mA.set_speed(speedA);
     robot.mB.set_speed(speedB);
@@ -338,7 +334,7 @@ bool FindPost::success(Robot &robot) {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
-bool FindPost::continue_run(Robot& robot) {
+bool FindPost::continue_run(Robot &robot) {
     return millis() < timeout && encoder_dist_cm(robot) < travel_distance;
 }
 
@@ -348,7 +344,7 @@ bool FindPost::continue_run(Robot& robot) {
  * 	Outputs:
  * 		none
  */
-void FindPost::clean(Robot& robot) {
+void FindPost::clean(Robot &robot) {
     robot.swivel.set_position(servo_start);
     robot.mA.set_speed(0);  // ensure motor stopped at this point
     robot.mB.set_speed(0);
@@ -365,8 +361,7 @@ void FindPost::clean(Robot& robot) {
  * 	Outputs:
  * 		none
  */
-DriveToPost::DriveToPost(int32_t dist_, int32_t speed_)
-    : DriveDistance(dist_, speed_) {}
+DriveToPost::DriveToPost(int32_t dist_, int32_t speed_) : DriveDistance(dist_, speed_) {}
 
 
 /* success
@@ -376,17 +371,17 @@ DriveToPost::DriveToPost(int32_t dist_, int32_t speed_)
  * 		Whether success criteria met (true/false)
  */
 bool DriveToPost::success(Robot &robot) {
-	Angle zero;
-	Angle curr_pitch = robot.imu.get_pitch_abs();
-	Angle curr_roll = robot.imu.get_roll_abs();
+    Angle zero;
+    Angle curr_pitch = robot.imu.get_pitch_abs();
+    Angle curr_roll = robot.imu.get_roll_abs();
 
-	float pitch_dist = abs(curr_pitch.distance(zero));
-	float roll_dist = abs(curr_roll.distance(zero));
+    float pitch_dist = abs(curr_pitch.distance(zero));
+    float roll_dist = abs(curr_roll.distance(zero));
 
-	Serial.print("Pitch: ");
-	Serial.print(pitch_dist);
-	Serial.print("   Roll: ");
-	Serial.println(roll_dist);
+    Serial.print("Pitch: ");
+    Serial.print(pitch_dist);
+    Serial.print("   Roll: ");
+    Serial.println(roll_dist);
     return pitch_dist + roll_dist > tol;
 }
 
@@ -463,4 +458,3 @@ bool DriveToPost::continue_run(Robot &robot) {
  *    return curr_t > timeout ? TIMEOUT : SUCCESS;
  *}
  */
-
