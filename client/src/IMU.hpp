@@ -31,9 +31,14 @@ public:
     void stabilize();
 
 private:
+    Angle get_compass_abs();
+    void compensate_compass(float coefficient, Angle angle);
+    void complementary_compass_filter();
+
     float pitch_compensation;
     float yaw_compensation;
     float roll_compensation;
+    float compass_compensation;
 
 
     float pitch;
