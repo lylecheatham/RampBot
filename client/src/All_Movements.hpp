@@ -37,18 +37,24 @@ class DriveDistance : public Movement {
 		
 		Status run();
 
-	private:	
+	protected:	
 		int32_t encA_start, encB_start;
-		int32_t dist;
+		int32_t travel_distance;
 	    int32_t	speedA, speedB;
 
 		Motor *mA, *mB;
 		UltraSonicSwivel *servo;
 		IMU *imu;
 		
+		virtual void init();
+		virtual bool success();
+		virtual bool continue_run();
+		virtual void clean();
+		float encoder_dist_cm();
+
+	private:
 		int32_t get_dist();
 		float encoder_delta(); // Get difference between encoder values (in case unable to use imu)
-		float encoder_dist_cm();
 };
 
 
@@ -90,27 +96,37 @@ class RampMovement : public Movement {
 };
 
 /* Find Post */
-class FindPost : public Movement {
+class FindPost : public DriveDistance {
 	public:
-		FindPost(int32_t servo_angle, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+		FindPost(int32_t search_dist, int32_t travel_dist, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
 		~FindPost() {};
 
-		Status run();
+	protected:
+		void init();
+		bool success();
+		bool continue_run();
+		void clean();
 
 	private:
-		int32_t encA_start, encB_start, servo_start, servo_set, cm_start;
-		int32_t dist;
-	    int32_t	speedA, speedB;
-
-		Motor *mA, *mB;
-		UltraSonicSwivel *servo;
-		IMU *imu;
-
-
-
-		float encoder_dist_cm();
-
+		const int32_t servo_angle = 175;
+		const int32_t post_tol = 10;
+		int32_t servo_start, search_distance, cm_start;
 };
 
+/* Correct Ramp */ 
+/*
+ *class RampCorrect : public Movement {
+ *    public:
+ *        RampCorrect();
+ *        ~RampCorrect() {};
+ *
+ *        Status run();
+ *
+ *    private:
+ *        
+ *
+ *
+ *};
+ */
 
 #endif

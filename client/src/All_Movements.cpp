@@ -22,7 +22,7 @@
  * 		none
  */
 DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_) :
-		dist(dist_),
+		travel_distance(dist_),
 		mA(mA_),
 		mB(mB_),
 		servo(servo_),
@@ -34,14 +34,14 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSw
 	freq = 100;
 	integration = 0;
 
-	timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
-	base_speed = dist*speed_ < 0 ? -speed_ : speed_;                  // Account for direction
+	//timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
+	base_speed = travel_distance*speed_ < 0 ? -speed_ : speed_;                  // Account for direction
 	speedA = 0;
 	speedB = 0;
 	last_status = INIT;
 }
 
-/* update
+/* run
  * 	Inputs:
  * 		none
  * 	Outputs:
@@ -49,28 +49,14 @@ DriveDistance::DriveDistance(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSw
  */
 Status DriveDistance::run()
 {
-	// Ensure motors stopped to begin with
-	mA->set_speed(speedA);
-	mB->set_speed(speedB);
-
-	// Initial Conditions
-	encA_start  = mA->get_count();
-	encB_start  = mB->get_count();
-	//dist = get_dist() - dist;
-	dist = dist < 5 ? 5 : dist;	    //Ensure no negative distances	
-	target_angle = imu->get_yaw();
-	
-
-	// Using combination of speed and error to represent stabilizing on the correct point
-	int32_t curr_dist = get_dist();
-	timeout = millis() + 1000000;
+	init();
 
 	// Speed adjustment
 	int32_t speed_adj = 0;
 	uint32_t curr_t = 0;
 
 	// Loop until timed out
-	while(curr_t < timeout){ 
+	while(continue_run()){ 
 		curr_angle = imu->get_yaw();
 		while(millis()-curr_t < 10); // only update at 100Hz
 		speed_adj = pid_control(); 		
@@ -81,19 +67,79 @@ Status DriveDistance::run()
 		mA->set_speed(speedA);
 		mB->set_speed(speedB);
 
-		curr_dist = get_dist();
-		Serial.println(curr_dist);
-		// Success condition
-		if(speedA > 0 && speedA*speedB > 0 && curr_dist > dist) //switch signs for ultrasonic
-			break;
-		else if(speedA < 0 && speedA*speedB > 0 && curr_dist < dist) // switch signs for ultrasonic
+		if(success())
 			break;
 	}
 
-	mA->set_speed(0); // ensure motor stopped at this point
-	mB->set_speed(0);
+	clean();
 
 	return curr_t > timeout ? TIMEOUT : SUCCESS;
+}
+
+
+/* init 
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ */
+void DriveDistance::init()
+{
+	// Ensure motors stopped to begin with
+	mA->set_speed(speedA);
+	mB->set_speed(speedB);
+
+	// Initial Conditions
+	encA_start  = mA->get_count();
+	encB_start  = mB->get_count();
+	
+	//travel_distance = abs(travel_distance) < 5 ? 5 : travel_distance;	    //Ensure no negative distances	
+	target_angle = imu->get_yaw();
+	
+	timeout = millis() + 1000000; // TODO maybe improve
+}
+
+
+/* update
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Whether success criteria met (true/false)
+ */
+bool DriveDistance::success() 
+{
+		int32_t curr_dist = get_dist();
+		Serial.println(speedA);
+		Serial.println(speedB);
+		Serial.println(travel_distance);
+		Serial.println(curr_dist < travel_distance);
+		Serial.print("Curr d: ");
+		Serial.println(curr_dist);
+		return (speedA > 0 && speedA*speedB > 0 && curr_dist > travel_distance) || 
+				(speedA < 0 && speedA*speedB > 0 && curr_dist < travel_distance);
+}
+
+/* continue_run 
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Whether should continue running (checks timeout) (true/false)
+ */
+bool DriveDistance::continue_run() 
+{
+	return millis() < timeout;
+}	
+
+/* clean 
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ */
+void DriveDistance::clean()
+{
+	mA->set_speed(0); // ensure motor stopped at this point
+	mB->set_speed(0);
 }
 
 /* encoder_delta
@@ -296,10 +342,11 @@ Status RampMovement::run(){
 
 
 
-/********************* Drive Distance ***************************/
-/* DriveDistance
+/********************* Find Post ***************************/
+/* FindPost
  * 	Inputs:
- *		dist_  : desired distance to travel (+ for forwards, - for backwards)
+ * 		search_dist  : the desired search radius for the post (0 uses the first reading of the sonar)
+ *		travel_dist  : desired distance to travel (+ for forwards, - for backwards)
  *		mA_    : pointer to the right motor (A)
  *		mb_    : pointer to the left motor (B)
  *		sonar_ : pointer to the ultrasonic sensor object
@@ -307,95 +354,73 @@ Status RampMovement::run(){
  * 	Outputs:
  * 		none
  */
-FindPost::FindPost(int32_t servo_angle, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_) :
-		servo_set(servo_angle),
-		mA(mA_),
-		mB(mB_),
-		servo(servo_),
-		imu(imu_)
+FindPost::FindPost(int32_t search_dist, int32_t travel_dist, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_) :
+	search_distance(search_dist),
+	DriveDistance(travel_dist, mA_, mB_, servo_, imu_, speed_)
 {
-	k_p = 1.5;
-	k_i = 0.001;
-	k_d = 0.001;
-	freq = 100;
-	integration = 0;
-
-	//timeout = 1000*dist_/(speed_*RPM_TO_VO) + TIMEOUT_TOL + millis(); // Get timeout criteria
-	base_speed = speed_;
-	speedA = 0;
-	speedB = 0;
-	last_status = INIT;
 }
 
-/* update
+/* init 
  * 	Inputs:
  * 		none
  * 	Outputs:
- * 		current execution status (SUCCESS / FAILURE / ONGOING)
+ * 		none
  */
-Status FindPost::run()
+void FindPost::init()
 {
 	// Ensure motors stopped to begin with
 	mA->set_speed(speedA);
 	mB->set_speed(speedB);
 
+	// Set heading
+	target_angle = imu->get_yaw();	
+
 	// Initial Conditions
 	encA_start  = mA->get_count();
 	encB_start  = mB->get_count();
 	servo_start = servo->get_position();
-	servo->set_position(servo_set);
-	delay(1000);
-	cm_start = servo->sensor.ping_cm();
-	Serial.println(cm_start);
-	//dist = get_dist() - dist;
-	dist = dist < 5 ? 5 : dist;	    //Ensure no negative distances	
-	target_angle = imu->get_yaw();
-	
+	servo->set_position(servo_angle);
+	delay(500);
 
-	// Using combination of speed and error to represent stabilizing on the correct point
-	int32_t curr_dist = encoder_dist_cm();
-	timeout = millis() + 1000000;
-
-	// Speed adjustment
-	int32_t speed_adj = 0;
-	uint32_t curr_t = 0;
-
-	// Loop until timed out
-	while(curr_t < timeout && curr_dist < 200){ 
-		curr_angle = imu->get_yaw();
-		while(millis()-curr_t < 10); // only update at 100Hz
-		speed_adj = pid_control(); 		
-		curr_t = millis();
-		speedA = base_speed + speed_adj;
-		speedB = base_speed - speed_adj;
-
-		mA->set_speed(speedA);
-		mB->set_speed(speedB);
- 
-		curr_dist = encoder_dist_cm();
-		//Serial.println(curr_dist);
-		Serial.println(servo->sensor.ping_cm());
-		// Success condition
-		if(servo->sensor.ping_cm() < cm_start - 10)
-			break;
-	}
-
-	servo->set_position(servo_start);
-	mA->set_speed(0); // ensure motor stopped at this point
-	mB->set_speed(0);
-
-	return curr_t > timeout ? TIMEOUT : SUCCESS;
+	cm_start = servo->sensor.ping_cm(); 
 }
 
-/* encoder_dist_cm
+
+/* success
  * 	Inputs:
  * 		none
  * 	Outputs:
- * 		Distance travelled so far as measured by encoders
+ * 		Whether success criteria met (true/false)
  */
-float FindPost::encoder_dist_cm()
+bool FindPost::success() 
 {
-	return (mA->get_count() - encA_start + mB->get_count() - encB_start) * (2*PI*D_O_WHEEL) 
-			/ (2*COUNTS_REV*10) /2;
+	return search_distance > 0 ? 
+			servo->sensor.ping_cm() < search_distance - post_tol : 
+			servo->sensor.ping_cm() < cm_start - post_tol;
 }
+
+/* continue_run 
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Whether should continue running (checks timeout) (true/false)
+ */
+bool FindPost::continue_run() 
+{
+	return millis() < timeout && encoder_dist_cm() < travel_distance;
+}	
+
+/* clean 
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ */
+void FindPost::clean()
+{
+	servo->set_position(servo_start);
+	mA->set_speed(0); // ensure motor stopped at this point
+	mB->set_speed(0);
+}
+
 
