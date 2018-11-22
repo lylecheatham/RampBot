@@ -33,6 +33,10 @@ private:
     // Speed to run motors at
     const static int32_t speed = 75;
 
+    static bool button_flag;
+
+    static void button_interrupt();
+
 public:
     state_machine();
     ~state_machine();
@@ -42,12 +46,8 @@ public:
 private:
     Status execute(Movement &m);
     int8_t get_char();
-    void standby();
-    void turn_left();
-    void turn_right();
     void stop();
-    void forward();
-    void backward();
+    bool get_pushbutton();
     void get_dist(int32_t &dist);
 };
 

@@ -12,6 +12,8 @@
 
 elapsedMillis time;
 
+bool state_machine::button_flag = false;
+
 /* function: state_machine()
  *
  *
@@ -19,6 +21,7 @@ elapsedMillis time;
  */
 state_machine::state_machine() {
     robot.init();
+    attachInterrupt(20, button_interrupt, RISING);
 }
 
 
@@ -44,15 +47,12 @@ inline void state_machine::get_dist(int32_t& dist) {
 void state_machine::start() {
     while (1) {
         // First wait for keypress
-        Serial.print("Waiting for keypress");
+        get_pushbutton();
+        Serial.print("Press Spacebar or pushbutton to continue");
 
-        int8_t character = get_char();
-        while (character != 'a' && character != 'd' && character != 'w' && character != 's') {
-            delayMicroseconds(100000);
+        while (!(get_char() == ' ' || get_pushbutton())) {
+            delay(100);
             Serial.print(".");
-            // Serial.println(servo->sensor.ping_cm());
-            // imu->get_yaw();
-            character = get_char();
         }
 
         // Initialize left and right turns
@@ -165,6 +165,10 @@ void state_machine::start() {
  * 		Executes a given movement
  */
 Status state_machine::execute(Movement& m) {
+    if(get_pushbutton()){
+        robot.imu.compensate_yaw(1, Angle(0));
+        robot.target_angle = Angle(0);
+    }
     return m.run(robot);
 }
 
@@ -183,4 +187,16 @@ int8_t state_machine::get_char() {
 void state_machine::stop() {
     robot.mA.set_speed(0);
     robot.mB.set_speed(0);
+}
+
+void state_machine::button_interrupt(){
+    button_flag = true;
+}
+
+bool state_machine::get_pushbutton(){
+    if(button_flag){
+        button_flag = false;
+        return true;
+    }
+    return false;
 }
