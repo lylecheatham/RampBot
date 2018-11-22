@@ -47,6 +47,14 @@ void setup() {
     state_machine machine;
 
     machine.start();
+
+    //Test Push Button
+    // while(1){
+    //     /* Pin D20 is High */
+    //     int analog_val = analogRead(PUSH_PORT);
+    //     Serial.println(analog_val);
+        
+    // }
 }
 
 void loop() {}

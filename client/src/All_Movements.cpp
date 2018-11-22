@@ -251,10 +251,11 @@ RampMovement::RampMovement() {}
 
 Status RampMovement::run(Robot &robot) {
     // Initialize variables
-    float ramp_speed[4] = {80, 120, 40, -10};
+    float ramp_speed[4] = {80, 120, 80, 40};
     float imu_state[4] = {30, 0, -30, 0};
+    int tolerance[4] = {5, 5, 5, 10};
     int ramp_state = 0;
-    int tolerance = 3;
+    
     uint32_t curr_t = 0;
 
     // Set initial speed
@@ -263,10 +264,14 @@ Status RampMovement::run(Robot &robot) {
 
     // Carry out ramp movement
     while (ramp_state < 4) {
-        if (abs(robot.imu.get_pitch() - imu_state[ramp_state]) < tolerance) {
+        if (abs(robot.imu.get_pitch() - imu_state[ramp_state]) < tolerance[ramp_state]) {
             Serial.println(robot.imu.get_pitch());
             ramp_state += 1;
-
+            if(ramp_state == 2){
+                delay(1000);
+                robot.imu.compensate_yaw(1,0);
+                robot.target_angle = 0;
+            }
             robot.mA.set_speed(-ramp_speed[ramp_state]);
             robot.mB.set_speed(-ramp_speed[ramp_state]);
 
@@ -278,6 +283,7 @@ Status RampMovement::run(Robot &robot) {
     Serial.println("End of Ramp");
     robot.mA.set_speed(0);
     robot.mB.set_speed(0);
+
     return curr_t > timeout ? TIMEOUT : SUCCESS;
 }
 
@@ -392,7 +398,8 @@ bool DriveToPost::success(Robot &robot) {
  * 		Whether should continue running (checks timeout) (true/false)
  */
 bool DriveToPost::continue_run(Robot &robot) {
-    return millis() < timeout && encoder_dist_cm(robot) < travel_distance;
+    //return millis() < timeout && 
+    return encoder_dist_cm(robot) < travel_distance;
 }
 
 

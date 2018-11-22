@@ -109,7 +109,7 @@ protected:
     bool continue_run(Robot &robot);
 
 private:
-    const float tol = 3;
+    const float tol = 6;
 };
 
 
