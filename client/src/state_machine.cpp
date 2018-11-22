@@ -91,104 +91,90 @@ void state_machine::start() {
 			//imu->get_yaw();
 			character = get_char();
         }
-		
-		TurnAngle turnL(-90, mA, mB, imu);
+
+        //Initialize left and right turns
+        TurnAngle turnL(-90, mA, mB, imu);
 		TurnAngle turnR(90, mA, mB, imu);
-		DriveDistance fwd(40, mA, mB, servo, imu, 20);
-		DriveDistance bwd(-40, mA, mB, servo, imu, -10);
 
-		FindPost post(175, mA, mB, servo, imu, 30);
+        //#########################################################################
+		//PHASE 1 - ASSUME ROBOT IS FACING THE BACK BOUNDARY WALL
+        //#########################################################################
 
+        //Get distance to the back wall and feed that into DriveDistance
+        //Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        DriveDistance fwd_1(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
+        execute(fwd_1);
+
+        //Take a right turn 
+        execute(turnR);
+
+        //Get distance to the side wall and feed that into DriveDistance
+        //Note - subtract the distance to the ramp from this (FIND VALUE)
+        DriveDistance fwd_2(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
+        execute(fwd_2);
+
+        //Take a left turn
+        execute(turnL);
+
+        //Carry out ramp movement
         RampMovement ramp(mA, mB, imu);
 		execute(ramp);
 
-		/*
-		 *for(int32_t i = 0; i < 8; i++)
-		 *{
-		 *execute(fwd);
-		 *execute(turnR);
-		 *}
-		 */
-		
+        //Take a left turn
+        execute(turnL);
 
-		/*
-		 *if(character == 'd')
-		 *    Serial.println(execute(turnR));
-		 *else if(character == 'a')
-		 *    Serial.println(execute(turnL));
-		 *else if(character == 'w')
-		 *    Serial.println(execute(fwd));
-		 *else
-		 *    Serial.println(execute(bwd));
-		 */
+        //Move past the ramp to avoid pinging it
+        //Assumed 20cm - FIND THIS LATER
+        DriveDistance fwd_3(20, mA, mB, servo, imu, 20);
+        execute(fwd_3);
 
+        //Carry out post detection algorithm - first attempt:
 
-/*
- *        int32_t distance;
- *        get_dist(distance);
- *
- *        forward();
- *        // Drive to boundary
- *        while (distance > 60) {
- *            get_dist(distance);
- *        }
- *
- *        // Turn right
- *        stop();
- *        turn_right();
- *        forward();
- *
- *        get_dist(distance);
- *        // Drive to ramp
- *        while (distance > 20) {
- *            get_dist(distance);
- *        }
- *
- *        stop();
- *
- *        // Turn left
- *        turn_left();
- *
- *        // Reverse up ramp
- *        backward();
- *
- *        // Stop once off ramp
- *        get_dist(distance);
- *        while (distance < 300) {
- *            get_dist(distance);
- *        }
- *        while (distance > 20) {
- *            get_dist(distance);
- *        }
- *
- *        stop();
- *
- *        // Turn left
- *        turn_left();
- *
- *        // Turn servo towards wall
- *        servo->set_position(180);
- *
- *        // Drive until distance closer than 240cm found
- *        get_dist(distance);
- *        while (distance > 20) {
- *            get_dist(distance);
- *        }
- *        stop();
- *        servo->set_position(90);
- *
- *        // Turn right
- *        turn_right();
- *
- *        // Drive straight until distance small
- *        forward();
- *        get_dist(distance);
- *        while (distance > 10) {
- *            get_dist(distance);
- *        }
- *
- *        stop();
- */
+        //NOT IMPLEMENTED YET
+        //FindPost first_pass();
+
+        //Touch  the post
+        DriveDistance fwd_4(20, mA, mB, servo, imu, 20);
+        execute(fwd_4);
+
+        //#########################################################################
+		//PHASE 2 - THE RETURN
+        //#########################################################################
+
+        //Turn to face the back
+        //Take a left turn
+        execute(turnL);
+        //Take a left turn
+        execute(turnL);
+
+        //Get distance to the back wall and feed that into DriveDistance
+        //Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        DriveDistance fwd_5(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
+        execute(fwd_5);
+
+        //Take a left turn 
+        execute(turnL);
+
+        //Get distance to the side wall and feed that into DriveDistance
+        //Note - subtract the distance to the ramp from this (FIND VALUE)
+        DriveDistance fwd_6(servo->sensor.ping_cm() - 25, mA, mB, servo, imu, 20);
+        execute(fwd_6);
+
+        //Take a right turn
+        execute(turnR);
+
+        //Carry out ramp movement
+		execute(ramp);
+
+        //Take a right turn
+        execute(turnR);
+
+        //Carry out first distances in inverted order
+        execute(fwd_2);
+        execute(turnL);
+        execute(fwd_1);
+
+        //Finish
     }
 }
 
