@@ -26,6 +26,8 @@ enum MotorNum { MotorA, MotorB };
 
 /* IO */
 #define P_BUT 20
+#define DBG_1 16
+#define DBG_2 21
 
 /* Motors */
 #define M_STDBY 4  // Standby (pull high to use motors)

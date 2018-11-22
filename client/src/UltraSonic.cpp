@@ -1,6 +1,8 @@
 #include "UltraSonic.hpp"
 #include "constants.h"
 
+//#define INT_SIGS
+
 UltraSonic* UltraSonic::singleton = nullptr;
 
 UltraSonic::UltraSonic(int32_t pin, uint32_t max_distance) {
@@ -20,33 +22,52 @@ bool UltraSonic::init() {
 
     pulse_start();
     delay(100);
-    if (!valid_readings()) Serial.println("Failed init");
-
-    Serial.println("Initialized");
-
-    pinMode(GRN_LED, OUTPUT);
+	
+	pinMode(GRN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
-    pinMode(16, OUTPUT);
+    pinMode(DBG_1, OUTPUT);
 
+    if (!valid_readings()) 
+	{
+#ifndef INT_SIGS
+		digitalWrite(RED_LED, 1);
+#endif
+		Serial.println("Ultrasonic Failed init");
+		return false;
+	}
+	
+    Serial.println("Ultrasonic Initialized");
     return true;
 }
 
 void UltraSonic::s_pulse_start() {
+#ifdef INT_SIGS
     digitalWrite(GRN_LED, 1);
+#endif
     singleton->pulse_start();
+#ifdef INT_SIGS
     digitalWrite(GRN_LED, 0);
+#endif
 }
 
 void UltraSonic::s_input_start() {
+#ifdef INT_SIGS
     digitalWrite(RED_LED, 1);
+#endif
     singleton->input_start();
+#ifdef INT_SIGS
     digitalWrite(RED_LED, 0);
+#endif
 }
 
 void UltraSonic::s_input_end() {
-    digitalWrite(16, 1);
+#ifdef INT_SIGS
+    digitalWrite(DBG_1, 1);
+#endif
     singleton->input_end();
-    digitalWrite(16, 0);
+#ifdef INT_SIGS
+    digitalWrite(DBG_1, 0);
+#endif
 }
 
 void UltraSonic::pulse_start() {
