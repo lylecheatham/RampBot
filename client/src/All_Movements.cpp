@@ -369,6 +369,24 @@ void FindPost::clean(Robot &robot) {
  */
 DriveToPost::DriveToPost(int32_t dist_, int32_t speed_) : DriveDistance(dist_, speed_) {}
 
+/* init
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ */
+void DriveToPost::init(Robot &robot) {
+    // Ensure motors stopped to begin with
+    robot.mA.set_speed(speedA);
+    robot.mB.set_speed(speedB);
+
+    // Initial Conditions
+    encA_start = robot.mA.get_count();
+    encB_start = robot.mB.get_count();
+
+    timeout = millis() + 1000000;  // TODO maybe improve
+	start_time = millis();
+}
 
 /* success
  * 	Inputs:
@@ -377,18 +395,25 @@ DriveToPost::DriveToPost(int32_t dist_, int32_t speed_) : DriveDistance(dist_, s
  * 		Whether success criteria met (true/false)
  */
 bool DriveToPost::success(Robot &robot) {
-    Angle zero;
-    Angle curr_pitch = robot.imu.get_pitch_abs();
-    Angle curr_roll = robot.imu.get_roll_abs();
 
-    float pitch_dist = abs(curr_pitch.distance(zero));
-    float roll_dist = abs(curr_roll.distance(zero));
+   Angle zero;
+   Angle curr_pitch = robot.imu.get_pitch_abs();
+   Angle curr_roll = robot.imu.get_roll_abs();
 
-    Serial.print("Pitch: ");
-    Serial.print(pitch_dist);
-    Serial.print("   Roll: ");
-    Serial.println(roll_dist);
-    return pitch_dist + roll_dist > tol;
+   float pitch_dist = abs(curr_pitch.distance(zero));
+   float roll_dist = abs(curr_roll.distance(zero));
+
+  // Serial.print("Pitch: ");
+  // Serial.print(pitch_dist);
+  // Serial.print("   Roll: ");
+  // Serial.println(roll_dist);
+
+   	if(pitch_dist + roll_dist > angle_tol) 			// roll check
+		return true;
+	else if(millis() - start_time < delay_time) 	// delay for accel check
+		return false;
+	else											// accel check
+		return robot.imu.get_accel_y() < accel_tol;
 }
 
 /* continue_run
@@ -414,9 +439,10 @@ bool DriveToPost::continue_run(Robot &robot) {
  * 	Outputs:
  * 		none
  */
+
 /*
- *LateralShift::LateralShift(int32_t dist_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_)
- *    : shift(shift_), mA(mA_), mB(mB_), servo(servo_), imu(imu_) {
+ *LateralShift::LateralShift(int32_t dist_, int32_t speed_)
+ *    : shift(shift_) {
  *    k_p = 1.5;
  *    k_i = 0.001;
  *    k_d = 0.001;
@@ -431,37 +457,69 @@ bool DriveToPost::continue_run(Robot &robot) {
  *}
  */
 
+
 /* run
  * 	Inputs:
  * 		none
  * 	Outputs:
  * 		current execution status (SUCCESS / FAILURE / ONGOING)
  */
+
 /*
  *Status LateralShift::run() {
- *    init();
+ *    int32_t curr_shift = 0;
+ *    float d_theta = 0;
+ *    Angle curr_angle = robot.imu.get_yaw_abs();
+ *    Angle prev_angle = curr_angle;
  *
- *    // Speed adjustment
- *    int32_t speed_adj = 0;
- *    uint32_t curr_t = 0;
- *
- *    // Loop until timed out
- *    while (continue_run()) {
- *        current_angle = imu->get_yaw_abs();
- *        while (millis() - curr_t < 10) {}  // only update at 100Hz
- *        speed_adj = pid_control();
- *        curr_t = millis();
- *        speedA = base_speed + speed_adj;
- *        speedB = base_speed - speed_adj;
- *
- *        mA->set_speed(speedA);
- *        mB->set_speed(speedB);
- *
- *        if (success()) break;
+ *    // Set driving and pivot motor: mA is right, mB is left
+ *    if (turn_angle > 0)  // right turn
+ *    {
+ *        mDrive = &robot.mB;
+ *        mPivot = &robot.mA;
+ *        right_turn = true;
+ *    } else  // left turn
+ *    {
+ *        mDrive = &robot.mA;
+ *        mPivot = &robot.mB;
+ *        right_turn = false;
  *    }
  *
- *    clean();
+ *    // Ensure motors stopped
+ *    mDrive->set_speed(0);
+ *    mPivot->set_speed(0);
+ *
+ *    // Initial Conditions
+ *    Angle turn_angle(45);
+ *    start_enc = mDrive->get_count();
+ *    robot.target_angle = robot.target_angle + turn_angle;
+ *
+ *    // Using combination of speed and error to represent stabilizing on the correct point
+ *    uint32_t curr_t = 0;
+ *    int32_t speed_adj = 0;
+ *    error = 10 * TOL;
+ *    while (abs(error) > TOL && curr_t < timeout) {
+ *        curr_angle = robot.imu.get_yaw_abs();
+ *        d_theta = current_angle - prev_angle;
+ *        prev_angle = curr_angle;
+ *        curr_shift += WHEELBASE*(d_theta*d_theta)/2; // small angle approximation
+ *
+ *        while (millis() - curr_t < 10) {}  // only update at 100Hz
+ *        speed_adj = pid_control(robot);
+ *        curr_t = millis();
+ *        base_speed = right_turn ? -speed_adj : speed_adj;
+ *        mDrive->set_speed(base_speed);
+ *
+ *        if(abs(curr_shift-shift) < 2) {//cm
+ *            break;
+ *        }
+ *    }
+ *    robot.target_angle = curr_angle;
+ *    mDrive->set_speed(0);  // ensure motor stopped at this point
+ *
+ *
  *
  *    return curr_t > timeout ? TIMEOUT : SUCCESS;
+ *
  *}
  */

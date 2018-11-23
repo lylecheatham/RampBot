@@ -105,24 +105,29 @@ public:
     ~DriveToPost(){};
 
 protected:
+	void init(Robot &robot);
     bool success(Robot &robot);
     bool continue_run(Robot &robot);
 
 private:
-    const float tol = 6;
+	uint32_t start_time;
+	const uint32_t delay_time = 2000;
+    const float angle_tol = 6;
+	const float accel_tol = -0.4;
 };
 
 
 /* Correct Ramp */
 
 /* Lateral Shift */
+
 /*
  *class LateralShift : public Movement {
  *    public:
- *        LateralShift(int32_t shift_, Motor* mA_, Motor* mB_, UltraSonicSwivel* servo_, IMU* imu_, int32_t speed_ = STD_SPEED);
+ *        LateralShift(int32_t shift_, int32_t speed_ = STD_SPEED);
  *        ~LateralShift() {};
  *
- *        Status run();
+ *        Status run(Robot &robot);
  *
  *    private:
  *   	 	int32_t encA_start, encB_start;
@@ -134,6 +139,7 @@ private:
  *   	 	IMU* imu;
  *};
  */
+
 
 
 #endif

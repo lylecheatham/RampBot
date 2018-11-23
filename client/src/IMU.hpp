@@ -23,6 +23,8 @@ public:
     Angle get_pitch_abs() const;
     Angle get_yaw_abs() const;
     Angle get_roll_abs() const;
+	
+	float get_accel_y();
 
     Angle get_pitch_lp() const;
     Angle get_yaw_lp() const;

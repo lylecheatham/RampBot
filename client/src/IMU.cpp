@@ -59,6 +59,10 @@ bool IMU::init() {
     return true;
 }
 
+float IMU::get_accel_y() {
+	return imu->calcAccel(imu->ay);
+}
+
 float IMU::get_pitch() const {
     return pitch;
 }
@@ -170,6 +174,7 @@ void IMU::updateIMU() {
             // quaternion values -- to estimate roll, pitch, and yaw
             imu->computeEulerAngles();
             imu->updateCompass();
+            imu->updateAccel();
 
             complement(singleton->pitch_lp, pitch_lp_constant, Angle(imu->pitch));
             complement(singleton->yaw_lp, yaw_lp_constant, Angle(imu->yaw));
