@@ -9,6 +9,12 @@
 #include "state_machine.hpp"
 #include "All_Movements.hpp"
 
+// #define SIDE_A_PLATFORM_TO_RAMP_ALIGN
+// #define RAMP_ALIGN
+// #define RAMP_RUN
+// #define SIDE_B_RAMP_END
+#define SIDE_B_FIND_POST
+
 
 elapsedMillis time;
 
@@ -45,28 +51,18 @@ inline void state_machine::get_dist(int32_t& dist) {
  */
 void state_machine::start() {
     while (1) {
-        // First wait for keypress
-        // get_pushbutton();
-        // Serial.print("Press Spacebar or pushbutton to continue");
-
-        // while (!(get_char() == ' ' || get_pushbutton())) {
-        //     delay(100);
-        //     Serial.print(".");
-        // }
 
         //Starting Logic
-        //Serial.print("Wave hand in front of sensor to continue");
+        Serial.print("Wave hand in front of sensor to continue");
         while(1){
-            //Serial.print(".");
-            //delay(100);
+            Serial.print(".");
+            delay(100);
             if (robot.swivel.sensor.ping_cm() < 5){
                 break;
             }
         }
         //Give time to remove hand
-        delay(2000);
-        
-        //Serial.print("Made it");
+        delay(1000);
 
         // Initialize left and right turns
         TurnAngle turnL(-90);
@@ -80,103 +76,103 @@ void state_machine::start() {
         robot.imu.compensate_roll(1,0);
         robot.imu.compensate_yaw(1,0);
 
-        // // // Get distance to the back wall and feed that into DriveDistance
-        // // // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        // DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
-        // execute(fwd_1);
+#ifdef SIDE_A_PLATFORM_TO_RAMP_ALIGN
+        // Get distance to the back wall and feed that into DriveDistance
+        // Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
+        execute(fwd_1);
 
-        // // // Take a left turn
-        // execute(turnL);
+        // Take a left turn
+        execute(turnL);
 
-        // // // Get distance to the side wall and feed that into DriveDistance
-        // // // Note - subtract the distance to the ramp from this (FIND VALUE)
-        // DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
-        // execute(fwd_2);
+        // Get distance to the side wall and feed that into DriveDistance
+        // Note - subtract the distance to the ramp from this (FIND VALUE)
+        DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
+        execute(fwd_2);
 
-        // // // Take a right turn
-        // execute(turnR);
-        
+        // Take a right turn
+        execute(turnR);
+#endif // SIDE_A_PLATFORM_TO_RAMP_ALIGN
+
         //Ramp Alignment
+#ifdef RAMP_ALIGN
 
         //Take ultrasonic sample
-        // uint32_t start_dist = robot.swivel.sensor.ping_cm();
-        // robot.swivel.set_position(178);
+        uint32_t start_dist = robot.swivel.sensor.ping_cm();
+        robot.swivel.set_position(178);
 
-        // float alignment_angle;
-        // float dist_meas = robot.swivel.sensor.ping_cm();
-        // alignment_angle = atan2(33 - dist_meas, 70-start_dist)*180/M_PI;
-        // alignment_angle = alignment_angle > 90 ? alignment_angle -180 : alignment_angle;
-        // Serial.print("Angle: ");
-        // Serial.println(alignment_angle);
-
-        // if (dist_meas > 33) {
-        //     //alignment_angle = Angle(-(90 - atan2(54, dist_meas - 33) * 180 / M_PI));
-        //     //alignment_angle = Angle(-(90 - atan2(70-start_dist, dist_meas - 33) * 180 / M_PI));
-        //     alignment_angle = Angle(atan2(33 - dist_meas, 70-start_dist)*180/M_PI);
-        // } else if (dist_meas < 33) {
-        //     //alignment_angle = Angle(90 - atan2(54, dist_meas - 33) * 180 / M_PI);
-        //     //alignment_angle = Angle(90 - atan2(70-start_dist, dist_meas - 33) * 180 / M_PI);
-        // }
+        float alignment_angle;
+        float dist_meas = robot.swivel.sensor.ping_cm();
+        alignment_angle = atan2(33 - dist_meas, 70-start_dist)*180/M_PI;
+        alignment_angle = alignment_angle > 90 ? alignment_angle -180 : alignment_angle;
+        Serial.print("Angle: ");
+        Serial.println(alignment_angle);
 
         //Execute Turn
-        // TurnAngle ramp_alignment(alignment_angle);
-        // execute(ramp_alignment);
+        TurnAngle ramp_alignment(alignment_angle);
+        execute(ramp_alignment);
 
-        // // Carry out ramp movement
+#endif // RAMP_ALIGN
+
+#ifdef RAMP_RUN
+        // Carry out ramp movement
         RampMovement ramp;
         execute(ramp);
 
-        //Realign
-        //TurnAngle turn_align(0);
-        //turn_align.run(robot);
-        // execute(turn_align);
+#endif // RAMP_RUN
 
+#ifdef SIDE_B_RAMP_END
         //Move a bit forward
-        // DriveDistance post_ramp(40, -40);
-        // execute(post_ramp);
+        DriveDistance post_ramp(40, -40);
+        execute(post_ramp);
 
         //delay(1000);
 
-        // // Take a right turn
-        //execute(turnR);
+        // Take a right turn
+        execute(turnR);
 
-        // // Move past the ramp to avoid pinging it
-        // // Assumed 20cm - FIND THIS LATER
-        // DriveDistance fwd_3(20, 20);
-        // execute(fwd_3);
+        // Move past the ramp to avoid pinging it
+        // Assumed 20cm - FIND THIS LATER
+        DriveDistance fwd_3(20, 20);
+        execute(fwd_3);
 
-        // // Carry out post detection algorithm - first attempt:
+#endif // SIDE_B_RAMP_END
+
+#ifdef SIDE_B_FIND_POST
+        // Carry out post detection algorithm - first attempt:
 
         // Find post
         // FIND SEARCH DISTANCE EXPERIMENTALLY
-        // Status result;
-        // int attempt = 0;
-        // while (1) {
-        //     FindPost search(0, 150 - attempt * 10, 40);
+        Status result;
+        int attempt = 0;
+        while (1) {
+            FindPost search(0, 150 - attempt * 10, 40);
 
-        //     result = execute(search);
+            result = execute(search);
 
-        //     if (result == SUCCESS) {
-        //         break;
-        //     }
+            if (result == SUCCESS) {
+                break;
+            }
 
-        //     else if (result == TIMEOUT) {
-        //         attempt += 1;
-        //         execute(turnL);
-        //     }
-        // }
+            else if (result == TIMEOUT) {
+                attempt += 1;
+                execute(turnL);
+            }
+        }
 
-        // // Face post
-        // TurnAngle post_turn(-75);
-        // execute(post_turn);
+        // Face post
+        TurnAngle post_turn(-75);
+        execute(post_turn);
 
-        // robot.imu.compensate_pitch(1,0);
-        // robot.imu.compensate_roll(1,0);
+        robot.imu.compensate_pitch(1,0);
+        robot.imu.compensate_roll(1,0);
 
 
-        // // // Touch the post
-        // DriveToPost drive_post(200);
-        // execute(drive_post);
+        // // Touch the post
+        DriveToPost drive_post(200);
+        execute(drive_post);
+
+#endif // SIDE_B_FIND_POST
 
         // // To be implemented by Eric
 
