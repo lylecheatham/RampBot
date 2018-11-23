@@ -76,21 +76,23 @@ void state_machine::start() {
         robot.target_angle = 0;
 
 #ifdef SIDE_A_PLATFORM_TO_RAMP_ALIGN
-        // Get distance to the back wall and feed that into DriveDistance
-        // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
-        execute(fwd_1);
+        {
+            // Get distance to the back wall and feed that into DriveDistance
+            // Note - subtract the length of the robot from this (18cm plus 5cm tol)
+            DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
+            execute(fwd_1);
 
-        // Take a left turn
-        execute(turnL);
+            // Take a left turn
+            execute(turnL);
 
-        // Get distance to the side wall and feed that into DriveDistance
-        // Note - subtract the distance to the ramp from this (FIND VALUE)
-        DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
-        execute(fwd_2);
+            // Get distance to the side wall and feed that into DriveDistance
+            // Note - subtract the distance to the ramp from this (FIND VALUE)
+            DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
+            execute(fwd_2);
 
-        // Take a right turn
-        execute(turnR);
+            // Take a right turn
+            execute(turnR);
+        }
 #endif  // SIDE_A_PLATFORM_TO_RAMP_ALIGN
 
         // Ramp Alignment
@@ -114,105 +116,108 @@ void state_machine::start() {
 #endif  // RAMP_ALIGN
 
 #ifdef RAMP_S_TURN
-        // robot.imu.compensate_pitch(1,0);
-        // robot.imu.compensate_roll(1,0);
-        // robot.imu.compensate_yaw(1,0);
+        {
 
-        robot.swivel.set_position(178);
-        delay(1000);
+            robot.swivel.set_position(178);
+            delay(1000);
 
 
-        float dist_meas = robot.swivel.sensor.ping_cm();
+            float dist_meas = robot.swivel.sensor.ping_cm();
 
-        float shift = dist_meas - 33;  // +'ve right turn -'ve left turn
-        float angle = acos(1 - abs(shift) * 1.0 / WHEELBASE_CM) * 180 / M_PI;
-        angle = shift < 0 ? angle : -angle;
+            float shift = dist_meas - 33;  // +'ve right turn -'ve left turn
+            float angle = acos(1 - abs(shift) * 1.0 / WHEELBASE_CM) * 180 / M_PI;
+            angle = shift < 0 ? angle : -angle;
 
-        Serial.print("Angle: ");
-        Serial.println(angle);
+            Serial.print("Angle: ");
+            Serial.println(angle);
 
-        robot.swivel.set_position(90);
+            robot.swivel.set_position(90);
 
-        TurnAngle s_turn(angle, false);
-        TurnAngle s_turn_back(-angle, false);
+            TurnAngle s_turn(angle, false);
+            TurnAngle s_turn_back(-angle, false);
 
-        execute(s_turn);
-        execute(s_turn_back);
+            execute(s_turn);
+            execute(s_turn_back);
+        }
 #endif  // RAMP_S_TURN
 
-        DriveDistance driving(-10, 20);
-        execute(driving);
-
 #ifdef RAMP_RUN
-        // Carry out ramp movement
-        RampMovement ramp;
-        execute(ramp);
+        {
+            DriveDistance driving(-10, 20);
+            execute(driving);
+
+            // Carry out ramp movement
+            RampMovement ramp;
+            execute(ramp);
+        }
 
 #endif  // RAMP_RUN
 
 #ifdef SIDE_B_FIND_POST
-        // Move a bit forward
-        Serial.println("HERE");
-        DriveDistance post_ramp(-40, 40);
-        Serial.println(execute(post_ramp));
+        {
+            // Move a bit forward
+            Serial.println("HERE");
+            DriveDistance post_ramp(-40, 40);
+            Serial.println(execute(post_ramp));
 
 
-        // delay(1000);
+            // delay(1000);
 
-        // Take a right turn
-        execute(turnR);
+            // Take a right turn
+            execute(turnR);
 
-        // Check to see if post is in front
-        // if(robot.swivel.sensor.ping_cm() < 185){
-        //     // // Touch the post
-        //     robot.imu.compensate_pitch(1,0);
-        //     robot.imu.compensate_roll(1,0);
-        //     DriveToPost drive_post(200, 100);
-        //     execute(drive_post);
-        // }
-        // else{
-        // Move past the ramp to avoid pinging it
-        // Assumed 20cm - FIND THIS LATER
-        DriveDistance fwd_3(30, 60);
-        execute(fwd_3);
+            // Check to see if post is in front
+            // if(robot.swivel.sensor.ping_cm() < 185){
+            //     // // Touch the post
+            //     robot.imu.compensate_pitch(1,0);
+            //     robot.imu.compensate_roll(1,0);
+            //     DriveToPost drive_post(200, 100);
+            //     execute(drive_post);
+            // }
+            // else{
+            // Move past the ramp to avoid pinging it
+            // Assumed 20cm - FIND THIS LATER
+            DriveDistance fwd_3(30, 60);
+            execute(fwd_3);
 
-        // Carry out post detection algorithm - first attempt:
+            // Carry out post detection algorithm - first attempt:
 
-        // Find post
-        // FIND SEARCH DISTANCE EXPERIMENTALLY
+            // Find post
+            // FIND SEARCH DISTANCE EXPERIMENTALLY
 
-        // Status result;
-        // int attempt = 0;
-        // while (1) {
-        //     FindPost search(200, 150 - attempt * 10, 140);
+            // Status result;
+            // int attempt = 0;
+            // while (1) {
+            //     FindPost search(200, 150 - attempt * 10, 140);
 
-        //     result = execute(search);
+            //     result = execute(search);
 
-        //     if (result == SUCCESS) {
-        //         break;
-        //     }
+            //     if (result == SUCCESS) {
+            //         break;
+            //     }
 
-        //     else if (result == TIMEOUT) {
-        //         attempt += 1;
-        //         execute(turnL);
-        //     }
-        // }
+            //     else if (result == TIMEOUT) {
+            //         attempt += 1;
+            //         execute(turnL);
+            //     }
+            // }
 
-        FindPost search(200, 150, 140);
+            FindPost search(200, 150, 140);
 
-        execute(search);
-        // Face post
-        TurnAngle post_turn(-80);
-        TurnAngle post_unturn(80);
-        execute(post_turn);
+            execute(search);
+        }
+        {
+            // Face post
+            TurnAngle post_turn(-80);
+            execute(post_turn);
 
-        robot.imu.compensate_pitch(1, 0);
-        robot.imu.compensate_roll(1, 0);
+            robot.imu.compensate_pitch(1, 0);
+            robot.imu.compensate_roll(1, 0);
 
-        // // Touch the post
-        DriveToPost drive_post(200, 100);
-        Serial.println(execute(drive_post));
-        // }
+            // // Touch the post
+            DriveToPost drive_post(200, 100);
+            Serial.println(execute(drive_post));
+        }
 
 #endif  // SIDE_B_FIND_POST
 
@@ -222,43 +227,60 @@ void state_machine::start() {
         // PHASE 2 - THE RETURN
         //#########################################################################
         //
-        DriveDistance reverse_from_post(-40, 60);
+        {
+            DriveDistance reverse_from_post(-40, 60);
 
-        execute(reverse_from_post);
+            execute(reverse_from_post);
 
-        // Turn to face the back
-        // Take a left turn
-        execute(post_unturn);
-        // Take a left turn
-        execute(turnR);
+            // Turn to face the back
+            // Take a left turn
+            TurnAngle post_unturn(80);
+            execute(post_unturn);
+            // Take a left turn
+            execute(turnR);
 
-        // Get distance to the back wall and feed that into DriveDistance
-        // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        DriveDistance fwd_5(robot.swivel.sensor.ping_cm() - 25, 20);
-        execute(fwd_5);
+            // Get distance to the back wall and feed that into DriveDistance
+            // Note - subtract the length of the robot from this (18cm plus 5cm tol)
+            DriveDistance fwd_5(200, 60);
+            execute(fwd_5);
 
-        // Take a right turn
-        execute(turnR);
+            DriveDistance back_off_from_wall(-25, 60);
+            execute(back_off_from_wall);
+        }
+        {
 
-        // Get distance to the side wall and feed that into DriveDistance
-        // Note - subtract the distance to the ramp from this (FIND VALUE)
-        DriveDistance fwd_6(robot.swivel.sensor.ping_cm() - 25, 20);
-        execute(fwd_6);
 
-        // Take a left turn
-        execute(turnL);
+            // Take a right turn
+            execute(turnR);
+        }
+        {
 
-        // Carry out ramp movement
-        execute(driving);
-        execute(ramp);
+            // Get distance to the side wall and feed that into DriveDistance
+            // Note - subtract the distance to the ramp from this (FIND VALUE)
+            DriveDistance fwd_6(robot.swivel.sensor.ping_cm() - 25, 60);
+            execute(fwd_6);
 
-        // Take a right turn
-        execute(turnL);
+            // Take a left turn
+            execute(turnL);
+        }
 
-        // Carry out first distances in inverted order
-        execute(fwd_2);
-        execute(turnR);
-        execute(fwd_1);
+        {
+            DriveDistance driving(-10, 20);
+            execute(driving);
+
+            // Carry out ramp movement
+            RampMovement ramp;
+            execute(ramp);
+        }
+        {
+
+            // Take a right turn
+            execute(turnR);
+
+            // Carry out first distances in inverted order
+            DriveDistance hit_the_start(70, 60);
+            execute(hit_the_start);
+        }
 
         // Finish
     }
