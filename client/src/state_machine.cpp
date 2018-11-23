@@ -14,7 +14,7 @@
 // #define RAMP_RUN
 // #define SIDE_B_RAMP_END
 #define SIDE_B_FIND_POST
-
+#define SIDE_B_RAMP_END
 
 elapsedMillis time;
 
@@ -121,7 +121,7 @@ void state_machine::start() {
 
 #endif // RAMP_RUN
 
-#ifdef SIDE_B_RAMP_END
+#ifdef SIDE_B_FIND_POST
         //Move a bit forward
         DriveDistance post_ramp(40, -40);
         execute(post_ramp);
@@ -131,46 +131,53 @@ void state_machine::start() {
         // Take a right turn
         execute(turnR);
 
-        // Move past the ramp to avoid pinging it
-        // Assumed 20cm - FIND THIS LATER
-        DriveDistance fwd_3(20, 20);
-        execute(fwd_3);
-
-#endif // SIDE_B_RAMP_END
-
-#ifdef SIDE_B_FIND_POST
-        // Carry out post detection algorithm - first attempt:
-
-        // Find post
-        // FIND SEARCH DISTANCE EXPERIMENTALLY
-        Status result;
-        int attempt = 0;
-        while (1) {
-            FindPost search(0, 150 - attempt * 10, 40);
-
-            result = execute(search);
-
-            if (result == SUCCESS) {
-                break;
-            }
-
-            else if (result == TIMEOUT) {
-                attempt += 1;
-                execute(turnL);
-            }
+        //Check to see if post is in front
+        if(robot.swivel.sensor.ping_cm() < 195){
+            // // Touch the post
+            robot.imu.compensate_pitch(1,0);
+            robot.imu.compensate_roll(1,0);
+            DriveToPost drive_post(200, 100);
+            execute(drive_post);
         }
+        else{
+            // Move past the ramp to avoid pinging it
+            // Assumed 20cm - FIND THIS LATER
+            DriveDistance fwd_3(20, 20);
+            execute(fwd_3);
 
-        // Face post
-        TurnAngle post_turn(-75);
-        execute(post_turn);
+            // Carry out post detection algorithm - first attempt:
 
-        robot.imu.compensate_pitch(1,0);
-        robot.imu.compensate_roll(1,0);
+            // Find post
+            // FIND SEARCH DISTANCE EXPERIMENTALLY
 
+            Status result;
+            int attempt = 0;
+            while (1) {
+                FindPost search(200, 150 - attempt * 10, 140);
 
-        // // Touch the post
-        DriveToPost drive_post(200);
-        execute(drive_post);
+                result = execute(search);
+
+                if (result == SUCCESS) {
+                    break;
+                }
+
+                else if (result == TIMEOUT) {
+                    attempt += 1;
+                    execute(turnL);
+                }
+            }
+
+            // Face post
+            TurnAngle post_turn(-80);
+            execute(post_turn);
+
+            robot.imu.compensate_pitch(1,0);
+            robot.imu.compensate_roll(1,0);
+
+            // // Touch the post
+            DriveToPost drive_post(200, 100);
+            execute(drive_post);
+        }
 
 #endif // SIDE_B_FIND_POST
 
