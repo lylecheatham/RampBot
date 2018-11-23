@@ -15,7 +15,7 @@ private:
     void pulse_start();
     void input_start();
     void input_end();
-    static constexpr uint32_t length = 1000;
+    static constexpr uint32_t length = 50;
 
     static void s_pulse_start();
     static void s_input_start();
