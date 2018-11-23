@@ -43,11 +43,25 @@ protected:
     virtual bool success(Robot &robot);
     virtual bool continue_run(Robot &robot);
     virtual void clean(Robot &robot);
+    virtual int32_t get_dist(Robot &robot);	
     float encoder_dist_cm(Robot &robot);
 
 private:
-    int32_t get_dist(Robot &robot);
     float encoder_delta(Robot &robot);  // Get difference between encoder values (in case unable to use imu)
+};
+
+/* DriveDistanceSonar - Same as DriveDistance but using sonar */
+class DriveDistanceSonar : public DriveDistance {
+public:
+    DriveDistanceSonar(int32_t dist, int32_t speed_ = STD_SPEED);
+	~DriveDistanceSonar(){};
+
+protected:
+	void init(Robot &robot);
+	int32_t get_dist(Robot &robot);
+
+private:
+	int32_t start_dist;
 };
 
 

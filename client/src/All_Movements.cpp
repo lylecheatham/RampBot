@@ -97,12 +97,14 @@ void DriveDistance::init(Robot &robot) {
  */
 bool DriveDistance::success(Robot &robot) {
     int32_t curr_dist = get_dist(robot);
-    Serial.println(speedA);
-    Serial.println(speedB);
-    Serial.println(travel_distance);
-    Serial.println(curr_dist < travel_distance);
-    Serial.print("Curr d: ");
-    Serial.println(curr_dist);
+	/*
+     *Serial.println(speedA);
+     *Serial.println(speedB);
+     *Serial.println(travel_distance);
+     *Serial.println(curr_dist < travel_distance);
+     *Serial.print("Curr d: ");
+     *Serial.println(curr_dist);
+	 */
     return (speedA > 0 && speedA * speedB > 0 && curr_dist > travel_distance) || (speedA < 0 && speedA * speedB > 0 && curr_dist < travel_distance);
 }
 
@@ -166,6 +168,48 @@ float DriveDistance::encoder_dist_cm(Robot &robot) {
 int32_t DriveDistance::get_dist(Robot &robot) {
     //	return servo->sensor.ping_cm();
     return static_cast<int32_t>(encoder_dist_cm(robot));
+}
+
+/********************* Drive Distance Sonar ***************************/
+/* DriveDistance
+ * 	Inputs:
+ *		dist_  : desired distance to travel (+ for forwards, - for backwards)
+ *		mA_    : pointer to the right motor (A)
+ *		mb_    : pointer to the left motor (B)
+ *		sonar_ : pointer to the ultrasonic sensor object
+ *		speed_ : (optional) desired motor speed for the action
+ * 	Outputs:
+ * 		none
+ */
+DriveDistanceSonar::DriveDistanceSonar(int32_t dist_, int32_t speed) : DriveDistance(dist_, speed) {}
+
+/* get_dist
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		Gets the currently read distance
+ */
+int32_t DriveDistanceSonar::get_dist(Robot &robot) {
+    return -1*(robot.swivel.sensor.ping_cm() - start_dist);
+}
+
+/* init
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		none
+ */
+void DriveDistanceSonar::init(Robot &robot) {
+    // Ensure motors stopped to begin with
+    robot.mA.set_speed(speedA);
+    robot.mB.set_speed(speedB);
+
+    // Initial Conditions
+    encA_start = robot.mA.get_count();
+    encB_start = robot.mB.get_count();
+	start_dist = robot.swivel.sensor.ping_cm();
+	
+    timeout = millis() + 1000000;  // TODO maybe improve
 }
 
 /********************* Turn Angle ***************************/
