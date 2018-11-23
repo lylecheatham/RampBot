@@ -76,25 +76,40 @@ void state_machine::start() {
         // PHASE 1 - ASSUME ROBOT IS FACING THE BACK BOUNDARY WALL
         //#########################################################################
 
+        robot.imu.compensate_pitch(1,0);
+        robot.imu.compensate_roll(1,0);
+        robot.imu.compensate_yaw(1,0);
+
         // // Get distance to the back wall and feed that into DriveDistance
         // // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        // DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 25, 20);
-        // execute(fwd_1);
+        DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
+        execute(fwd_1);
 
         // // Take a left turn
-        // execute(turnL);
+        execute(turnL);
 
         // // Get distance to the side wall and feed that into DriveDistance
         // // Note - subtract the distance to the ramp from this (FIND VALUE)
-        // DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 25, 20);
-        // execute(fwd_2);
+        DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
+        execute(fwd_2);
 
         // // Take a right turn
-        // execute(turnR);
+        execute(turnR);
+
+        //Ramp Alignment
+        // Angle turn;
+        // float dist_meas = robot.swivel.sensor.ping_cm();
+        // if (dist_meas > 34) {
+        //     turn = Angle(90 - atan2(39, dist_meas - 33) * 180 / M_PI);
+        // } else if (dist_meas < 32) {
+        //     turn = Angle(-(90 - atan2(39, 33 - dist_meas) * 180 / M_PI));
+        // }
+
+        // execute(turn);
 
         // // Carry out ramp movement
-        //RampMovement ramp;
-        //execute(ramp);
+        RampMovement ramp;
+        execute(ramp);
 
         //Realign
         //TurnAngle turn_align(0);

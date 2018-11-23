@@ -255,15 +255,30 @@ Status RampMovement::run(Robot &robot) {
     float imu_state[4] = {30, 0, -30, 0};
     int tolerance[4] = {5, 5, 5, 10};
     int ramp_state = 0;
-    
-    uint32_t curr_t = 0;
 
     // Set initial speed
     robot.mA.set_speed(-ramp_speed[ramp_state]);
     robot.mB.set_speed(-ramp_speed[ramp_state]);
 
+    // Speed adjustment
+    int32_t speed_adj = 0;
+    uint32_t curr_t = 0;
+    int32_t speedA = 0, speedB = 0;
+
     // Carry out ramp movement
     while (ramp_state < 4) {
+
+        if (ramp_state == 0){
+            while (millis() - curr_t < 10) {}  // only update at 100Hz
+            speed_adj = pid_control(robot);
+            curr_t = millis();
+            speedA = -ramp_speed[ramp_state] + speed_adj;
+            speedB = -ramp_speed[ramp_state] - speed_adj;
+
+            robot.mA.set_speed(speedA);
+            robot.mB.set_speed(speedB);
+        }
+
         if (abs(robot.imu.get_pitch() - imu_state[ramp_state]) < tolerance[ramp_state]) {
             Serial.println(robot.imu.get_pitch());
             ramp_state += 1;
@@ -378,8 +393,8 @@ DriveToPost::DriveToPost(int32_t dist_, int32_t speed_) : DriveDistance(dist_, s
  */
 bool DriveToPost::success(Robot &robot) {
     Angle zero;
-    Angle curr_pitch = robot.imu.get_pitch_abs();
-    Angle curr_roll = robot.imu.get_roll_abs();
+    Angle curr_pitch = robot.imu.get_pitch_lp();
+    Angle curr_roll = robot.imu.get_roll_lp();
 
     float pitch_dist = abs(curr_pitch.distance(zero));
     float roll_dist = abs(curr_roll.distance(zero));
