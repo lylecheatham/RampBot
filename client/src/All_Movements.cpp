@@ -223,7 +223,7 @@ void DriveDistanceSonar::init(Robot &robot) {
  * 	Outputs:
  * 		none
  */
-TurnAngle::TurnAngle(float angle_) {
+TurnAngle::TurnAngle(float angle_, bool forward_turn_) : forward_turn(forward_turn_) {
     k_p = 0.75;
     k_i = 1.5;
     k_d = 0.01;
@@ -256,6 +256,8 @@ Status TurnAngle::run(Robot &robot) {
         mPivot = &robot.mB;
         right_turn = false;
     }
+
+	turn_angle = forward_turn ? turn_angle : -turn_angle;
 
     // Ensure motors stopped
     mDrive->set_speed(0);

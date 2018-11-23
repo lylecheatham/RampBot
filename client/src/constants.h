@@ -17,6 +17,7 @@ enum MotorNum { MotorA, MotorB };
 #define RPM_TO_VO (0.26)  // cm/s
 #define RPM_TO_VI (0.16)  // cm/s
 #define WHEELBASE 180     // mm
+#define WHEELBASE_CM (WHEELBASE/10) //cm
 #define COUNTS_REV 1204   // encoder counts per revolution
 #define CHASSIS_L_CM 15   // cm 
 

@@ -68,7 +68,7 @@ private:
 /* Turn Angle - (Turn to a specified angle off of current orientation / pivot turning) */
 class TurnAngle : public Movement {
 public:
-    TurnAngle(float angle_);
+    TurnAngle(float angle_, bool forward_turn_ = true);
     ~TurnAngle(){};
 
     Status run(Robot &robot);
@@ -76,6 +76,7 @@ public:
 private:
     int32_t start_enc;
     float turn_angle;
+	bool forward_turn;
 
     Motor *mDrive, *mPivot;
 
