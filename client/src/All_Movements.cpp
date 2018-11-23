@@ -450,7 +450,7 @@ bool FindPost::success(Robot &robot) {
  * 		Whether should continue running (checks timeout) (true/false)
  */
 bool FindPost::continue_run(Robot &robot) {
-    return millis() < timeout && encoder_dist_cm(robot) < travel_distance;
+    return encoder_dist_cm(robot) < travel_distance;
 }
 
 /* clean
@@ -515,13 +515,16 @@ bool DriveToPost::success(Robot &robot) {
   // Serial.print(pitch_dist);
   // Serial.print("   Roll: ");
   // Serial.println(roll_dist);
-
-   	if(pitch_dist + roll_dist > angle_tol) 			// roll check
-		return true;
-	else if(millis() - start_time < delay_time) 	// delay for accel check
-		return false;
-	else											// accel check
-		return robot.imu.get_accel_y() < accel_tol;
+    if(robot.swivel.sensor.ping_cm() < 15)
+        return true;
+    else 
+        return false;
+   	// else if(pitch_dist + roll_dist > angle_tol) 			// roll check
+	// 	return true;
+	// else if(millis() - start_time < delay_time) 	// delay for accel check
+	// 	return false;
+	// else											// accel check
+	// 	return robot.imu.get_accel_y() < accel_tol;
 }
 
 /* continue_run
