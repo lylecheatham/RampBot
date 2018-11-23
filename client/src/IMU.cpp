@@ -45,10 +45,10 @@ bool IMU::init() {
         }
     }
 
-    imu->dmpBegin(DMP_FEATURE_6X_LP_QUAT |         // Enable 6-axis quat
-                      DMP_FEATURE_GYRO_CAL |       // Use gyro calibration
-                      DMP_FEATURE_SEND_RAW_ACCEL,  // Enable sending of raw acceleration data
-                  FIFO_RATE);                      // Set DMP FIFO
+    imu->dmpBegin(DMP_FEATURE_6X_LP_QUAT |   // Enable 6-axis quat
+                      DMP_FEATURE_GYRO_CAL,  // Use gyro calibration
+                  FIFO_RATE);                // Set DMP FIFO
+    imu->begin();
 
     imu->setCompassSampleRate(100);
 
