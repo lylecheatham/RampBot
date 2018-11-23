@@ -155,9 +155,12 @@ void state_machine::start() {
 {
         //Move a bit forward
         Serial.println("HERE");
-        DriveDistance* post_ramp = new DriveDistance(-40, 40);
+        DriveDistance* post_ramp = new DriveDistance(-60, 40);
         execute(post_ramp);
         delete post_ramp;
+
+        robot.imu.compensate_yaw(1,0);
+        robot.target_angle = 0;
 
         //delay(1000);
 
@@ -165,7 +168,7 @@ void state_machine::start() {
         execute(turnR);
 
         
-        DriveDistance* fwd_3 = new DriveDistance(30, 60);
+        DriveDistance* fwd_3 = new DriveDistance(40, 60);
         execute(fwd_3);
         delete fwd_3;
         FindPost* search = new FindPost(200, 150, 140);
@@ -208,9 +211,6 @@ void state_machine::start() {
         execute(fwd_5);
         delete fwd_5;
 
-        robot.imu.compensate_yaw(1,0);
-        robot.target_angle = 0;
-
         DriveDistance* back_off = new DriveDistance(-32, 40);
         execute(back_off);
         delete back_off;
@@ -247,7 +247,7 @@ void state_machine::start() {
 
        float shift = dist_meas - 33; // +'ve right turn -'ve left turn
        float angle = acos(1 - abs(shift)*1.0/WHEELBASE_CM)*180/M_PI;
-       angle = shift < 0 ? angle : -angle;
+       angle = shift > 0 ? angle : -angle;
 
        Serial.print("Angle: ");
        Serial.println(angle);
