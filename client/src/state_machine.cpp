@@ -9,13 +9,13 @@
 #include "state_machine.hpp"
 #include "All_Movements.hpp"
 
-// #define SIDE_A_PLATFORM_TO_RAMP_ALIGN
-// #define RAMP_ALIGN
-// #define RAMP_RUN
+#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
+//  #define RAMP_ALIGN
+#define RAMP_RUN
 // #define SIDE_B_RAMP_END
 #define SIDE_B_FIND_POST
 //#define SIDE_B_RAMP_END
-//#define RAMP_S_TURN
+#define RAMP_S_TURN
 
 elapsedMillis time;
 
@@ -117,9 +117,9 @@ void state_machine::start() {
 #endif // RAMP_ALIGN
 
 #ifdef RAMP_S_TURN
-        robot.imu.compensate_pitch(1,0);
-        robot.imu.compensate_roll(1,0);
-        robot.imu.compensate_yaw(1,0);
+       // robot.imu.compensate_pitch(1,0);
+        //robot.imu.compensate_roll(1,0);
+        //robot.imu.compensate_yaw(1,0);
 
 		robot.swivel.set_position(178);
 		delay(1000);
@@ -143,6 +143,9 @@ void state_machine::start() {
        execute(s_turn_back); 
 #endif // RAMP_S_TURN
 
+	   DriveDistance driving(-10, 20);
+	   execute(driving);
+
 #ifdef RAMP_RUN
         // Carry out ramp movement
         RampMovement ramp;
@@ -163,7 +166,7 @@ void state_machine::start() {
         execute(turnR);
 
         //Check to see if post is in front
-        // if(robot.swivel.sensor.ping_cm() < 195){
+        // if(robot.swivel.sensor.ping_cm() < 185){
         //     // // Touch the post
         //     robot.imu.compensate_pitch(1,0);
         //     robot.imu.compensate_roll(1,0);
@@ -173,7 +176,7 @@ void state_machine::start() {
         // else{
             // Move past the ramp to avoid pinging it
             // Assumed 20cm - FIND THIS LATER
-            DriveDistance fwd_3(20, 20);
+            DriveDistance fwd_3(30, 60);
             execute(fwd_3);
 
             // Carry out post detection algorithm - first attempt:
@@ -263,10 +266,6 @@ void state_machine::start() {
  * 		Executes a given movement
  */
 Status state_machine::execute(Movement& m) {
-    if (get_pushbutton()) {
-        robot.imu.compensate_yaw(1, Angle(0));
-        robot.target_angle = Angle(0);
-    }
     return m.run(robot);
 }
 

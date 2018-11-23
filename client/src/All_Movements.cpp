@@ -292,19 +292,19 @@ Status TurnAngle::run(Robot &robot) {
  * 	Outputs:
  * 		none
  */
-TurnAbsolute::TurnAbsolute(Angle angle_) {
-    k_p = 0.75;
-    k_i = 1.5;
-    k_d = 0.01;
-    freq = 1000;
-    integration = 0;
-    turn_angle = angle_;
+/*TurnAbsolute::TurnAbsolute(Angle angle_) {*/
+    //k_p = 0.75;
+    //k_i = 1.5;
+    //k_d = 0.01;
+    //freq = 1000;
+    //integration = 0;
+    //turn_angle = angle_;
 
-    timeout = TIMEOUT_TOL * 180 / 45;
-    timeout += millis();  // get timeout criteria
-    base_speed = 0;
-    last_status = INIT;
-}
+    //timeout = TIMEOUT_TOL * 180 / 45;
+    //timeout += millis();  // get timeout criteria
+    //base_speed = 0;
+    //last_status = INIT;
+//}
 
 /* update
  * 	Inputs:
@@ -312,25 +312,25 @@ TurnAbsolute::TurnAbsolute(Angle angle_) {
  * 	Outputs:
  * 		current execution status (SUCCESS / FAILURE / ONGOING)
  */
-Status TurnAbsolute::run(Robot &robot) {
-    robot.target_angle = turn_angle;
+//Status TurnAbsolute::run(Robot &robot) {
+    //robot.target_angle = turn_angle;
 
-    // Using combination of speed and error to represent stabilizing on the correct point
-    uint32_t curr_t = 0;
-    error = 10 * TOL;
-    while (abs(error) > TOL && curr_t < timeout) {
-        while (millis() - curr_t < 10) {}  // only update at 100Hz
-        float speed_adj = pid_control(robot);
-        curr_t = millis();
-        robot.mB.set_speed(-speed_adj);
-        robot.mA.set_speed(speed_adj);
-    }
+    //// Using combination of speed and error to represent stabilizing on the correct point
+    //uint32_t curr_t = 0;
+    //error = 10 * TOL;
+    //while (abs(error) > TOL && curr_t < timeout) {
+        //while (millis() - curr_t < 10) {}  // only update at 100Hz
+        //float speed_adj = pid_control(robot);
+        //curr_t = millis();
+        //robot.mB.set_speed(-speed_adj);
+        //robot.mA.set_speed(speed_adj);
+    //}
 
-    robot.mB.set_speed(0);  // ensure motor stopped at this point
-    robot.mA.set_speed(0);
+    //robot.mB.set_speed(0);  // ensure motor stopped at this point
+    //robot.mA.set_speed(0);
 
-    return curr_t > timeout ? TIMEOUT : SUCCESS;
-}
+    //return curr_t > timeout ? TIMEOUT : SUCCESS;
+/*}*/
 
 /********************* Ramp Movement ***************************/
 /* Ramp Movement
@@ -515,12 +515,13 @@ bool DriveToPost::success(Robot &robot) {
   // Serial.print(pitch_dist);
   // Serial.print("   Roll: ");
   // Serial.println(roll_dist);
-    if(robot.swivel.sensor.ping_cm() < 15)
+    if(robot.swivel.sensor.ping_cm() < 20)
         return true;
-    else 
+   	else if(pitch_dist + roll_dist > angle_tol) 			// roll check
+	 	return true;
+	else 
         return false;
-   	// else if(pitch_dist + roll_dist > angle_tol) 			// roll check
-	// 	return true;
+
 	// else if(millis() - start_time < delay_time) 	// delay for accel check
 	// 	return false;
 	// else											// accel check
