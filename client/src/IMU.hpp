@@ -49,9 +49,9 @@ private:
     float roll_compensation;
     float compass_compensation;
 
-    static constexpr float pitch_lp_constant = 0.1;
-    static constexpr float yaw_lp_constant = 0.1;
-    static constexpr float roll_lp_constant = 0.1;
+    static constexpr float pitch_lp_constant = 0.05;
+    static constexpr float yaw_lp_constant = 0.05;
+    static constexpr float roll_lp_constant = 0.05;
 
     Angle pitch_lp;
     Angle yaw_lp;
