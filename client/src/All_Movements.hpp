@@ -83,6 +83,21 @@ private:
     bool right_turn;
 };
 
+class TurnAbsolute : public Movement {
+public:
+    TurnAbsolute(Angle angle_);
+    ~TurnAbsolute(){};
+
+    Status run(Robot &robot);
+
+private:
+    Angle turn_angle;
+
+    Motor *mDrive, *mPivot;
+
+    bool right_turn;
+};
+
 /* Drive Onto Ramp - (Drive in reverse, validate position between dist to boundary + accelerometer tilt + roll)*/
 class RampMovement : public Movement {
 public:

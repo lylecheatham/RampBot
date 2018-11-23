@@ -284,6 +284,54 @@ Status TurnAngle::run(Robot &robot) {
     return curr_t > timeout ? TIMEOUT : SUCCESS;
 }
 
+/********************* Turn Absolute ***************************/
+/* TurnAbsolute
+ * 	Inputs:
+ *		angle_ : desired angle to turn (+ for left, - for right)
+ *		speed_ : (optional) desired motor speed for the action
+ * 	Outputs:
+ * 		none
+ */
+TurnAbsolute::TurnAbsolute(Angle angle_) {
+    k_p = 0.75;
+    k_i = 1.5;
+    k_d = 0.01;
+    freq = 1000;
+    integration = 0;
+    turn_angle = angle_;
+
+    timeout = TIMEOUT_TOL * 180 / 45;
+    timeout += millis();  // get timeout criteria
+    base_speed = 0;
+    last_status = INIT;
+}
+
+/* update
+ * 	Inputs:
+ * 		none
+ * 	Outputs:
+ * 		current execution status (SUCCESS / FAILURE / ONGOING)
+ */
+Status TurnAbsolute::run(Robot &robot) {
+    robot.target_angle = turn_angle;
+
+    // Using combination of speed and error to represent stabilizing on the correct point
+    uint32_t curr_t = 0;
+    error = 10 * TOL;
+    while (abs(error) > TOL && curr_t < timeout) {
+        while (millis() - curr_t < 10) {}  // only update at 100Hz
+        float speed_adj = pid_control(robot);
+        curr_t = millis();
+        robot.mB.set_speed(-speed_adj);
+        robot.mA.set_speed(speed_adj);
+    }
+
+    robot.mB.set_speed(0);  // ensure motor stopped at this point
+    robot.mA.set_speed(0);
+
+    return curr_t > timeout ? TIMEOUT : SUCCESS;
+}
+
 /********************* Ramp Movement ***************************/
 /* Ramp Movement
  * 	Inputs:
