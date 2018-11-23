@@ -44,7 +44,7 @@ public:
     void start();
 
 private:
-    Status execute(Movement &m);
+    Status execute(Movement *m);
     int8_t get_char();
     void stop();
     bool get_pushbutton();

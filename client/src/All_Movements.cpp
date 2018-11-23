@@ -114,8 +114,9 @@ bool DriveDistance::success(Robot &robot) {
  * 	Outputs:
  * 		Whether should continue running (checks timeout) (true/false)
  */
+
 bool DriveDistance::continue_run(Robot &robot) {
-    return millis() < timeout;
+    return true;
 }
 
 /* clean
@@ -347,7 +348,7 @@ Status RampMovement::run(Robot &robot) {
     // Initialize variables
     float ramp_speed[4] = {80, 120, 80, 40};
     float imu_state[4] = {30, 0, -30, 0};
-    int tolerance[4] = {5, 5, 5, 10};
+    int tolerance[4] = {5, 5, 5, 15};
     int ramp_state = 0;
 
     // Set initial speed
