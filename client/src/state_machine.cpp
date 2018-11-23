@@ -9,17 +9,32 @@
 #include "state_machine.hpp"
 #include "All_Movements.hpp"
 
-#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
+/////#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
 //  #define RAMP_ALIGN
-#define RAMP_RUN
+/////#define RAMP_RUN
 // #define SIDE_B_RAMP_END
-#define SIDE_B_FIND_POST
+/////#define SIDE_B_FIND_POST
 //#define SIDE_B_RAMP_END
-#define RAMP_S_TURN
+////#define RAMP_S_TURN
 #define TO_S_TURN
 //#define RAMP_S_TURN_2
 #define RAMP_TWO
 #define FINISH_COURSE
+
+// Phase 1
+/*
+ *#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
+ *#define RAMP_RUN
+ *#define SIDE_B_FIND_POST
+ *#define RAMP_S_TURN
+ */
+
+//Phase 2
+/*
+ *#define TO_S_TURN
+ *#define RAMP_TWO
+ *#define FINSIH_COURSE
+ */
 
 elapsedMillis time;
 
@@ -199,7 +214,7 @@ void state_machine::start() {
         //#########################################################################
         // PHASE 2 - THE RETURN
         //#########################################################################
-
+/*
         //Reverse from original position, get back to 80 degree heading
         DriveDistance* reverse_from_post = new DriveDistance(-40, 40);
         execute(reverse_from_post);
@@ -208,29 +223,33 @@ void state_machine::start() {
         TurnAngle* post_turn_revert = new TurnAngle(165);
         execute(post_turn_revert);
         delete post_turn_revert;
-
+*/
         // Get distance to the back wall and feed that into DriveDistance
         // Note - subtract the length of the robot from this (18cm plus 5cm tol)
         //uint32_t sample = robot.swivel.sensor.ping_cm();
-        DriveDistance* fwd_5 = new DriveDistance(robot.swivel.sensor.ping_cm(), 100);
+        DriveDistance* fwd_5 = new DriveDistance(robot.swivel.sensor.ping_cm() -35, 100);
         execute(fwd_5);
         delete fwd_5;
 
-        DriveDistance* back_off = new DriveDistance(-33, 40);
+/*        DriveDistance* back_off = new DriveDistance(-33, 40);
         execute(back_off);
         delete back_off;
+*/
         // Take a right turn
         execute(turnR);
-
+		
         // Get distance to the side wall and feed that into DriveDistance
         // Note - subtract the distance to the ramp from this (FIND VALUE)
         //sample = robot.swivel.sensor.ping_cm();
-        DriveDistance* fwd_6 = new DriveDistance(200, 80);
+        DriveDistance* fwd_6 = new DriveDistance(robot.swivel.sensor.ping_cm() -29, 80);
         execute(fwd_6);
         delete fwd_6;
+/*
         DriveDistance* back_off_again = new DriveDistance(-28, 40);
         execute(back_off);
         delete back_off_again;
+
+*/
         TurnAngle* turnLAGAIN = new TurnAngle(-90);
         // Take a left turn
         execute(turnLAGAIN);
