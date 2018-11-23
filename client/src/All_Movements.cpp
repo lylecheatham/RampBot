@@ -377,9 +377,9 @@ Status RampMovement::run(Robot &robot) {
             Serial.println(robot.imu.get_pitch());
             ramp_state += 1;
             if(ramp_state == 2){
-                delay(1000);
-                robot.imu.compensate_yaw(1,0);
-                robot.target_angle = 0;
+                // delay(1000);
+                // robot.imu.compensate_yaw(1,0);
+                // robot.target_angle = 0;
             }
             robot.mA.set_speed(-ramp_speed[ramp_state]);
             robot.mB.set_speed(-ramp_speed[ramp_state]);
