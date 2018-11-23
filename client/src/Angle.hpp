@@ -18,7 +18,7 @@ public:
         }
     }
 
-    inline float as_float() {
+    inline float as_float() const {
         return angle;
     }
 
@@ -34,7 +34,15 @@ public:
         return this->angle == a.angle;
     }
 
-    inline float distance(const Angle &other) {
+    inline Angle operator+=(const float rhs) const {
+        return Angle(this->angle + rhs);
+    }
+
+    inline Angle operator-=(const float rhs) const {
+        return Angle(this->angle - rhs);
+    }
+
+    inline float distance(const Angle &other) const {
         float distance = other.angle - this->angle;
         if (distance < 0) distance += 360;
         if (distance > 180) distance = -(360 - distance);

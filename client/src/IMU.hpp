@@ -18,21 +18,28 @@ public:
 
     bool init();
 
-    float get_pitch();
+    float get_pitch() const;
 
-    Angle get_pitch_abs();
-    Angle get_yaw_abs();
-    Angle get_roll_abs();
+    Angle get_pitch_abs() const;
+    Angle get_yaw_abs() const;
+    Angle get_roll_abs() const;
 
-    void compensate_pitch(float coefficient, Angle angle);
-    void compensate_yaw(float coefficient, Angle angle);
-    void compensate_roll(float coefficient, Angle angle);
+    Angle get_pitch_lp() const;
+    Angle get_yaw_lp() const;
+    Angle get_roll_lp() const;
+
+    void compensate_pitch(const float coefficient, const Angle angle);
+    void compensate_yaw(const float coefficient, const Angle angle);
+    void compensate_roll(const float coefficient, const Angle angle);
 
     void stabilize();
 
 private:
-    Angle get_compass_abs();
-    void compensate_compass(float coefficient, Angle angle);
+    static void complement(Angle &to_complement, float coefficient, const Angle complement_with);
+    static float compensate_float(const Angle to_compensate, float coefficient, const Angle compensate_with);
+
+    Angle get_compass_abs() const;
+    void compensate_compass(const float coefficient, const Angle angle);
     void complementary_compass_filter();
 
     float pitch_compensation;
@@ -40,6 +47,13 @@ private:
     float roll_compensation;
     float compass_compensation;
 
+    static constexpr float pitch_lp_constant = 0.1;
+    static constexpr float yaw_lp_constant = 0.1;
+    static constexpr float roll_lp_constant = 0.1;
+
+    Angle pitch_lp;
+    Angle yaw_lp;
+    Angle roll_lp;
 
     float pitch;
     float pitch_prev;
