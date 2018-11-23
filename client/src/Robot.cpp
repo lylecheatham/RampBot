@@ -8,6 +8,7 @@ Robot::Robot() : mA(MotorA, true), mB(MotorB, true), swivel(S_PULSE, U_PING, 1),
 
 bool Robot::init() {
     imu.init();
+	delay(100);
 
     pinMode(M_STDBY, OUTPUT);
     digitalWrite(M_STDBY, 1);
