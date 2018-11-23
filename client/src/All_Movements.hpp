@@ -128,7 +128,7 @@ private:
 	uint32_t start_time;
 	const uint32_t delay_time = 2000;
     const float angle_tol = 6;
-	const float accel_tol = -0.4;
+	const float accel_tol = -1;
 };
 
 
