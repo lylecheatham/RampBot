@@ -80,32 +80,47 @@ void state_machine::start() {
         robot.imu.compensate_roll(1,0);
         robot.imu.compensate_yaw(1,0);
 
-        // // Get distance to the back wall and feed that into DriveDistance
-        // // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
-        execute(fwd_1);
+        // // // Get distance to the back wall and feed that into DriveDistance
+        // // // Note - subtract the length of the robot from this (18cm plus 5cm tol)
+        // DriveDistance fwd_1(robot.swivel.sensor.ping_cm() - 35, 80);
+        // execute(fwd_1);
 
-        // // Take a left turn
-        execute(turnL);
+        // // // Take a left turn
+        // execute(turnL);
 
-        // // Get distance to the side wall and feed that into DriveDistance
-        // // Note - subtract the distance to the ramp from this (FIND VALUE)
-        DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
-        execute(fwd_2);
+        // // // Get distance to the side wall and feed that into DriveDistance
+        // // // Note - subtract the distance to the ramp from this (FIND VALUE)
+        // DriveDistance fwd_2(robot.swivel.sensor.ping_cm() - 42, 80);
+        // execute(fwd_2);
 
-        // // Take a right turn
-        execute(turnR);
-
+        // // // Take a right turn
+        // execute(turnR);
+        
         //Ramp Alignment
-        // Angle turn;
+
+        //Take ultrasonic sample
+        // uint32_t start_dist = robot.swivel.sensor.ping_cm();
+        // robot.swivel.set_position(178);
+
+        // float alignment_angle;
         // float dist_meas = robot.swivel.sensor.ping_cm();
-        // if (dist_meas > 34) {
-        //     turn = Angle(90 - atan2(39, dist_meas - 33) * 180 / M_PI);
-        // } else if (dist_meas < 32) {
-        //     turn = Angle(-(90 - atan2(39, 33 - dist_meas) * 180 / M_PI));
+        // alignment_angle = atan2(33 - dist_meas, 70-start_dist)*180/M_PI;
+        // alignment_angle = alignment_angle > 90 ? alignment_angle -180 : alignment_angle;
+        // Serial.print("Angle: ");
+        // Serial.println(alignment_angle);
+
+        // if (dist_meas > 33) {
+        //     //alignment_angle = Angle(-(90 - atan2(54, dist_meas - 33) * 180 / M_PI));
+        //     //alignment_angle = Angle(-(90 - atan2(70-start_dist, dist_meas - 33) * 180 / M_PI));
+        //     alignment_angle = Angle(atan2(33 - dist_meas, 70-start_dist)*180/M_PI);
+        // } else if (dist_meas < 33) {
+        //     //alignment_angle = Angle(90 - atan2(54, dist_meas - 33) * 180 / M_PI);
+        //     //alignment_angle = Angle(90 - atan2(70-start_dist, dist_meas - 33) * 180 / M_PI);
         // }
 
-        // execute(turn);
+        //Execute Turn
+        // TurnAngle ramp_alignment(alignment_angle);
+        // execute(ramp_alignment);
 
         // // Carry out ramp movement
         RampMovement ramp;
