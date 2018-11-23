@@ -15,6 +15,7 @@
 // #define SIDE_B_RAMP_END
 #define SIDE_B_FIND_POST
 #define SIDE_B_RAMP_END
+//#define RAMP_S_TURN
 
 elapsedMillis time;
 
@@ -113,6 +114,33 @@ void state_machine::start() {
         execute(ramp_alignment);
 
 #endif // RAMP_ALIGN
+
+#ifdef RAMP_S_TURN
+        robot.imu.compensate_pitch(1,0);
+        robot.imu.compensate_roll(1,0);
+        robot.imu.compensate_yaw(1,0);
+
+		robot.swivel.set_position(178);
+		delay(1000);
+
+
+       float dist_meas = robot.swivel.sensor.ping_cm();
+
+       float shift = dist_meas - 33; // +'ve right turn -'ve left turn
+       float angle = acos(1 - abs(shift)*1.0/WHEELBASE_CM)*180/M_PI;
+       angle = shift < 0 ? angle : -angle;
+
+       Serial.print("Angle: ");
+       Serial.println(angle);
+
+       robot.swivel.set_position(90);
+
+       TurnAngle s_turn(angle, false);
+       TurnAngle s_turn_back(-angle, false);
+
+       execute(s_turn);
+       execute(s_turn_back); 
+#endif // RAMP_S_TURN
 
 #ifdef RAMP_RUN
         // Carry out ramp movement
