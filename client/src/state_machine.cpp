@@ -17,7 +17,7 @@
 //#define SIDE_B_RAMP_END
 #define RAMP_S_TURN
 #define TO_S_TURN
-#define RAMP_S_TURN_2
+//#define RAMP_S_TURN_2
 #define RAMP_TWO
 #define FINISH_COURSE
 
@@ -86,7 +86,10 @@ void state_machine::start() {
 {
         // Get distance to the back wall and feed that into DriveDistance
         // Note - subtract the length of the robot from this (18cm plus 5cm tol)
-        uint32_t sample = robot.swivel.sensor.ping_cm();
+
+        uint32_t sample = 35;
+		while(sample <= 35)
+			sample = robot.swivel.sensor.ping_cm();
 
         DriveDistance* fwd_1 = new DriveDistance(sample - 35, 80);
 
@@ -159,6 +162,8 @@ void state_machine::start() {
         execute(post_ramp);
         delete post_ramp;
 
+		robot.imu.compensate_pitch(1,0);
+		robot.imu.compensate_roll(1,0);
         robot.imu.compensate_yaw(1,0);
         robot.target_angle = 0;
 
@@ -171,7 +176,7 @@ void state_machine::start() {
         DriveDistance* fwd_3 = new DriveDistance(40, 60);
         execute(fwd_3);
         delete fwd_3;
-        FindPost* search = new FindPost(200, 150, 140);
+        FindPost* search = new FindPost(0, 150, 140);
 
         execute(search);
         delete search;
@@ -211,7 +216,7 @@ void state_machine::start() {
         execute(fwd_5);
         delete fwd_5;
 
-        DriveDistance* back_off = new DriveDistance(-32, 40);
+        DriveDistance* back_off = new DriveDistance(-33, 40);
         execute(back_off);
         delete back_off;
         // Take a right turn
@@ -223,7 +228,7 @@ void state_machine::start() {
         DriveDistance* fwd_6 = new DriveDistance(200, 80);
         execute(fwd_6);
         delete fwd_6;
-        DriveDistance* back_off_again = new DriveDistance(-25, 40);
+        DriveDistance* back_off_again = new DriveDistance(-28, 40);
         execute(back_off);
         delete back_off_again;
         TurnAngle* turnLAGAIN = new TurnAngle(-90);
@@ -245,7 +250,7 @@ void state_machine::start() {
 
        float dist_meas = robot.swivel.sensor.ping_cm();
 
-       float shift = dist_meas - 33; // +'ve right turn -'ve left turn
+       float shift = dist_meas - 25; // +'ve right turn -'ve left turn
        float angle = acos(1 - abs(shift)*1.0/WHEELBASE_CM)*180/M_PI;
        angle = shift > 0 ? angle : -angle;
 
