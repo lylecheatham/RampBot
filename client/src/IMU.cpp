@@ -99,7 +99,7 @@ void IMU::compensate_compass(const float coefficient, const Angle angle) {
 void IMU::complement(Angle& to_complement, float coefficient, const Angle complement_with) {
     if (coefficient < 0) return;
     if (coefficient > 1) coefficient = 1;
-    to_complement -= to_complement.distance(complement_with) * coefficient;
+    to_complement += to_complement.distance(complement_with) * coefficient;
 }
 
 float IMU::compensate_float(const Angle to_compensate, float coefficient, const Angle compensate_with) {
