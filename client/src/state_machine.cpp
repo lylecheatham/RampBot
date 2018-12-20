@@ -9,32 +9,20 @@
 #include "state_machine.hpp"
 #include "All_Movements.hpp"
 
-/////#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
-//  #define RAMP_ALIGN
-/////#define RAMP_RUN
-// #define SIDE_B_RAMP_END
-/////#define SIDE_B_FIND_POST
-//#define SIDE_B_RAMP_END
-////#define RAMP_S_TURN
-#define TO_S_TURN
-//#define RAMP_S_TURN_2
-#define RAMP_TWO
-#define FINISH_COURSE
-
 // Phase 1
-/*
- *#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
- *#define RAMP_RUN
- *#define SIDE_B_FIND_POST
- *#define RAMP_S_TURN
- */
+
+//#define SIDE_A_PLATFORM_TO_RAMP_ALIGN
+//#define RAMP_RUN
+//#define SIDE_B_FIND_POST
+//#define RAMP_S_TURN
+
 
 //Phase 2
-/*
- *#define TO_S_TURN
- *#define RAMP_TWO
- *#define FINSIH_COURSE
- */
+
+//#define TO_S_TURN
+//#define RAMP_TWO
+//#define FINISH_COURSE
+
 
 elapsedMillis time;
 
@@ -85,8 +73,8 @@ void state_machine::start() {
         delay(1000);
 
         // Initialize left and right turns
-        TurnAngle* turnL = new TurnAngle(-90);
-        TurnAngle* turnR = new TurnAngle(90);
+        TurnAngle turnL(-90);
+        TurnAngle turnR(90);
 
         //#########################################################################
         // PHASE 1 - ASSUME ROBOT IS FACING THE BACK BOUNDARY WALL
@@ -106,21 +94,20 @@ void state_machine::start() {
 		while(sample <= 35)
 			sample = robot.swivel.sensor.ping_cm();
 
-        DriveDistance* fwd_1 = new DriveDistance(sample - 35, 80);
+        DriveDistance fwd_1(sample - 35, 80);
 
-        execute(fwd_1);
-        delete fwd_1;
+        execute(&fwd_1);
+
         // Take a left turn
-        execute(turnL);
+        execute(&turnL);
 
         // Get distance to the side wall and feed that into DriveDistance
         // Note - subtract the distance to the ramp from this (FIND VALUE)
         sample = robot.swivel.sensor.ping_cm();
-        DriveDistance* fwd_2 = new DriveDistance(sample - 42, 80);
-        execute(fwd_2);
-        delete fwd_2;
+        DriveDistance fwd_2(sample - 42, 80);
+        execute(&fwd_2);
         // Take a right turn
-        execute(turnR);
+        execute(&turnR);
         
 }
 #endif // SIDE_A_PLATFORM_TO_RAMP_ALIGN
@@ -141,41 +128,32 @@ void state_machine::start() {
        float angle = acos(1 - abs(shift)*1.0/WHEELBASE_CM)*180/M_PI;
        angle = shift < 0 ? angle : -angle;
 
-       Serial.print("Angle: ");
-       Serial.println(angle);
-
        robot.swivel.set_position(90);
 
-       TurnAngle* s_turn = new TurnAngle(angle, false);
-       TurnAngle* s_turn_back = new TurnAngle(-angle, false);
+       TurnAngle s_turn(angle, false);
+       TurnAngle s_turn_back(-angle, false);
 
-       execute(s_turn);
-       execute(s_turn_back); 
-       delete s_turn;
-       delete s_turn_back;
+       execute(&s_turn);
+       execute(&s_turn_back); 
 }
 #endif // RAMP_S_TURN
 {
-	   DriveDistance* driving = new DriveDistance(-10, 20);
-	   execute(driving);
-       delete driving;
+	   DriveDistance driving(-10, 20);
+	   execute(&driving);
 }
 #ifdef RAMP_RUN
 {
         // Carry out ramp movement
-        RampMovement* ramp = new RampMovement;
-        execute(ramp);
-        delete ramp;
+        RampMovement ramp;
+        execute(&ramp);
 }
 #endif // RAMP_RUN
 
 #ifdef SIDE_B_FIND_POST
 {
         //Move a bit forward
-        Serial.println("HERE");
-        DriveDistance* post_ramp = new DriveDistance(-60, 40);
-        execute(post_ramp);
-        delete post_ramp;
+        DriveDistance post_ramp(-60, 40);
+        execute(&post_ramp);
 
 		robot.imu.compensate_pitch(1,0);
 		robot.imu.compensate_roll(1,0);
@@ -185,27 +163,26 @@ void state_machine::start() {
         //delay(1000);
 
         // Take a right turn
-        execute(turnR);
+        execute(&turnR);
 
         
-        DriveDistance* fwd_3 = new DriveDistance(40, 60);
-        execute(fwd_3);
-        delete fwd_3;
-        FindPost* search = new FindPost(0, 150, 140);
+        DriveDistance fwd_3(40, 60);
+        execute(&fwd_3);
 
-        execute(search);
-        delete search;
-        // Face post
-        TurnAngle* post_turn = new TurnAngle(-75);
-        execute(post_turn);
-        delete post_turn;
+        FindPost search(0, 150, 140);
+
+        execute(&search);
+        
+		// Face post
+        TurnAngle post_turn(-75);
+        execute(&post_turn);
 
         robot.imu.compensate_pitch(1,0);
         robot.imu.compensate_roll(1,0);
 
         // // Touch the post
-        DriveDistance* drive_post = new DriveDistance(200, 100);
-        Serial.println(execute(drive_post));
+        DriveDistance drive_post(200, 100);
+        execute(&drive_post);
 }
 #endif // SIDE_B_FIND_POST
 
@@ -214,55 +191,31 @@ void state_machine::start() {
         //#########################################################################
         // PHASE 2 - THE RETURN
         //#########################################################################
-/*
-        //Reverse from original position, get back to 80 degree heading
-        DriveDistance* reverse_from_post = new DriveDistance(-40, 40);
-        execute(reverse_from_post);
-        delete reverse_from_post;
-        //Angle robot back to face the wall
-        TurnAngle* post_turn_revert = new TurnAngle(165);
-        execute(post_turn_revert);
-        delete post_turn_revert;
-*/
+
         // Get distance to the back wall and feed that into DriveDistance
         // Note - subtract the length of the robot from this (18cm plus 5cm tol)
         //uint32_t sample = robot.swivel.sensor.ping_cm();
-        DriveDistance* fwd_5 = new DriveDistance(robot.swivel.sensor.ping_cm() -35, 100);
-        execute(fwd_5);
-        delete fwd_5;
+        DriveDistance fwd_5(robot.swivel.sensor.ping_cm() -35, 100);
+        execute(&fwd_5);
 
-/*        DriveDistance* back_off = new DriveDistance(-33, 40);
-        execute(back_off);
-        delete back_off;
-*/
+
         // Take a right turn
-        execute(turnR);
+        execute(&turnR);
 		
         // Get distance to the side wall and feed that into DriveDistance
         // Note - subtract the distance to the ramp from this (FIND VALUE)
         //sample = robot.swivel.sensor.ping_cm();
-        DriveDistance* fwd_6 = new DriveDistance(robot.swivel.sensor.ping_cm() -29, 80);
-        execute(fwd_6);
-        delete fwd_6;
-/*
-        DriveDistance* back_off_again = new DriveDistance(-28, 40);
-        execute(back_off);
-        delete back_off_again;
+        DriveDistance fwd_6(robot.swivel.sensor.ping_cm() -29, 80);
+        execute(&fwd_6);
 
-*/
-        TurnAngle* turnLAGAIN = new TurnAngle(-90);
+        TurnAngle turnLAGAIN(-90);
         // Take a left turn
-        execute(turnLAGAIN);
-        delete turnLAGAIN;
+        execute(&turnLAGAIN);
 }
 #endif
 
 #ifdef RAMP_S_TURN_2
 {
-       // robot.imu.compensate_pitch(1,0);
-        //robot.imu.compensate_roll(1,0);
-        //robot.imu.compensate_yaw(1,0);
-
 		robot.swivel.set_position(1);
 		delay(1000);
 
@@ -278,33 +231,21 @@ void state_machine::start() {
 
        robot.swivel.set_position(90);
 
-       TurnAngle* s_turn_2 = new TurnAngle(angle, false);
-       TurnAngle* s_turn_back_2 = new TurnAngle(-angle, false);
+       TurnAngle s_turn_2(angle, false);
+       TurnAngle s_turn_back_2(-angle, false);
 
-       execute(s_turn_2);
-       execute(s_turn_back_2); 
-       delete s_turn_2;
-       delete s_turn_back_2;
+       execute(&s_turn_2);
+       execute(&s_turn_back_2); 
 }
 
 #endif // RAMP_S_TURN_2
 
 #ifdef RAMP_TWO
 {
-        // //Drive forward
-        // execute(driving);
 
         // // Carry out ramp movement
-        RampMovement* ramp_two = new RampMovement;
-        execute(ramp_two);
-        delete ramp_two;
-        // // Take a right turn
-        // execute(turnL);
-
-        // // Carry out first distances in inverted order
-        // execute(fwd_2);
-        // execute(turnR);
-        // execute(fwd_1);
+        RampMovement ramp_two;
+        execute(&ramp_two);
 
         // Finish
 }
@@ -312,19 +253,18 @@ void state_machine::start() {
 
 #ifdef FINISH_COURSE
 {
-    DriveDistance* reverse_from_post_again = new DriveDistance(-40, 40);
-    execute(reverse_from_post_again);
-    delete reverse_from_post_again;
-    execute(turnL);
+    DriveDistance reverse_from_post_again(-40, 40);
+    execute(&reverse_from_post_again);
 
-    DriveDistance* to_start = new DriveDistance(80, 60);
-    execute(to_start);
-    delete to_start;
-    execute(turnR);
+    execute(&turnL);
 
-    DriveDistance* to_end = new DriveDistance(50, 60);
-    execute(to_end);
-    delete to_end;
+    DriveDistance to_start(80, 60);
+    execute(&to_start);
+
+    execute(&turnR);
+
+    DriveDistance to_end(50, 60);
+    execute(&to_end);
 }
 
 #endif
