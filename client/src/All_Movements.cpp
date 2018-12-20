@@ -1,5 +1,5 @@
 /* All_Movements.hpp
- * 	MTE 380 Design Project
+ * 	 Design Project
  * 	Original Author(s): Eric Murphy-Zaremba
  * 	Creation Date: Nov 17 /2018
  *

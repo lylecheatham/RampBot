@@ -1,5 +1,5 @@
 /* DemoInterface.hpp
- * MTE 380 Design Project
+ *  Design Project
  * Original Author: Eric Murphy-Zaremba
  * Creation Date: Oct 30 /2018
  *

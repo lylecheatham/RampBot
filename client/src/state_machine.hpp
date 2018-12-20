@@ -1,5 +1,5 @@
 /* state_machine.hpp
- * MTE 380 Design Project
+ *  Design Project
  * Original Author: Conner Currie
  * Creation Date: 11/12/2018
  *

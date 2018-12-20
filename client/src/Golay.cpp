@@ -1,5 +1,5 @@
 /* Golay.cpp
- * MTE 380 Design Project
+ *  Design Project
  * Original Author(s): Eric Murphy-Zaremba
  * Creation Date: Nov 5 /2018
  *

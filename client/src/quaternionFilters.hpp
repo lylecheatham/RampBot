@@ -1,4 +1,4 @@
-/* This code courtesy of Kris Winer, adapted for MTE 380 Robot Project:
+/* This code courtesy of Kris Winer, adapted for  Robot Project:
  *
  * by: Kris Winer
  * date: April 1, 2014

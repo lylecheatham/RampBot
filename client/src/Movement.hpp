@@ -1,5 +1,5 @@
 /* Movement.hpp
- * 	MTE 380 Design Project
+ * 	 Design Project
  * 	Original Author(s): Lyle Cheatham / Eric Murphy-Zaremba
  * 	Creation Date: Nov 16 /2018
  *

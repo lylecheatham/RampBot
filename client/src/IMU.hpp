@@ -1,5 +1,5 @@
 /* IMU.hpp
- * MTE 380 Design Project
+ *  Design Project
  * Original Author(s): Conner Currie & Eric Murphy-Zaremba
  * Creation Date: Nov 14 /2018
  */

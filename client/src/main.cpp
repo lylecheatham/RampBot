@@ -1,5 +1,5 @@
 /* main.cpp
- * MTE 380 Design Project
+ *  Design Project
  * Original Author(s): Lyle Cheatham / Eric Murphy-Zaremba / Conner Currie
  * Creation Date: Oct 20 /2018
  */
